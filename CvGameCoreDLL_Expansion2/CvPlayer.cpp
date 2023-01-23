@@ -9356,6 +9356,11 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 		ChangeMinorFriendshipAnchorMod(pBuildingInfo->GetMinorFriendshipAnchorChange() * iChange);
 	}
 
+	if (pBuildingInfo->GetMinorQuestFriendshipMod() > 0)
+	{
+		changeMinorQuestFriendshipMod(pBuildingInfo->GetMinorQuestFriendshipMod() * iChange);
+	}
+
 	ChangeExtraLeagueVotes(pBuildingInfo->GetExtraLeagueVotes() * iChange);
 
 	// Loop through Cities
