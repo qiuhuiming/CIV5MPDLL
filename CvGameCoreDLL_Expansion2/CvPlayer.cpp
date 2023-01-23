@@ -12458,6 +12458,37 @@ int CvPlayer::GetHappinessFromLuxury(ResourceTypes eResource) const
 	return false;
 }
 
+int CvPlayer::GetAdequateLuxuryKindCount(int threshold) const
+{
+	int iReturn = 0;
+	for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+	{
+		ResourceTypes eResource = (ResourceTypes) iResourceLoop;
+		CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+		if (!pkResourceInfo)
+		{
+			continue;
+		}
+
+		if (GC.getGame().GetGameLeagues()->IsLuxuryHappinessBanned(GetID(), eResource))
+		{
+			continue;
+		}
+
+		if (pkResourceInfo->getResourceUsage() != RESOURCEUSAGE_LUXURY)
+		{
+			continue;
+		}
+
+		if (getNumResourceAvailable(eResource, /*bIncludeImport*/ true) > threshold)
+		{
+			iReturn++;
+		}
+	}
+
+	return iReturn;
+}
+
 
 //	--------------------------------------------------------------------------------
 /// How much Unhappiness are Units producing?
@@ -16098,7 +16129,19 @@ void CvPlayer::changeLevelExperienceModifier(int iChange)
 //	--------------------------------------------------------------------------------
 int CvPlayer::getMinorQuestFriendshipMod() const
 {
-	return m_iMinorQuestFriendshipMod;
+	int iMod = 0;
+	if (GetPlayerTraits()->GetAdequateLuxuryCompleteQuestInfluenceModifier() > 0)
+	{
+		// Get the number of luxury resources we have where available number > 1
+		int luxuryCount = GetAdequateLuxuryKindCount(1);
+		iMod += luxuryCount * GetPlayerTraits()->GetAdequateLuxuryCompleteQuestInfluenceModifier();
+		if (iMod > GetPlayerTraits()->GetAdequateLuxuryCompleteQuestInfluenceModifierMax() && GetPlayerTraits()->GetAdequateLuxuryCompleteQuestInfluenceModifierMax() >= 0)
+		{
+			iMod = GetPlayerTraits()->GetAdequateLuxuryCompleteQuestInfluenceModifierMax();
+		}
+	}
+	
+	return m_iMinorQuestFriendshipMod + iMod;
 }
 
 
