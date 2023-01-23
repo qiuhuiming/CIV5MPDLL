@@ -733,6 +733,9 @@ protected:
 	static int lIsCanHurry(lua_State* L);
 	static int lGetHurryGoldCost(lua_State* L);
 
+	static int lGetMinorFriendCount(lua_State* L);
+	static int lGetMinorAllyCount(lua_State* L);
+
 	static int lIsResearchingTech(lua_State* L);
 	static int lSetResearchingTech(lua_State* L);
 
