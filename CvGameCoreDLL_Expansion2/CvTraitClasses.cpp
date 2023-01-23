@@ -99,6 +99,8 @@ CvTraitEntry::CvTraitEntry() :
 	m_iTradeRouteResourceModifier(0),
 	m_iUniqueLuxuryCities(0),
 	m_iUniqueLuxuryQuantity(0),
+	m_iAllyCityStateCombatModifier(0),
+	m_iAllyCityStateCombatModifierMax(0),
 	m_iAdequateLuxuryCompleteQuestInfluenceModifier(0),
 	m_iAdequateLuxuryCompleteQuestInfluenceModifierMax(0),
 #if defined(MOD_BUGFIX_MINOR)
@@ -594,6 +596,15 @@ int CvTraitEntry::GetUniqueLuxuryCities() const
 int CvTraitEntry::GetUniqueLuxuryQuantity() const
 {
 	return m_iUniqueLuxuryQuantity;
+}
+
+int CvTraitEntry::GetAllyCityStateCombatModifier() const
+{
+	return m_iAllyCityStateCombatModifier;
+}
+int CvTraitEntry::GetAllyCityStateCombatModifierMax() const
+{
+	return m_iAllyCityStateCombatModifierMax;
 }
 
 int CvTraitEntry::GetAdequateLuxuryCompleteQuestInfluenceModifier() const
@@ -1293,6 +1304,8 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_iTradeRouteResourceModifier			= kResults.GetInt("TradeRouteResourceModifier");
 	m_iUniqueLuxuryCities					= kResults.GetInt("UniqueLuxuryCities");
 	m_iUniqueLuxuryQuantity					= kResults.GetInt("UniqueLuxuryQuantity");
+	m_iAllyCityStateCombatModifier					= kResults.GetInt("AllyCityStateCombatModifier");
+	m_iAllyCityStateCombatModifierMax					= kResults.GetInt("AllyCityStateCombatModifierMax");
 	m_iAdequateLuxuryCompleteQuestInfluenceModifier						= kResults.GetInt("AdequateLuxuryCompleteQuestInfluenceModifier");
 	m_iAdequateLuxuryCompleteQuestInfluenceModifierMax					= kResults.GetInt("AdequateLuxuryCompleteQuestInfluenceModifierMax");
 	m_iWorkerSpeedModifier					= kResults.GetInt("WorkerSpeedModifier");
@@ -2024,6 +2037,8 @@ void CvPlayerTraits::InitPlayerTraits()
 			m_iTradeRouteResourceModifier += trait->GetTradeRouteResourceModifier();
 			m_iUniqueLuxuryCities += trait->GetUniqueLuxuryCities();
 			m_iUniqueLuxuryQuantity	+= trait->GetUniqueLuxuryQuantity();
+			m_iAllyCityStateCombatModifier	    += trait->GetAllyCityStateCombatModifier();
+			m_iAllyCityStateCombatModifierMax	+= trait->GetAllyCityStateCombatModifierMax();
 			m_iAdequateLuxuryCompleteQuestInfluenceModifier	    += trait->GetAdequateLuxuryCompleteQuestInfluenceModifier();
 			m_iAdequateLuxuryCompleteQuestInfluenceModifierMax	+= trait->GetAdequateLuxuryCompleteQuestInfluenceModifierMax();
 			m_iWorkerSpeedModifier += trait->GetWorkerSpeedModifier();
@@ -2438,6 +2453,8 @@ void CvPlayerTraits::Reset()
 	m_iTradeRouteResourceModifier = 0;
 	m_iUniqueLuxuryCities = 0;
 	m_iUniqueLuxuryQuantity = 0;
+	m_iAllyCityStateCombatModifier    = 0;
+	m_iAllyCityStateCombatModifierMax = 0;
 	m_iAdequateLuxuryCompleteQuestInfluenceModifier = 0;
 	m_iAdequateLuxuryCompleteQuestInfluenceModifierMax = 0;
 	m_iWorkerSpeedModifier = 0;
@@ -3759,6 +3776,8 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 		kStream >> m_iUniqueLuxuryQuantity;
 		kStream >> m_iAdequateLuxuryCompleteQuestInfluenceModifier;
 		kStream >> m_iAdequateLuxuryCompleteQuestInfluenceModifierMax;
+		kStream >> m_iAllyCityStateCombatModifier;
+		kStream >> m_iAllyCityStateCombatModifierMax;
 	}
 	else
 	{
@@ -3766,6 +3785,8 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 		m_iUniqueLuxuryQuantity = 0;
 		m_iAdequateLuxuryCompleteQuestInfluenceModifier = 0;
 		m_iAdequateLuxuryCompleteQuestInfluenceModifierMax = 0;
+		m_iAllyCityStateCombatModifier = 0;
+		m_iAllyCityStateCombatModifierMax = 0;
 	}
 
 	if (uiVersion >= 11)
@@ -4132,6 +4153,8 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	kStream << m_iUniqueLuxuryQuantity;
 	kStream << m_iAdequateLuxuryCompleteQuestInfluenceModifier;
 	kStream << m_iAdequateLuxuryCompleteQuestInfluenceModifierMax;
+	kStream << m_iAllyCityStateCombatModifier;
+	kStream << m_iAllyCityStateCombatModifierMax;
 	kStream << m_iUniqueLuxuryCitiesPlaced;
 	kStream << m_iWorkerSpeedModifier;
 	kStream << m_iAfraidMinorPerTurnInfluence;

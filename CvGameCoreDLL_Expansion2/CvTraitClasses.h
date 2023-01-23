@@ -126,6 +126,8 @@ public:
 	int GetTradeRouteResourceModifier() const;
 	int GetUniqueLuxuryCities() const;
 	int GetUniqueLuxuryQuantity() const;
+	int GetAllyCityStateCombatModifier() const;
+	int GetAllyCityStateCombatModifierMax() const;
 	int	GetAdequateLuxuryCompleteQuestInfluenceModifier() const;
 	int GetAdequateLuxuryCompleteQuestInfluenceModifierMax() const;
 	int GetWorkerSpeedModifier() const;
@@ -316,6 +318,8 @@ protected:
 	int m_iTradeRouteResourceModifier;
 	int m_iUniqueLuxuryCities;
 	int m_iUniqueLuxuryQuantity;
+	int m_iAllyCityStateCombatModifier;
+	int m_iAllyCityStateCombatModifierMax;
 	int	m_iAdequateLuxuryCompleteQuestInfluenceModifier;
 	int m_iAdequateLuxuryCompleteQuestInfluenceModifierMax;
 	int m_iWorkerSpeedModifier;
@@ -730,6 +734,14 @@ public:
 	{
 		return m_iUniqueLuxuryQuantity;
 	}
+	int GetAllyCityStateCombatModifier() const
+	{
+		return m_iAllyCityStateCombatModifier;
+	}
+	int GetAllyCityStateCombatModifierMax() const
+	{
+		return m_iAllyCityStateCombatModifierMax;
+	}
 	int GetAdequateLuxuryCompleteQuestInfluenceModifier() const
 	{
 		return m_iAdequateLuxuryCompleteQuestInfluenceModifier;
@@ -1077,6 +1089,8 @@ private:
 	int m_iTradeRouteResourceModifier;
 	int m_iUniqueLuxuryCities;
 	int m_iUniqueLuxuryQuantity;
+	int m_iAllyCityStateCombatModifier;
+	int m_iAllyCityStateCombatModifierMax;
 	int m_iUniqueLuxuryCitiesPlaced;
 	int	m_iAdequateLuxuryCompleteQuestInfluenceModifier;
 	int m_iAdequateLuxuryCompleteQuestInfluenceModifierMax;

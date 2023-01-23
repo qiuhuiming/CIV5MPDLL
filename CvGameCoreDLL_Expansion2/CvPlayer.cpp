@@ -12489,6 +12489,21 @@ int CvPlayer::GetAdequateLuxuryKindCount(int threshold) const
 	return iReturn;
 }
 
+int CvPlayer::GetStrengthModifierFromAlly() const
+{
+	if (GetPlayerTraits()->GetAllyCityStateCombatModifier() == 0)
+	{
+		return 0;
+	}
+
+	int mod = GetMinorAllyCount(true) * GetPlayerTraits()->GetAllyCityStateCombatModifier();
+	if (GetPlayerTraits()->GetAllyCityStateCombatModifierMax() > -1 && mod > GetPlayerTraits()->GetAllyCityStateCombatModifierMax())
+	{
+		mod = GetPlayerTraits()->GetAllyCityStateCombatModifierMax();
+	}
+
+	return mod;
+}
 
 //	--------------------------------------------------------------------------------
 /// How much Unhappiness are Units producing?

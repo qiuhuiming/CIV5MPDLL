@@ -528,6 +528,7 @@ public:
 
 	int GetHappinessFromLuxury(ResourceTypes eResource) const;
 	int GetAdequateLuxuryKindCount(int threshold) const;
+	int GetStrengthModifierFromAlly() const;
 
 	int GetUnhappiness(CvCity* pAssumeCityAnnexed = NULL, CvCity* pAssumeCityPuppeted = NULL) const;
 
