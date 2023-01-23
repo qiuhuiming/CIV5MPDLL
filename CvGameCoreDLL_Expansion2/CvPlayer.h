@@ -124,6 +124,9 @@ public:
 	int GetNumWorkablePlots() const;
 #endif
 
+	int GetMinorFriendCount(const bool bExcludeNonAlive) const;
+	int GetMinorAllyCount(const bool bExcludeNonAlive) const;
+
 	void DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID);
 	bool CanLiberatePlayer(PlayerTypes ePlayer);
 	bool CanLiberatePlayerCity(PlayerTypes ePlayer);

@@ -3432,6 +3432,58 @@ int CvPlayer::GetNumWorkablePlots() const
 }
 #endif
 
+int CvPlayer::GetMinorFriendCount(const bool bExcludeNonAlive) const
+{
+	if (!isMajorCiv())
+	{
+		return 0;
+	}
+
+	int ret = 0;
+	for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
+	{
+		PlayerTypes eMinor = (PlayerTypes)iMinorLoop;
+		CvPlayerAI& minor = GET_PLAYER(eMinor);
+		if (!minor.isAlive() && bExcludeNonAlive)
+		{
+			continue;
+		}
+
+		if (minor.GetMinorCivAI()->IsFriends(GetID()))
+		{
+			ret++;
+		}
+	}
+
+	return ret;
+}
+
+int CvPlayer::GetMinorAllyCount(const bool bExcludeNonAlive) const
+{
+	if (!isMajorCiv())
+	{
+		return 0;
+	}
+
+	int ret = 0;
+	for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
+	{
+		PlayerTypes eMinor = (PlayerTypes)iMinorLoop;
+		CvPlayerAI& minor = GET_PLAYER(eMinor);
+		if (!minor.isAlive() && bExcludeNonAlive)
+		{
+			continue;
+		}
+
+		if (minor.GetMinorCivAI()->IsAllies(GetID()))
+		{
+			ret++;
+		}
+	}
+
+	return ret;
+}
+
 //	--------------------------------------------------------------------------------
 /// This player liberates iOldCityID and gives it back to ePlayer
 void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID)

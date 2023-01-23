@@ -12198,23 +12198,7 @@ int CvLuaPlayer::lGetMinorFriendCount(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	bool bExcludeNonAlive = lua_toboolean(L, 2);
 
-	int ret = 0;
-	for(int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
-	{
-		PlayerTypes eMinor = (PlayerTypes) iMinorLoop;
-		CvPlayerAI& minor = GET_PLAYER(eMinor);
-		if (!minor.isAlive() && bExcludeNonAlive)
-		{
-			continue;
-		}
-
-		if (minor.GetMinorCivAI()->IsFriends(pkPlayer->GetID()))
-		{
-			ret++;
-		}
-	}
-
-	lua_pushinteger(L, ret);
+	lua_pushinteger(L, pkPlayer->GetMinorFriendCount(bExcludeNonAlive));
 
 	return 1;
 }
@@ -12224,23 +12208,7 @@ int CvLuaPlayer::lGetMinorAllyCount(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	bool bExcludeNonAlive = lua_toboolean(L, 2);
 
-	int ret = 0;
-	for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
-	{
-		PlayerTypes eMinor = (PlayerTypes)iMinorLoop;
-		CvPlayerAI& minor = GET_PLAYER(eMinor);
-		if (!minor.isAlive() && bExcludeNonAlive)
-		{
-			continue;
-		}
-
-		if (minor.GetMinorCivAI()->IsAllies(pkPlayer->GetID()))
-		{
-			ret++;
-		}
-	}
-
-	lua_pushinteger(L, ret);
+	lua_pushinteger(L, pkPlayer->GetMinorAllyCount(bExcludeNonAlive));
 
 	return 1;
 }
