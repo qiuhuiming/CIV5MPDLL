@@ -382,6 +382,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iGlobalDefenseModifier = kResults.GetInt("GlobalDefenseMod");
 	m_iExtraCityHitPoints = kResults.GetInt("ExtraCityHitPoints");
 	m_iMinorFriendshipChange = kResults.GetInt("MinorFriendshipChange");
+	m_iMinorFriendshipAnchorChange = kResults.GetInt("MinorFriendshipAnchorChange");
 	m_iVictoryPoints = kResults.GetInt("VictoryPoints");
 	m_iExtraMissionarySpreads = kResults.GetInt("ExtraMissionarySpreads");
 	m_iReligiousPressureModifier = kResults.GetInt("ReligiousPressureModifier");
@@ -1364,6 +1365,11 @@ int CvBuildingEntry::GetExtraCityHitPoints() const
 int CvBuildingEntry::GetMinorFriendshipChange() const
 {
 	return m_iMinorFriendshipChange;
+}
+
+int CvBuildingEntry::GetMinorFriendshipAnchorChange() const
+{
+	return m_iMinorFriendshipAnchorChange;
 }
 
 /// VPs added to overall Team score

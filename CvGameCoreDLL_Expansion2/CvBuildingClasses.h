@@ -192,6 +192,7 @@ public:
 	int GetGlobalDefenseModifier() const;
 	int GetExtraCityHitPoints() const;
 	int GetMinorFriendshipChange() const;
+	int GetMinorFriendshipAnchorChange() const;
 	int GetVictoryPoints() const;
 	int GetExtraMissionarySpreads() const;
 	int GetReligiousPressureModifier() const;
@@ -430,6 +431,7 @@ private:
 	int m_iExtraCityHitPoints;
 	int m_iMissionType;
 	int m_iMinorFriendshipChange;
+	int m_iMinorFriendshipAnchorChange;
 	int m_iVictoryPoints;
 	int m_iExtraMissionarySpreads;
 	int m_iReligiousPressureModifier;
