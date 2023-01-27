@@ -929,6 +929,56 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	}
 #endif
 
+#ifdef MOD_API_TRADE_ROUTE_YIELD_RATE
+	if (MOD_API_TRADE_ROUTE_YIELD_RATE)
+	{
+		const size_t iLength = m_piMinorsTradeRouteYieldRate.size();
+		for (size_t i = 0; i < iLength; i++)
+		{
+			m_piMinorsTradeRouteYieldRate[i] = 0;
+		}
+
+		std::string sqlKey = "m_piMinorsTradeRouteYieldRate";
+
+		Database::Results* pResults = kUtility.GetResults(sqlKey);
+		if (pResults == NULL)
+		{
+			const char* szSQL = "select Yields.ID, Policy_MinorsTradeRouteYieldRate.Rate \
+				from Policy_MinorsTradeRouteYieldRate \
+				inner join Yields \
+				on Policy_MinorsTradeRouteYieldRate.YieldType = Yields.Type \
+			where Policy_MinorsTradeRouteYieldRate.PolicyType = ?";
+			pResults = kUtility.PrepareResults(sqlKey, szSQL);
+		}
+
+		pResults->Bind(1, szPolicyType, false);
+
+		// DEBUG
+		int debug = 0;
+		if (std::string("POLICY_CULTURAL_DIPLOMACY") == szPolicyType)
+		{
+			debug = 1;
+		}
+
+		while (pResults->Step())
+		{
+			const YieldTypes eYieldType = static_cast<YieldTypes>(pResults->GetInt(0));
+			if (eYieldType >= iLength || eYieldType < 0)
+			{
+				continue;
+			}
+
+			const int iRate = pResults->GetInt(1);
+			if (iRate > 0)
+			{
+				m_piMinorsTradeRouteYieldRate[eYieldType] += iRate;
+			}
+		}
+
+		pResults->Reset();
+	}
+#endif
+
 	return true;
 }
 
@@ -2299,6 +2349,15 @@ BuildingTypes CvPolicyEntry::GetFreeBuildingOnConquest() const
 {
 	return m_eFreeBuildingOnConquest;
 }
+
+#ifdef MOD_API_TRADE_ROUTE_YIELD_RATE
+int CvPolicyEntry::GetMinorsTradeRouteYieldRate(const YieldTypes eYieldType) const
+{
+	CvAssertMsg(eYieldType < YieldTypes::NUM_YIELD_TYPES, "Index out of upper bounds");
+	CvAssertMsg(eYieldType > -1, "Index out of lower bounds");
+	return m_piMinorsTradeRouteYieldRate[eYieldType];
+}
+#endif
 
 //=====================================
 // CvPolicyBranchEntry
