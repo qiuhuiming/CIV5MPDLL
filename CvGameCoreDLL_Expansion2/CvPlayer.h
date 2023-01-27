@@ -1834,6 +1834,9 @@ public:
 #ifdef MOD_API_TRADE_ROUTE_YIELD_RATE
 	int GetMinorsTradeRouteYieldRate(const YieldTypes eYieldType) const;
 	void ChangeMinorsTradeRouteYieldRate(const YieldTypes eYieldType, const int iChange);
+
+	int GetInternalTradeRouteDestYieldRate(const YieldTypes eYieldType) const;
+	void ChangeInternalTradeRouteDestYieldRate(const YieldTypes eYieldType, const int iChange);
 #endif
 
 #if !defined(NO_ACHIEVEMENTS)
@@ -2236,6 +2239,7 @@ protected:
 
 #ifdef MOD_API_TRADE_ROUTE_YIELD_RATE
 	Firaxis::Array<int, YieldTypes::NUM_YIELD_TYPES> m_piMinorsTradeRouteYieldRate;
+	Firaxis::Array<int, YieldTypes::NUM_YIELD_TYPES> m_piInternalTradeRouteDestYieldRate;
 #endif
 
 	// Obsolete: only used to read old saves

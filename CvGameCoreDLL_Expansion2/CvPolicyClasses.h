@@ -264,6 +264,7 @@ public:
 
 #ifdef MOD_API_TRADE_ROUTE_YIELD_RATE
 	int GetMinorsTradeRouteYieldRate(const YieldTypes eYieldType) const;
+	int GetInternalTradeRouteDestYieldRate(const YieldTypes eYieldType) const;
 #endif
 
 private:
@@ -485,6 +486,7 @@ private:
 
 #ifdef MOD_API_TRADE_ROUTE_YIELD_RATE
 	Firaxis::Array<int, YieldTypes::NUM_YIELD_TYPES> m_piMinorsTradeRouteYieldRate;
+	Firaxis::Array<int, YieldTypes::NUM_YIELD_TYPES> m_piInternalTradeRouteDestYieldRate;
 #endif
 };
 

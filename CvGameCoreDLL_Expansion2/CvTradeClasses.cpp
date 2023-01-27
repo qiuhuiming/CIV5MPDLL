@@ -2508,6 +2508,7 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 {
 	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
 	int iValue = 0;
+	CvCity* pOriginCity = CvGameTrade::GetOriginCity(kTradeConnection);
 
 	if (bAsOriginPlayer)
 	{
@@ -2690,6 +2691,17 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 					iValue *= iModifier;
 					iValue /= 100;
 				}
+#ifdef MOD_API_TRADE_ROUTE_YIELD_RATE
+				if (MOD_API_TRADE_ROUTE_YIELD_RATE)
+				{
+					const CvPlayerAI& pOriginalPlayer = GET_PLAYER(kTradeConnection.m_eOriginOwner);
+					const int iRate = pOriginalPlayer.GetInternalTradeRouteDestYieldRate(eYield);
+					if (iRate != 0)
+					{
+						iValue += pOriginCity->getYieldRateTimes100(eYield, true) * iRate / 100;
+					}
+				}
+#endif
 				break;
 			case TRADE_CONNECTION_PRODUCTION:
 				if (eYield == YIELD_PRODUCTION)
@@ -2704,7 +2716,6 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 					iValue += GetTradeConnectionOtherTraitValueTimes100(kTradeConnection, eYield, false);
 #endif
 #if defined(MOD_GLOBAL_INTERNAL_TRADE_ROUTE_BONUS_FROM_ORIGIN_CITY)
-					CvCity* pOriginCity = CvGameTrade::GetOriginCity(kTradeConnection);
 					if (MOD_GLOBAL_INTERNAL_TRADE_ROUTE_BONUS_FROM_ORIGIN_CITY) {
 						iValue += (pOriginCity->getYieldRate(YIELD_PRODUCTION, true) * GD_INT_GET(INTERNAL_TRADE_ROUTE_PRODUCTION_BONUS_BASE_FROM_ORIGIN));
 					}
@@ -2725,6 +2736,18 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 					iValue *= iModifier;
 					iValue /= 100;
 				}
+
+#ifdef MOD_API_TRADE_ROUTE_YIELD_RATE
+				if (MOD_API_TRADE_ROUTE_YIELD_RATE)
+				{
+					const CvPlayerAI& pOriginalPlayer = GET_PLAYER(kTradeConnection.m_eOriginOwner);
+					const int iRate = pOriginalPlayer.GetInternalTradeRouteDestYieldRate(eYield);
+					if (iRate != 0)
+					{
+						iValue += pOriginCity->getYieldRateTimes100(eYield, true) * iRate / 100;
+					}
+				}
+#endif
 				break;
 			}
 		}
