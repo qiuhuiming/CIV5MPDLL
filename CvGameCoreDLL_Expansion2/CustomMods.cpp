@@ -500,7 +500,7 @@ int CustomMods::getOption(string sOption, int defValue) {
 		MOD_OPT_CACHE(BUGFIX_HOVERING_PATHFINDER);
 		MOD_OPT_CACHE(BUGFIX_EMBARKING_PATHFINDER);
 
-		MOD_OPT_CACHE(BALANCE_CORE_SP_GP);
+		MOD_OPT_CACHE(BALANCE_CORE);
 
 		m_bInit = true;
 	}

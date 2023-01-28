@@ -771,7 +771,7 @@
 // Fixes a bug in the pathfinder code for embarking
 #define MOD_BUGFIX_EMBARKING_PATHFINDER             gCustomMods.isBUGFIX_EMBARKING_PATHFINDER()
 
-#define MOD_BALANCE_CORE_SP_GP                      gCustomMods.isBALANCE_CORE_SP_GP()
+#define MOD_BALANCE_CORE                            gCustomMods.isBALANCE_CORE()
 
 #endif // ACHIEVEMENT_HACKS
 
@@ -1419,7 +1419,7 @@ public:
 	MOD_OPT_DECL(BUGFIX_HOVERING_PATHFINDER);
 	MOD_OPT_DECL(BUGFIX_EMBARKING_PATHFINDER);
 
-	MOD_OPT_DECL(BALANCE_CORE_SP_GP);
+	MOD_OPT_DECL(BALANCE_CORE);
 
 protected:
 	bool m_bInit;
