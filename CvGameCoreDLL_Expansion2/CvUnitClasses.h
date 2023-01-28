@@ -188,6 +188,7 @@ public:
 
 #ifdef MOD_BALANCE_CORE
 	int GetScalingFromOwnedImprovements(int i) const;
+	int GetScaleFromNumGWs() const;
 #endif
 
 private:
@@ -348,6 +349,7 @@ private:
 
 #ifdef MOD_BALANCE_CORE
 	int* m_piScalingFromOwnedImprovements;
+	int m_iScaleFromNumGWs;
 #endif
 };
 

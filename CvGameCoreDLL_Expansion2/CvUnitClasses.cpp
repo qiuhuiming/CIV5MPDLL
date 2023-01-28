@@ -145,6 +145,7 @@ CvUnitEntry::CvUnitEntry(void) :
 	m_iUnitPortraitOffset(0)
 #ifdef MOD_BALANCE_CORE
 	,m_piScalingFromOwnedImprovements(NULL)
+	,m_iScaleFromNumGWs(0)
 #endif
 {
 }
@@ -378,7 +379,11 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	kUtility.PopulateArrayByExistence(m_pbBuildingClassRequireds, "BuildingClasses", "Unit_BuildingClassRequireds", "BuildingClassType", "UnitType", szUnitType);
 
 #if defined(MOD_BALANCE_CORE)
-	kUtility.PopulateArrayByValue(m_piScalingFromOwnedImprovements, "Improvements", "Unit_ScalingFromOwnedImprovements", "ImprovementType", "UnitType", szUnitType, "Amount");
+    if (MOD_BALANCE_CORE)
+	{
+		kUtility.PopulateArrayByValue(m_piScalingFromOwnedImprovements, "Improvements", "Unit_ScalingFromOwnedImprovements", "ImprovementType", "UnitType", szUnitType, "Amount");
+		m_iScaleFromNumGWs = kResults.GetInt("ScaleFromNumGWs");
+	}
 #endif
 
 	//TechTypes
@@ -1320,6 +1325,11 @@ int CvUnitEntry::GetScalingFromOwnedImprovements(int i) const
 	CvAssertMsg(i < GC.getNumImprovementInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_piScalingFromOwnedImprovements ? m_piScalingFromOwnedImprovements[i] : -1;
+}
+
+int CvUnitEntry::GetScaleFromNumGWs() const
+{
+	return m_iScaleFromNumGWs;
 }
 #endif
 
