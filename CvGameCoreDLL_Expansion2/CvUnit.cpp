@@ -9078,6 +9078,36 @@ bool CvUnit::canDiscover(const CvPlot* /*pPlot*/, bool bTestVisible) const
 	return true;
 }
 
+#ifdef MOD_BALANCE_CORE
+int CvUnit::GetScaleAmount(int iAmountToScale) const
+{
+	int iScaleTotal = iAmountToScale;
+	int iExtra = 0;
+	for (int i = 0; i < GC.getNumImprovementInfos(); i++)
+	{
+		iExtra = 0;
+		ImprovementTypes eImprovement = (ImprovementTypes)i;
+		if (eImprovement == NO_IMPROVEMENT)
+			continue;
+
+		int iScaleAmount = getUnitInfo().GetScalingFromOwnedImprovements(eImprovement);
+		if (iScaleAmount <= 0)
+			continue;
+
+		// NOTE: In Community-Patch-DLL:
+		// int iOwned = GET_PLAYER(getOwner()).getImprovementCount(eImprovement, true);
+		// Currently, getImprovementCount do not have the second parameter.
+		int iOwned = GET_PLAYER(getOwner()).getImprovementCount(eImprovement);
+		iExtra = (iOwned * iScaleAmount) * iAmountToScale;
+		iExtra /= 100;
+
+		iScaleTotal += iExtra;
+	}
+
+	return iScaleTotal;
+}
+#endif
+
 //	--------------------------------------------------------------------------------
 int CvUnit::getDiscoverAmount()
 {
@@ -9097,6 +9127,13 @@ int CvUnit::getDiscoverAmount()
 				iValue += (iValue * pPlayer->GetGreatScientistBeakerMod()) / 100;
 				iValue = MAX(iValue, 0); // Cannot be negative
 			}
+
+#ifdef MOD_BALANCE_CORE
+			if (MOD_BALANCE_CORE)
+			{
+				iValue = GetScaleAmount(iValue);
+			}
+#endif
 
 			// Modify based on game speed
 			iValue *= GC.getGame().getGameSpeedInfo().getResearchPercent();
