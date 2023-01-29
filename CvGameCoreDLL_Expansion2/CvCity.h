@@ -645,15 +645,19 @@ public:
 	int GetYieldPerTurnFromReligion(ReligionTypes eReligion, YieldTypes eYield) const;
 #endif
 
+#ifdef MOD_BUILDINGS_YIELD_FROM_OTHER_YIELD
+	int GetBaseYieldRateFromOtherYield(YieldTypes eYield) const;
+#endif
+
 	int getBaseYieldRateModifier(YieldTypes eIndex, int iExtra = 0, CvString* toolTipSink = NULL) const;
 	int getYieldRate(YieldTypes eIndex, bool bIgnoreTrade) const;
 	int getYieldRateTimes100(YieldTypes eIndex, bool bIgnoreTrade) const;
 #if defined(MOD_PROCESS_STOCKPILE)
-	int getBasicYieldRateTimes100(YieldTypes eIndex, bool bIgnoreTrade) const;
+	int getBasicYieldRateTimes100(const YieldTypes eIndex, const bool bIgnoreTrade, const bool bIgnoreFromOtherYield) const;
 #endif
 
 	// Base Yield
-	int getBaseYieldRate(YieldTypes eIndex) const;
+	int getBaseYieldRate(const YieldTypes eIndex, const bool bIgnoreFromOtherYield) const;
 
 #if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES) || defined(MOD_API_UNIFIED_YIELDS)
 	int GetBaseYieldRateFromGreatWorks(YieldTypes eIndex) const;
