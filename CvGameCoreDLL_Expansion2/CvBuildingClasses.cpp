@@ -2396,6 +2396,32 @@ void CvCityBuildings::Reset()
 		m_paiNumRealBuilding[iI] = 0;
 		m_paiNumFreeBuilding[iI] = 0;
 	}
+
+#ifdef MOD_BUILDINGS_YIELD_FROM_OTHER_YIELD
+	if (MOD_BUILDINGS_YIELD_FROM_OTHER_YIELD)
+	{
+		for (size_t i = 0; i < NUM_YIELD_TYPES; i++)
+		{
+			for (size_t j = 0; j < NUM_YIELD_TYPES; j++)
+			{
+				m_ppiYieldFromOtherYield[i][j][YieldFromYield::IN_VALUE] = 0;
+				m_ppiYieldFromOtherYield[i][j][YieldFromYield::OUT_VALUE] = 0;
+			}
+		}
+	}
+
+	// Test Data
+	m_ppiYieldFromOtherYield[YIELD_CULTURE][YIELD_PRODUCTION][0] = 10;
+	m_ppiYieldFromOtherYield[YIELD_CULTURE][YIELD_PRODUCTION][1] = 1;
+	m_ppiYieldFromOtherYield[YIELD_PRODUCTION][YIELD_PRODUCTION][0] = 10;
+	m_ppiYieldFromOtherYield[YIELD_PRODUCTION][YIELD_PRODUCTION][1] = 1;
+	m_ppiYieldFromOtherYield[YIELD_SCIENCE][YIELD_PRODUCTION][0] = 10;
+	m_ppiYieldFromOtherYield[YIELD_SCIENCE][YIELD_PRODUCTION][1] = 1;
+	m_ppiYieldFromOtherYield[YIELD_GOLD][YIELD_PRODUCTION][0] = 10;
+	m_ppiYieldFromOtherYield[YIELD_GOLD][YIELD_PRODUCTION][1] = 1;
+	m_ppiYieldFromOtherYield[YIELD_TOURISM][YIELD_PRODUCTION][0] = 10;
+	m_ppiYieldFromOtherYield[YIELD_TOURISM][YIELD_PRODUCTION][1] = 1;
+#endif
 }
 
 /// Serialization read
@@ -2427,6 +2453,13 @@ void CvCityBuildings::Read(FDataStream& kStream)
 
 	kStream >> m_aBuildingYieldChange;
 	kStream >> m_aBuildingGreatWork;
+
+#ifdef MOD_BUILDINGS_YIELD_FROM_OTHER_YIELD
+	if (MOD_BUILDINGS_YIELD_FROM_OTHER_YIELD)
+	{
+		kStream >> m_ppiYieldFromOtherYield;
+	}
+#endif
 }
 
 /// Serialization write
@@ -2466,6 +2499,13 @@ void CvCityBuildings::Write(FDataStream& kStream)
 
 	kStream << m_aBuildingYieldChange;
 	kStream << m_aBuildingGreatWork;
+
+#ifdef MOD_BUILDINGS_YIELD_FROM_OTHER_YIELD
+	if (MOD_BUILDINGS_YIELD_FROM_OTHER_YIELD)
+	{
+		kStream << m_ppiYieldFromOtherYield;
+	}
+#endif
 }
 
 /// Accessor: Get full array of all building XML data
@@ -4030,6 +4070,32 @@ void CvCityBuildings::NotifyNewBuildingStarted(BuildingTypes /*eIndex*/)
 	//	}
 	//}
 }
+
+#ifdef MOD_BUILDINGS_YIELD_FROM_OTHER_YIELD
+int CvCityBuildings::GetYieldFromOtherYield(const YieldTypes eInType, const YieldTypes eOutType, const YieldFromYield eConvertType) const
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eInType >= 0, "eInType expected to be >= 0");
+	CvAssertMsg(eInType < NUM_YIELD_TYPES, "eInType expected to be < NUM_YIELD_TYPES");
+	CvAssertMsg(eOutType >= 0, "eInType expected to be >= 0");
+	CvAssertMsg(eOutType < NUM_YIELD_TYPES, "eInType expected to be < NUM_YIELD_TYPES");
+	CvAssertMsg(eConvertType < YieldFromYield::LENGTH && eConvertType >= 0, "eConvertType expected to be < YieldFromYield::LENGTH");
+
+	return m_ppiYieldFromOtherYield[eOutType][eInType][eConvertType];
+}
+
+void CvCityBuildings::ChangeYieldFromOtherYield(const YieldTypes eInType, const YieldTypes eOutType, const YieldFromYield eConvertType, const int iChange)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eInType >= 0, "eInType expected to be >= 0");
+	CvAssertMsg(eInType < NUM_YIELD_TYPES, "eInType expected to be < NUM_YIELD_TYPES");
+	CvAssertMsg(eOutType >= 0, "eInType expected to be >= 0");
+	CvAssertMsg(eOutType < NUM_YIELD_TYPES, "eInType expected to be < NUM_YIELD_TYPES");
+	CvAssertMsg(eConvertType < YieldFromYield::LENGTH&& eConvertType >= 0, "eConvertType expected to be < YieldFromYield::LENGTH");
+
+	m_ppiYieldFromOtherYield[eOutType][eInType][eConvertType] += iChange;
+}
+#endif
 
 /// Helper function to read in an integer array of data sized according to number of building types
 void BuildingArrayHelpers::Read(FDataStream& kStream, int* paiBuildingArray)

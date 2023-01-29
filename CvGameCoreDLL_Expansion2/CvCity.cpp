@@ -10976,21 +10976,30 @@ int CvCity::GetBaseYieldRateFromOtherYield(YieldTypes eYield) const
 	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
 	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	int iResult = 0;
-	//for (int iSource = 0; iSource < NUM_YIELD_TYPES; iSource++)
-	//{
-	//	if (iSource == eYield)
-	//	{
-	//		continue;
-	//	}
-		if (eYield == YIELD_CULTURE || eYield == YIELD_SCIENCE)
+
+	for (size_t iInYield = YIELD_FOOD; iInYield < NUM_YIELD_TYPES; iInYield++)
+	{
+		const YieldTypes eInYield = static_cast<YieldTypes>(iInYield);
+		if (eInYield == eYield)
 		{
-			//if (eYield == YIELD_PRODUCTION)
-			//{
-				const int iBasicProduction = getBasicYieldRateTimes100(YIELD_PRODUCTION, false, true) / 100;
-				iResult += iBasicProduction / 10;
-			//}
+			// It is disabled to get yields from the yields
+			continue;
 		}
-	//}
+
+		const int iInputThreshold = GetCityBuildings()->GetYieldFromOtherYield(eInYield, eYield, IN_VALUE);
+		if (iInputThreshold <= 0)
+		{
+			continue;
+		}
+
+		const int iInYieldValue = getBasicYieldRateTimes100(eInYield, false, true) / 100;
+		const int iInCount = iInYieldValue / iInputThreshold;
+		if (iInCount != 0)
+		{
+			const int iOutUnit = GetCityBuildings()->GetYieldFromOtherYield(eInYield, eYield, OUT_VALUE);
+			iResult += iInCount * iOutUnit;
+		}
+	}
 
 	return iResult;
 }

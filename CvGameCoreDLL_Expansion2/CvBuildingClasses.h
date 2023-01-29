@@ -588,6 +588,14 @@ private:
 	std::vector<CvBuildingEntry*> m_paBuildingEntries;
 };
 
+#ifdef MOD_BUILDINGS_YIELD_FROM_OTHER_YIELD
+enum YieldFromYield {
+	IN_VALUE = 0,
+	OUT_VALUE,
+	LENGTH,
+};
+#endif
+
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS:      CvCityBuildings
 //!  \brief		Information about the buildings constructed in a single city
@@ -705,6 +713,11 @@ public:
 	bool CheckForAllWondersBuilt();
 	bool CheckForSevenAncientWondersBuilt();
 
+#ifdef MOD_BUILDINGS_YIELD_FROM_OTHER_YIELD
+	int GetYieldFromOtherYield(const YieldTypes eInType, const YieldTypes eOutType, const YieldFromYield eConvertType) const;
+	void ChangeYieldFromOtherYield(const YieldTypes eInType, const YieldTypes eOutType, const YieldFromYield eConvertType, const int iChange);
+#endif
+
 private:
 	void NotifyNewBuildingStarted(BuildingTypes eIndex);
 
@@ -728,7 +741,9 @@ private:
 	std::vector<BuildingYieldChange> m_aBuildingYieldChange;
 	std::vector<BuildingGreatWork> m_aBuildingGreatWork;
 
-	
+#ifdef MOD_BUILDINGS_YIELD_FROM_OTHER_YIELD
+	int m_ppiYieldFromOtherYield[NUM_YIELD_TYPES][NUM_YIELD_TYPES][YieldFromYield::LENGTH];
+#endif
 
 	CvBuildingXMLEntries* m_pBuildings;
 	CvCity* m_pCity;
