@@ -1236,6 +1236,21 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		}
 #endif
 	}
+
+#ifdef MOD_BUILDINGS_YIELD_FROM_OTHER_YIELD
+	if (MOD_BUILDINGS_YIELD_FROM_OTHER_YIELD)
+	{
+		m_bHasYieldFromOtherYield = false;
+		for (size_t i = 0; i < NUM_YIELD_TYPES; i++)
+		{
+			for (size_t j = 0; j < NUM_YIELD_TYPES; j++)
+			{
+				m_ppiYieldFromOtherYield[i][j][YieldFromYield::IN_VALUE] = 0;
+				m_ppiYieldFromOtherYield[i][j][YieldFromYield::OUT_VALUE] = 0;
+			}
+		}
+	}
+#endif
 }
 
 
@@ -6923,6 +6938,28 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 
 		// Process for our team
 		owningTeam.processBuilding(eBuilding, iChange, bFirst);
+
+		if (pBuildingInfo->HasYieldFromOtherYield())
+		{
+			bool bNewHasYieldFromOtherYield = false;
+			for (size_t i = 0; i < NUM_YIELD_TYPES; i++)
+			{
+				for (size_t j = 0; j < NUM_YIELD_TYPES; j++)
+				{
+					const YieldTypes eOutYieldType = static_cast<YieldTypes>(i);
+					const YieldTypes eInYieldType = static_cast<YieldTypes>(j);
+					m_ppiYieldFromOtherYield[eOutYieldType][eInYieldType][IN_VALUE] += pBuildingInfo->GetYieldFromOtherYield(eInYieldType, eOutYieldType, IN_VALUE) * iChange;
+					m_ppiYieldFromOtherYield[eOutYieldType][eInYieldType][OUT_VALUE] += pBuildingInfo->GetYieldFromOtherYield(eInYieldType, eOutYieldType, OUT_VALUE) * iChange;
+
+					if (m_ppiYieldFromOtherYield[eOutYieldType][eInYieldType][IN_VALUE] != 0 && m_ppiYieldFromOtherYield[eOutYieldType][eInYieldType][OUT_VALUE] != 0)
+					{
+						bNewHasYieldFromOtherYield = true;
+					}
+				}
+			}
+
+			m_bHasYieldFromOtherYield = bNewHasYieldFromOtherYield;
+		}
 	}
 
 	if(!bObsolete)
@@ -10977,6 +11014,11 @@ int CvCity::GetBaseYieldRateFromOtherYield(YieldTypes eYield) const
 	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	int iResult = 0;
 
+	if (!m_bHasYieldFromOtherYield)
+	{
+		return 0;
+	}
+
 	for (size_t iInYield = YIELD_FOOD; iInYield < NUM_YIELD_TYPES; iInYield++)
 	{
 		const YieldTypes eInYield = static_cast<YieldTypes>(iInYield);
@@ -10986,7 +11028,7 @@ int CvCity::GetBaseYieldRateFromOtherYield(YieldTypes eYield) const
 			continue;
 		}
 
-		const int iInputThreshold = GetCityBuildings()->GetYieldFromOtherYield(eInYield, eYield, IN_VALUE);
+		const int iInputThreshold = GetYieldFromOtherYield(eInYield, eYield, IN_VALUE);
 		if (iInputThreshold <= 0)
 		{
 			continue;
@@ -10996,7 +11038,7 @@ int CvCity::GetBaseYieldRateFromOtherYield(YieldTypes eYield) const
 		const int iInCount = iInYieldValue / iInputThreshold;
 		if (iInCount != 0)
 		{
-			const int iOutUnit = GetCityBuildings()->GetYieldFromOtherYield(eInYield, eYield, OUT_VALUE);
+			const int iOutUnit = GetYieldFromOtherYield(eInYield, eYield, OUT_VALUE);
 			iResult += iInCount * iOutUnit;
 		}
 	}
@@ -18207,5 +18249,36 @@ int CvCity::CountWorkedTerrain(TerrainTypes iTerrainType) const
 	}
 
 	return iCount;
+}
+#endif
+
+#ifdef MOD_BUILDINGS_YIELD_FROM_OTHER_YIELD
+int CvCity::GetYieldFromOtherYield(const YieldTypes eInType, const YieldTypes eOutType, const YieldFromYield eConvertType) const
+{
+	VALIDATE_OBJECT
+		CvAssertMsg(eInType >= 0, "eInType expected to be >= 0");
+	CvAssertMsg(eInType < NUM_YIELD_TYPES, "eInType expected to be < NUM_YIELD_TYPES");
+	CvAssertMsg(eOutType >= 0, "eInType expected to be >= 0");
+	CvAssertMsg(eOutType < NUM_YIELD_TYPES, "eInType expected to be < NUM_YIELD_TYPES");
+	CvAssertMsg(eConvertType < YieldFromYield::LENGTH&& eConvertType >= 0, "eConvertType expected to be < YieldFromYield::LENGTH");
+
+	return m_ppiYieldFromOtherYield[eOutType][eInType][eConvertType];
+}
+
+void CvCity::ChangeYieldFromOtherYield(const YieldTypes eInType, const YieldTypes eOutType, const YieldFromYield eConvertType, const int iChange)
+{
+	VALIDATE_OBJECT
+		CvAssertMsg(eInType >= 0, "eInType expected to be >= 0");
+	CvAssertMsg(eInType < NUM_YIELD_TYPES, "eInType expected to be < NUM_YIELD_TYPES");
+	CvAssertMsg(eOutType >= 0, "eInType expected to be >= 0");
+	CvAssertMsg(eOutType < NUM_YIELD_TYPES, "eInType expected to be < NUM_YIELD_TYPES");
+	CvAssertMsg(eConvertType < YieldFromYield::LENGTH&& eConvertType >= 0, "eConvertType expected to be < YieldFromYield::LENGTH");
+
+	m_ppiYieldFromOtherYield[eOutType][eInType][eConvertType] += iChange;
+}
+
+bool CvCity::HasYieldFromOtherYield() const
+{
+	return m_bHasYieldFromOtherYield;
 }
 #endif

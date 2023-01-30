@@ -207,7 +207,11 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_paiBuildingClassHappiness(NULL),
 	m_paThemingBonusInfo(NULL),
 
-	m_iNumThemingBonuses(0)
+	m_iNumThemingBonuses(0),
+
+#ifdef MOD_BUILDINGS_YIELD_FROM_OTHER_YIELD
+	m_bHasYieldFromOtherYield(false)
+#endif
 {
 #ifdef MOD_API_BUILDING_ENABLE_PURCHASE_UNITS
 		for (int i = 0; i < NUM_YIELD_TYPES; i++) {
@@ -807,8 +811,49 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	}
 
 
+#ifdef MOD_BUILDINGS_YIELD_FROM_OTHER_YIELD
+	if (MOD_BUILDINGS_YIELD_FROM_OTHER_YIELD)
+	{
+		for (size_t i = 0; i < NUM_YIELD_TYPES; i++)
+		{
+			for (size_t j = 0; j < NUM_YIELD_TYPES; j++)
+			{
+				m_ppiYieldFromOtherYield[i][j][0] = 0;
+				m_ppiYieldFromOtherYield[i][j][1] = 0;
+			}
+		}
+		m_bHasYieldFromOtherYield = false;
 
-	
+		std::string strKey("Building_YieldFromOtherYield");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if (pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select y1.ID, y2.ID, b.InYieldValue, b.OutYieldValue \
+					from Building_YieldFromOtherYield b \
+				    inner join Yields y1 on b.OutYieldType = y1.Type \
+					inner join Yields y2 on b.InYieldType = y2.Type \
+					where b.BuildingType = ?");
+		}
+
+		pResults->Bind(1, szBuildingType);
+
+		while (pResults->Step())
+		{
+			const int OutYieldTypeID = pResults->GetInt(0);
+			const int InYieldTypeID = pResults->GetInt(1);
+			const int InYieldValue = pResults->GetInt(2);
+			const int OutYieldValue = pResults->GetInt(3);
+
+			if (InYieldValue != 0 && OutYieldValue != 0)
+			{
+				m_ppiYieldFromOtherYield[OutYieldTypeID][InYieldTypeID][YieldFromYield::IN_VALUE] = InYieldValue;
+				m_ppiYieldFromOtherYield[OutYieldTypeID][InYieldTypeID][YieldFromYield::OUT_VALUE] = OutYieldValue;
+				m_bHasYieldFromOtherYield = true;
+			}
+		}
+		pResults->Reset();
+	}
+#endif
 
 	return true;
 }
@@ -2243,6 +2288,26 @@ int CvBuildingEntry::GetNumAllowPurchaseUnitsByYieldType(YieldTypes iType) {
 	return m_iNumAllowPurchaseUnits[iType];
 }
 
+#ifdef MOD_BUILDINGS_YIELD_FROM_OTHER_YIELD
+int CvBuildingEntry::GetYieldFromOtherYield(const YieldTypes eInType, const YieldTypes eOutType, const YieldFromYield eConvertType) const
+{
+	VALIDATE_OBJECT
+		CvAssertMsg(eInType >= 0, "eInType expected to be >= 0");
+	CvAssertMsg(eInType < NUM_YIELD_TYPES, "eInType expected to be < NUM_YIELD_TYPES");
+	CvAssertMsg(eOutType >= 0, "eInType expected to be >= 0");
+	CvAssertMsg(eOutType < NUM_YIELD_TYPES, "eInType expected to be < NUM_YIELD_TYPES");
+	CvAssertMsg(eConvertType < YieldFromYield::LENGTH&& eConvertType >= 0, "eConvertType expected to be < YieldFromYield::LENGTH");
+
+	return m_ppiYieldFromOtherYield[eOutType][eInType][eConvertType];
+}
+
+bool CvBuildingEntry::HasYieldFromOtherYield() const
+{
+	return m_bHasYieldFromOtherYield;
+}
+
+#endif
+
 std::pair<UnitClassTypes, int>* CvBuildingEntry::GetAllowPurchaseUnitsByYieldType(YieldTypes iType) {
 	CvAssertMsg(iType < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(iType > -1, "Index out of bounds");
@@ -2396,32 +2461,6 @@ void CvCityBuildings::Reset()
 		m_paiNumRealBuilding[iI] = 0;
 		m_paiNumFreeBuilding[iI] = 0;
 	}
-
-#ifdef MOD_BUILDINGS_YIELD_FROM_OTHER_YIELD
-	if (MOD_BUILDINGS_YIELD_FROM_OTHER_YIELD)
-	{
-		for (size_t i = 0; i < NUM_YIELD_TYPES; i++)
-		{
-			for (size_t j = 0; j < NUM_YIELD_TYPES; j++)
-			{
-				m_ppiYieldFromOtherYield[i][j][YieldFromYield::IN_VALUE] = 0;
-				m_ppiYieldFromOtherYield[i][j][YieldFromYield::OUT_VALUE] = 0;
-			}
-		}
-	}
-
-	// Test Data
-	m_ppiYieldFromOtherYield[YIELD_CULTURE][YIELD_PRODUCTION][0] = 10;
-	m_ppiYieldFromOtherYield[YIELD_CULTURE][YIELD_PRODUCTION][1] = 1;
-	m_ppiYieldFromOtherYield[YIELD_PRODUCTION][YIELD_PRODUCTION][0] = 10;
-	m_ppiYieldFromOtherYield[YIELD_PRODUCTION][YIELD_PRODUCTION][1] = 1;
-	m_ppiYieldFromOtherYield[YIELD_SCIENCE][YIELD_PRODUCTION][0] = 10;
-	m_ppiYieldFromOtherYield[YIELD_SCIENCE][YIELD_PRODUCTION][1] = 1;
-	m_ppiYieldFromOtherYield[YIELD_GOLD][YIELD_PRODUCTION][0] = 10;
-	m_ppiYieldFromOtherYield[YIELD_GOLD][YIELD_PRODUCTION][1] = 1;
-	m_ppiYieldFromOtherYield[YIELD_TOURISM][YIELD_PRODUCTION][0] = 10;
-	m_ppiYieldFromOtherYield[YIELD_TOURISM][YIELD_PRODUCTION][1] = 1;
-#endif
 }
 
 /// Serialization read
@@ -2453,13 +2492,6 @@ void CvCityBuildings::Read(FDataStream& kStream)
 
 	kStream >> m_aBuildingYieldChange;
 	kStream >> m_aBuildingGreatWork;
-
-#ifdef MOD_BUILDINGS_YIELD_FROM_OTHER_YIELD
-	if (MOD_BUILDINGS_YIELD_FROM_OTHER_YIELD)
-	{
-		kStream >> m_ppiYieldFromOtherYield;
-	}
-#endif
 }
 
 /// Serialization write
@@ -2499,13 +2531,6 @@ void CvCityBuildings::Write(FDataStream& kStream)
 
 	kStream << m_aBuildingYieldChange;
 	kStream << m_aBuildingGreatWork;
-
-#ifdef MOD_BUILDINGS_YIELD_FROM_OTHER_YIELD
-	if (MOD_BUILDINGS_YIELD_FROM_OTHER_YIELD)
-	{
-		kStream << m_ppiYieldFromOtherYield;
-	}
-#endif
 }
 
 /// Accessor: Get full array of all building XML data
@@ -4070,32 +4095,6 @@ void CvCityBuildings::NotifyNewBuildingStarted(BuildingTypes /*eIndex*/)
 	//	}
 	//}
 }
-
-#ifdef MOD_BUILDINGS_YIELD_FROM_OTHER_YIELD
-int CvCityBuildings::GetYieldFromOtherYield(const YieldTypes eInType, const YieldTypes eOutType, const YieldFromYield eConvertType) const
-{
-	VALIDATE_OBJECT
-	CvAssertMsg(eInType >= 0, "eInType expected to be >= 0");
-	CvAssertMsg(eInType < NUM_YIELD_TYPES, "eInType expected to be < NUM_YIELD_TYPES");
-	CvAssertMsg(eOutType >= 0, "eInType expected to be >= 0");
-	CvAssertMsg(eOutType < NUM_YIELD_TYPES, "eInType expected to be < NUM_YIELD_TYPES");
-	CvAssertMsg(eConvertType < YieldFromYield::LENGTH && eConvertType >= 0, "eConvertType expected to be < YieldFromYield::LENGTH");
-
-	return m_ppiYieldFromOtherYield[eOutType][eInType][eConvertType];
-}
-
-void CvCityBuildings::ChangeYieldFromOtherYield(const YieldTypes eInType, const YieldTypes eOutType, const YieldFromYield eConvertType, const int iChange)
-{
-	VALIDATE_OBJECT
-	CvAssertMsg(eInType >= 0, "eInType expected to be >= 0");
-	CvAssertMsg(eInType < NUM_YIELD_TYPES, "eInType expected to be < NUM_YIELD_TYPES");
-	CvAssertMsg(eOutType >= 0, "eInType expected to be >= 0");
-	CvAssertMsg(eOutType < NUM_YIELD_TYPES, "eInType expected to be < NUM_YIELD_TYPES");
-	CvAssertMsg(eConvertType < YieldFromYield::LENGTH&& eConvertType >= 0, "eConvertType expected to be < YieldFromYield::LENGTH");
-
-	m_ppiYieldFromOtherYield[eOutType][eInType][eConvertType] += iChange;
-}
-#endif
 
 /// Helper function to read in an integer array of data sized according to number of building types
 void BuildingArrayHelpers::Read(FDataStream& kStream, int* paiBuildingArray)
