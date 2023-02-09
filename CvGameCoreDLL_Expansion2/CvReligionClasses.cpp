@@ -4403,25 +4403,28 @@ BeliefTypes CvCityReligions::GetMajorReligionPantheonBelief() const
 	BeliefTypes eRtnValue = NO_BELIEF;
 
 	ReligionTypes eMajor = GetReligiousMajority();
-	if (eMajor != NO_RELIGION)
+	if (eMajor == NO_RELIGION)
 	{
-		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajor, m_pCity->getOwner());
-		if (pReligion)
+		return NO_BELIEF;
+	}
+
+	const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajor, m_pCity->getOwner());
+	if (!pReligion)
+	{
+		return NO_BELIEF;
+	}
+
+	for (int iI = 0; iI < pReligion->m_Beliefs.GetNumBeliefs(); iI++)
+	{
+		const BeliefTypes eBelief = pReligion->m_Beliefs.GetBelief(iI);
+		CvBeliefEntry* pEntry = GC.GetGameBeliefs()->GetEntry((int)eBelief);
+		if (pEntry && pEntry->IsPantheonBelief())
 		{
-			for (int iI = 0; iI < pReligion->m_Beliefs.GetNumBeliefs(); iI++)
-			{
-				const BeliefTypes eBelief = pReligion->m_Beliefs.GetBelief(iI);
-				CvBeliefEntry* pEntry = GC.GetGameBeliefs()->GetEntry((int)eBelief);
-				if (pEntry && pEntry->IsPantheonBelief())
-				{
-					eRtnValue = eBelief;
-					break;
-				}
-			}
+			return eBelief;
 		}
 	}
 
-	return eRtnValue;
+	return NO_BELIEF;
 }
 
 bool CvCityReligions::IsHasMajorBelief(const BeliefTypes eBelief) const
