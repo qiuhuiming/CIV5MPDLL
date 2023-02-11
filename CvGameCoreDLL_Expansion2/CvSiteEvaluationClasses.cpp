@@ -79,7 +79,20 @@ bool CvCitySiteEvaluator::CanFound(CvPlot* pPlot, const CvPlayer* pPlayer, bool 
 		}
 	}
 
-	if(pPlot->isImpassable() || pPlot->isMountain())
+	if (pPlot->isMountain())
+	{
+#ifdef MOD_TRAITS_CAN_FOUND_MOUNTAIN_CITY
+		if (MOD_TRAITS_CAN_FOUND_MOUNTAIN_CITY && pPlayer->GetCanFoundMountainCity())
+		{
+			bValid = true;
+			goto DONE_bValid;
+		}
+#else
+		return false;
+#endif
+	}
+
+	if (pPlot->isImpassable())
 	{
 		return false;
 	}
@@ -144,6 +157,7 @@ bool CvCitySiteEvaluator::CanFound(CvPlot* pPlot, const CvPlayer* pPlayer, bool 
 		return false;
 	}
 
+DONE_bValid:
 	if(!bTestVisible)
 	{
 		// look at same land mass
