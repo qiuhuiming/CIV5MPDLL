@@ -82,16 +82,13 @@ bool CvCitySiteEvaluator::CanFound(CvPlot* pPlot, const CvPlayer* pPlayer, bool 
 	if (pPlot->isMountain())
 	{
 #ifdef MOD_TRAITS_CAN_FOUND_MOUNTAIN_CITY
-		if (!MOD_TRAITS_CAN_FOUND_MOUNTAIN_CITY)
+		if (!MOD_TRAITS_CAN_FOUND_MOUNTAIN_CITY || !pPlayer->GetCanFoundMountainCity())
 		{
 			return false;
 		}
 		
-		if (pPlayer->GetCanFoundMountainCity())
-		{
-			bValid = true;
-			goto DONE_bValid;
-		}
+		bValid = true;
+		goto DONE_bValid;
 #else
 		return false;
 #endif

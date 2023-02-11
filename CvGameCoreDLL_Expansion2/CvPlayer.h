@@ -2380,10 +2380,6 @@ protected:
 	friend const CvUnit* GetPlayerUnit(const IDInfo& unit);
 
 	CvPlayerAchievements m_kPlayerAchievements;
-
-#ifdef MOD_TRAITS_CAN_FOUND_MOUNTAIN_CITY
-	bool m_bCanFoundMountainCity;
-#endif
 };
 
 extern bool CancelActivePlayerEndTurn();

@@ -1464,13 +1464,6 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 		m_aUnitExtraCosts.clear();
 	}
 
-#ifdef MOD_TRAITS_CAN_FOUND_MOUNTAIN_CITY
-	if (MOD_TRAITS_CAN_FOUND_MOUNTAIN_CITY) {
-		// TODO
-		m_bCanFoundMountainCity = true;
-	}
-#endif
-
 	m_cities.RemoveAll();
 
 	m_units.RemoveAll();
@@ -28063,7 +28056,7 @@ bool CvPlayer::hasTurnTimerExpired()
 #ifdef MOD_TRAITS_CAN_FOUND_MOUNTAIN_CITY
 bool CvPlayer::GetCanFoundMountainCity() const
 {
-	return m_bCanFoundMountainCity;
+	return GetPlayerTraits()->IsCanFoundMountainCity();
 }
 #endif
 
