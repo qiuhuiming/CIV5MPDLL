@@ -4564,7 +4564,7 @@ int CvLuaCity::lGetMajorReligionPantheonBelief(lua_State* L)
 	CvCity* pCity = GetInstance(L);
 	lua_pushinteger(L, pCity->GetCityReligions()->GetMajorReligionPantheonBelief());
 
-	return 0;
+	return 1;
 }
 
 int CvLuaCity::lIsHasMajorBelief(lua_State* L)
@@ -4573,7 +4573,7 @@ int CvLuaCity::lIsHasMajorBelief(lua_State* L)
 
 	CvCity* pCity = GetInstance(L);
 	lua_pushboolean(L, pCity->GetCityReligions()->IsHasMajorBelief(eBelief));
-	return 0;
+	return 1;
 }
 
 int CvLuaCity::lIsHasSecondaryBelief(lua_State* L)
@@ -4582,13 +4582,13 @@ int CvLuaCity::lIsHasSecondaryBelief(lua_State* L)
 
 	CvCity* pCity = GetInstance(L);
 	lua_pushboolean(L, pCity->GetCityReligions()->IsHasSecondaryBelief(eBelief));
-	return 0;
+	return 1;
 }
 
 int CvLuaCity::lIsSecondaryReligionActive(lua_State* L)
 {
 	CvCity* pCity = GetInstance(L);
 	lua_pushboolean(L, pCity->GetCityReligions()->IsSecondaryReligionActive());
-	return 0;
+	return 1;
 }
 #endif
