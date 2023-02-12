@@ -780,6 +780,8 @@
 
 #define MOD_BALANCE_CORE                            gCustomMods.isBALANCE_CORE()
 
+#define MOD_ERA_EFFECTS_EXTENSIONS                  gCustomMods.isERA_EFFECTS_EXTENSIONS()
+
 #endif // ACHIEVEMENT_HACKS
 
 
@@ -1430,6 +1432,8 @@ public:
 	MOD_OPT_DECL(BUGFIX_EMBARKING_PATHFINDER);
 
 	MOD_OPT_DECL(BALANCE_CORE);
+
+	MOD_OPT_DECL(ERA_EFFECTS_EXTENSIONS);
 
 protected:
 	bool m_bInit;

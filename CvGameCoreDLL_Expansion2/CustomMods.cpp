@@ -506,6 +506,8 @@ int CustomMods::getOption(string sOption, int defValue) {
 
 		MOD_OPT_CACHE(BALANCE_CORE);
 
+		MOD_OPT_CACHE(ERA_EFFECTS_EXTENSIONS);
+
 		m_bInit = true;
 	}
 
