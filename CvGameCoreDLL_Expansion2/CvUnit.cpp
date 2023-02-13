@@ -3219,11 +3219,19 @@ bool CvUnit::canMoveInto(const CvPlot& plot, byte bMoveFlags) const
 			{
 				return false;
 			}
-
+			
 			if(getDomainType() == DOMAIN_LAND && plot.isWater() && !canMoveAllTerrain() && !plot.IsAllowsWalkWater())
 			{
+#ifdef MOD_TRAITS_CAN_FOUND_COAST_CITY
+				if (!MOD_TRAITS_CAN_FOUND_COAST_CITY || !plot.isCity())
+				{
+					return false;
+				}
+#else
 				return false;
+#endif
 			}
+
 
 			if(!isHuman() || (plot.isVisible(getTeam())))
 			{
