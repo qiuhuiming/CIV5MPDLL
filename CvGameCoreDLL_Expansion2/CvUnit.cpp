@@ -686,7 +686,8 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 		{
 			setHasPromotion(ePromotionEmbarkation, true);
 #ifdef MOD_TRAITS_CAN_FOUND_COAST_CITY
-			embark(plot());
+			if (bIsWaterCity)
+				embark(plot());
 #endif // MOD_TRAITS_CAN_FOUND_COAST_CITY 
 		}
 	}
