@@ -1907,6 +1907,10 @@ public:
 	void ChangeWarCasualtiesCounter(const int iChange);
 	void SetWarCasualtiesCounter(const int iValue);
 	bool CheckAndUpdateWarCasualtiesCounter();
+
+	int GetWarCasualtiesModifier() const;
+	void SetWarCasualtiesModifier(const int iValue);
+	void ChangeWarCasualtiesModifier(const int iChange);
 #endif
 
 	CvCity* CvPlayer::GetRandomCity();
@@ -2318,6 +2322,10 @@ protected:
 #ifdef MOD_API_TRADE_ROUTE_YIELD_RATE
 	Firaxis::Array<int, YieldTypes::NUM_YIELD_TYPES> m_piMinorsTradeRouteYieldRate;
 	Firaxis::Array<int, YieldTypes::NUM_YIELD_TYPES> m_piInternalTradeRouteDestYieldRate;
+#endif
+
+#ifdef MOD_GLOBAL_WAR_CASUALTIES
+	int m_iWarCasualtiesModifier = 0;
 #endif
 
 	// Obsolete: only used to read old saves

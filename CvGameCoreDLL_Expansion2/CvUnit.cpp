@@ -23122,6 +23122,10 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		changeExperiencePercent(thisPromotion.GetExperiencePercent() * iChange);
 		changeCargoSpace(thisPromotion.GetCargoChange() * iChange);
 
+#ifdef MOD_GLOBAL_WAR_CASUALTIES
+		ChangeWarCasualtiesModifier(thisPromotion.GetWarCasualtiesModifier() * iChange);
+#endif
+
 #if defined(MOD_PROMOTIONS_UNIT_NAMING)
 		if (MOD_PROMOTIONS_UNIT_NAMING) {
 			if (thisPromotion.IsUnitNaming(getUnitType())) {
@@ -23552,6 +23556,10 @@ void CvUnit::read(FDataStream& kStream)
 		m_iTourismBlastStrength = 0;
 	}
 
+#ifdef MOD_GLOBAL_WAR_CASUALTIES
+	kStream >> m_iWarCasualtiesModifier;
+#endif
+
 	//  Read mission queue
 	UINT uSize;
 	kStream >> uSize;
@@ -23696,6 +23704,10 @@ void CvUnit::write(FDataStream& kStream) const
 	}
 
 	kStream << m_iTourismBlastStrength;
+
+#ifdef MOD_GLOBAL_WAR_CASUALTIES
+	kStream << m_iWarCasualtiesModifier;
+#endif
 
 	//  Write mission list
 	kStream << m_missionQueue.getLength();
@@ -27852,5 +27864,20 @@ int CvUnit::GetNumEnemyAdjacent() const
 	}
 
 	return iNumEnemiesAdjacent;
+}
+#endif
+
+#ifdef MOD_GLOBAL_WAR_CASUALTIES
+int CvUnit::GetWarCasualtiesModifier() const
+{
+	return this->m_iWarCasualtiesModifier;
+}
+void CvUnit::ChangeWarCasualtiesModifier(int iChange)
+{
+	this->m_iWarCasualtiesModifier += iChange;
+}
+void CvUnit::SetWarCasualtiesModifier(int iValue)
+{
+	this->m_iWarCasualtiesModifier = iValue;
 }
 #endif

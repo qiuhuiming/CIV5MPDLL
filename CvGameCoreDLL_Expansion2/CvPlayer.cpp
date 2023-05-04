@@ -14771,7 +14771,10 @@ void CvPlayer::DoUnitKilledCombat(PlayerTypes eKilledPlayer, UnitTypes eUnitType
 		CvPlayerAI &pKilledPlayer = GET_PLAYER(eKilledPlayer);
 
 		int iDelta = GC.getWAR_CASUALTIES_DELTA_BASE();
-		pKilledPlayer.ChangeWarCasualtiesCounter(iDelta);
+		iDelta = (100 + pKilledUnit->GetWarCasualtiesModifier()) * iDelta / 100;
+		iDelta = iDelta < 0 ? 0 : iDelta;
+		iDelta = (100 + this->GetWarCasualtiesModifier()) * iDelta / 100;
+		pKilledPlayer.ChangeWarCasualtiesCounter(iDelta < 0 ? 0 : iDelta);
 		pKilledPlayer.CheckAndUpdateWarCasualtiesCounter();
 	}
 #endif
@@ -24185,6 +24188,10 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	ChangeStrategicResourceMod(pPolicy->GetStrategicResourceMod() * iChange);
 	ChangeAbleToAnnexCityStatesCount((pPolicy->IsAbleToAnnexCityStates()) ? iChange : 0);
 
+#ifdef MOD_GLOBAL_WAR_CASUALTIES
+	ChangeWarCasualtiesModifier(pPolicy->GetWarCasualtiesModifier() * iChange);
+#endif
+
 	if(pPolicy->IsOneShot())
 	{
 		if(m_pPlayerPolicies->HasOneShotPolicyFired(ePolicy))
@@ -25831,6 +25838,7 @@ void CvPlayer::Read(FDataStream& kStream)
 
 #ifdef MOD_GLOBAL_WAR_CASUALTIES
 	kStream >> m_iWarCasualtiesCounter;
+	kStream >> m_iWarCasualtiesModifier;
 #endif
 
 	if(GetID() < MAX_MAJOR_CIVS)
@@ -26349,6 +26357,7 @@ void CvPlayer::Write(FDataStream& kStream) const
 
 #ifdef MOD_GLOBAL_WAR_CASUALTIES
 	kStream << m_iWarCasualtiesCounter;
+	kStream << m_iWarCasualtiesModifier;
 #endif
 }
 
@@ -29395,6 +29404,19 @@ bool CvPlayer::CheckAndUpdateWarCasualtiesCounter()
 
 	GAMEEVENTINVOKE_HOOK(GAMEEVENT_DoWarPopulationLoss, this->GetID(), pCity->GetID(), iChange);
 	return true;
+}
+
+int CvPlayer::GetWarCasualtiesModifier() const
+{
+	return this->m_iWarCasualtiesModifier;
+}
+void CvPlayer::SetWarCasualtiesModifier(const int iValue)
+{
+	this->m_iWarCasualtiesModifier = iValue;
+}
+void CvPlayer::ChangeWarCasualtiesModifier(const int iChange)
+{
+	this->m_iWarCasualtiesModifier += iChange;
 }
 
 #endif
