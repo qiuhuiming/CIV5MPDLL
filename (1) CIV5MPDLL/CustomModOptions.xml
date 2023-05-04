@@ -1019,6 +1019,17 @@
     <Row Class="6" Name="GLOBAL_UNLIMITED_ONE_TURN_GROWTH" Value="0"/>
     <Row Class="6" Name="GLOBAL_UNLIMITED_ONE_TURN_PRODUCTION" Value="0"/>
     <Row Class="6" Name="GLOBAL_UNLIMITED_ONE_TURN_CULTURE" Value="0"/>
+
+    <!-- lua interfaces: -->
+    <!-- int pPlayer:GetWarCasualtiesCounter() const; -->
+	<!-- void pPlayer:ChangeWarCasualtiesCounter(const int iChange); -->
+	<!-- void pPlayer:SetWarCasualtiesCounter(const int iValue); -->
+	<!-- bool pPlayer:CheckAndUpdateWarCasualtiesCounter(); -->
+    <!-- lua events: -->
+    <!-- DoWarPopulationLoss(int iPlayer, int iCity, int iChange)-->
+    <!-- Global define: -->
+    <!-- see WarCasualties.sql -->
+    <Row Class="6" Name="GLOBAL_WAR_CASUALTIES" Value="0"/>
   </CustomModOptions>
 
   <CustomModPostDefines>

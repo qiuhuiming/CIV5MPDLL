@@ -817,7 +817,7 @@ public:
 
 	// Unit Killed in Combat
 #if defined(MOD_API_EXTENSIONS)
-	void DoUnitKilledCombat(CvUnit* pKillingUnit, PlayerTypes eKilledPlayer, UnitTypes eUnitType);
+	void DoUnitKilledCombat(CvUnit* pKillingUnit, PlayerTypes eKilledPlayer, UnitTypes eUnitType, CvUnit* pKilledUnit);
 #else
 	void DoUnitKilledCombat(PlayerTypes eKilledPlayer, UnitTypes eUnit);
 #endif
@@ -1902,6 +1902,15 @@ public:
 	bool GetCanFoundCoastCity() const;
 #endif
 
+#ifdef MOD_GLOBAL_WAR_CASUALTIES
+	int GetWarCasualtiesCounter() const;
+	void ChangeWarCasualtiesCounter(const int iChange);
+	void SetWarCasualtiesCounter(const int iValue);
+	bool CheckAndUpdateWarCasualtiesCounter();
+#endif
+
+	CvCity* CvPlayer::GetRandomCity();
+
 protected:
 	class ConqueredByBoolField
 	{
@@ -2445,6 +2454,10 @@ protected:
 	friend const CvUnit* GetPlayerUnit(const IDInfo& unit);
 
 	CvPlayerAchievements m_kPlayerAchievements;
+
+#ifdef MOD_GLOBAL_WAR_CASUALTIES
+	int m_iWarCasualtiesCounter = 0;
+#endif
 };
 
 extern bool CancelActivePlayerEndTurn();
