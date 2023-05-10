@@ -24740,6 +24740,11 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 			}
 		}
 #endif
+
+#ifdef MOD_GLOBAL_CITY_SCALES
+	if (MOD_GLOBAL_CITY_SCALES)
+		pLoopCity->UpdateScaleBuildings();
+#endif
 	}
 
 	// Store off number of newly built cities that will get a free building
