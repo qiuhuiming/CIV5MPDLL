@@ -1720,6 +1720,10 @@ public:
 	void SetSplashXP(int iValue);
 #endif
 
+#ifdef MOD_PROMOTION_COLLECTIONS
+	std::tr1::unordered_map<PromotionCollectionsTypes, int>& GetPromotionCollections();
+#endif
+
 #ifdef MOD_PROMOTION_COLLATERAL_DAMAGE
 	std::vector<CollateralInfo>& GetCollateralInfoVec();
 
@@ -2097,6 +2101,10 @@ protected:
 
 	int m_iCollateralImmuneRC = 0;
 	int m_iCollateralXP = 0;
+#endif
+
+#ifdef MOD_PROMOTION_COLLECTIONS
+	std::tr1::unordered_map<PromotionCollectionsTypes, int> m_sPromotionCollections;
 #endif
 
 	int m_iEmbarkExtraVisibility;

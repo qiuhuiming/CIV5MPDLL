@@ -23466,6 +23466,22 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		ChangeCollateralXP(thisPromotion.GetCollateralXP() * iChange);
 #endif
 
+#ifdef MOD_PROMOTION_COLLECTIONS
+		auto promotionCollectionIter = GC.GetPromotion2CollectionsMapping().find((PromotionTypes)thisPromotion.GetID());
+		if (promotionCollectionIter != GC.GetPromotion2CollectionsMapping().end())
+		{
+			auto& newSet = promotionCollectionIter->second;
+			for (auto elem : newSet)
+			{
+				m_sPromotionCollections[elem] += iChange;
+				if (m_sPromotionCollections[elem] == 0)
+				{
+					m_sPromotionCollections.erase(elem);
+				}
+			}
+		}
+#endif
+
 #if !defined(NO_ACHIEVEMENTS)
 		PromotionTypes eBuffaloChest =(PromotionTypes) GC.getInfoTypeForString("PROMOTION_BUFFALO_CHEST", true /*bHideAssert*/);
 		PromotionTypes eBuffaloLoins =(PromotionTypes) GC.getInfoTypeForString("PROMOTION_BUFFALO_LOINS", true /*bHideAssert*/);
@@ -23882,6 +23898,20 @@ void CvUnit::read(FDataStream& kStream)
 	kStream >> m_iCollateralXP;
 #endif
 
+#ifdef MOD_PROMOTION_COLLECTIONS
+	int iPromotionCollectionsLen = 0;
+	kStream >> iPromotionCollectionsLen;
+	m_sPromotionCollections.clear();
+	for (int i = 0; i < iPromotionCollectionsLen; i++)
+	{
+		int iPromotionCollection = 0;
+		int iRC = 0;
+		kStream >> iPromotionCollection;
+		kStream >> iRC;
+		m_sPromotionCollections[(PromotionCollectionsTypes)iPromotionCollection] = iRC;
+	}
+#endif
+
 	//  Read mission queue
 	UINT uSize;
 	kStream >> uSize;
@@ -24071,6 +24101,15 @@ void CvUnit::write(FDataStream& kStream) const
 
 	kStream << m_iCollateralImmuneRC;
 	kStream << m_iCollateralXP;
+#endif
+
+#ifdef MOD_PROMOTION_COLLECTIONS
+	kStream << m_sPromotionCollections.size();
+	for (auto iter = m_sPromotionCollections.begin(); iter != m_sPromotionCollections.end(); iter++)
+	{
+		kStream << (int) iter->first;
+		kStream << (int) iter->second;
+	}
 #endif
 
 	//  Write mission list
@@ -28298,5 +28337,12 @@ void CvUnit::ChangeCollateralXP(int iChange) {
 }
 void CvUnit::SetCollateralXP(int iValue) {
 	this->m_iCollateralXP = iValue;
+}
+#endif
+
+#ifdef MOD_PROMOTION_COLLECTIONS
+std::tr1::unordered_map<PromotionCollectionsTypes, int>& CvUnit::GetPromotionCollections()
+{
+	return m_sPromotionCollections;
 }
 #endif
