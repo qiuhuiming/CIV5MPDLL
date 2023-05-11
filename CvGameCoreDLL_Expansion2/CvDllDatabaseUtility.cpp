@@ -414,6 +414,7 @@ bool CvDllDatabaseUtility::PrefetchGameData()
 
 #ifdef MOD_PROMOTION_COLLECTIONS
 	PrefetchCollection(GC.GetPromotionCollections(), "PromotionCollections");
+	GC.InitPromotion2CollectionMapping();
 #endif
 
 	//Copy flavors into string array

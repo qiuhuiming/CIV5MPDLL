@@ -424,6 +424,8 @@ public:
 	std::vector<CvPromotionCollectionEntry*>& GetPromotionCollections();
 	CvPromotionCollectionEntry* GetPromotionCollection(PromotionCollectionsTypes ePromotionCollection);
 	int GetNumPromotionCollections();
+	void InitPromotion2CollectionMapping();
+	std::tr1::unordered_map<PromotionTypes, std::tr1::unordered_set<PromotionCollectionsTypes> >& GetPromotion2CollectionsMapping();
 #endif
 
 	int getNumBuildInfos();
@@ -7815,6 +7817,7 @@ protected:
 
 #ifdef MOD_PROMOTION_COLLECTIONS
 	CvPromotionCollectionEntries* m_pPromotionCollections;
+	std::tr1::unordered_map<PromotionTypes, std::tr1::unordered_set<PromotionCollectionsTypes> > m_mPromotion2CollectionsMapping;
 #endif
 
 	//////////////////////////////////////////////////////////////////////////
