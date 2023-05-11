@@ -2238,6 +2238,10 @@ void CvGlobals::init()
 	m_pCityScales = FNEW(CvCityScaleXMLEntries, c_eCiv5GameplayDLL, 0);
 #endif
 
+#ifdef MOD_PROMOTION_COLLECTIONS
+	m_pPromotionCollections = FNEW(CvPromotionCollectionEntries, c_eCiv5GameplayDLL, 0);
+#endif
+
 	auto_ptr<ICvDLLDatabaseUtility1> pkLoader(getDatabaseLoadUtility());
 
 	Database::Connection* pDB = GetGameDatabase();
@@ -2332,6 +2336,10 @@ void CvGlobals::uninit()
 
 #ifdef MOD_GLOBAL_CITY_SCALES
 	SAFE_DELETE(m_pCityScales);
+#endif
+
+#ifdef MOD_PROMOTION_COLLECTIONS
+	SAFE_DELETE(m_pPromotionCollections);
 #endif
 
 	// already deleted outside of the dll, set to null for safety
@@ -3288,6 +3296,12 @@ CvCityScaleEntry* CvGlobals::getCityScaleInfoByPopulation(int iPopulation) const
 
 	return nullptr;
 }
+#endif
+
+#ifdef MOD_PROMOTION_COLLECTIONS
+std::vector<CvPromotionCollectionEntry*>& CvGlobals::GetPromotionCollections() { return m_pPromotionCollections->GetEntries();}
+CvPromotionCollectionEntry* CvGlobals::GetPromotionCollection(PromotionCollectionsTypes ePromotionCollection) { return m_pPromotionCollections->GetEntry(ePromotionCollection); }
+int CvGlobals::GetNumPromotionCollections() { return m_pPromotionCollections->GetNumEntries(); }
 #endif
 
 int CvGlobals::getNumBuildInfos()

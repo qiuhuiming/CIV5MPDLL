@@ -412,6 +412,10 @@ bool CvDllDatabaseUtility::PrefetchGameData()
 	GC.sortAndUpdateOrderedCityScale(GC.getCityScaleInfo());
 #endif
 
+#ifdef MOD_PROMOTION_COLLECTIONS
+	PrefetchCollection(GC.GetPromotionCollections(), "PromotionCollections");
+#endif
+
 	//Copy flavors into string array
 	{
 		CvDatabaseUtility kUtility;

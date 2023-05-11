@@ -178,6 +178,7 @@
     <ClCompile Include="CvEventLog.cpp" />
     <ClCompile Include="CvGreatPersonInfo.cpp" />
     <ClCompile Include="CvPlotInfo.cpp" />
+    <ClCompile Include="CvPromotionCollectionClasses.cpp" />
     <ClCompile Include="CvQuestInfo.cpp" />
     <ClCompile Include="CvTargeting.cpp" />
     <ClCompile Include="FunctionsRef.cpp" />
@@ -507,6 +508,7 @@
     <ClInclude Include="CvProjectClasses.h" />
     <ClInclude Include="CvProjectProductionAI.h" />
     <ClInclude Include="CvPromotionClasses.h" />
+    <ClInclude Include="CvPromotionCollectionClasses.h" />
     <ClInclude Include="CvQuestInfo.h" />
     <ClInclude Include="CvRandom.h" />
     <ClInclude Include="CvReligionClasses.h" />

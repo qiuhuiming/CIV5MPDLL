@@ -1602,6 +1602,12 @@ enum CityScaleTypes {
 };
 #endif
 
+#ifdef MOD_PROMOTION_COLLECTIONS
+enum PromotionCollectionsTypes {
+	NO_COLLECTION = -1
+};
+#endif
+
 enum AutomateTypes
 {
 	NO_AUTOMATE = -1,
