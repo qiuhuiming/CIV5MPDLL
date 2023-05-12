@@ -11,7 +11,7 @@ ALTER TABLE UnitPromotions ADD COLUMN CollateralDamagePlotUnitLimit integer not 
 ALTER TABLE UnitPromotions ADD COLUMN CollateralDamageImmune boolean not null default 0;
 ALTER TABLE UnitPromotions ADD COLUMN CollateralXP int not null default 0;
 
-create table PromotionCollections_AddEnermyPromotionPools (
+create table PromotionCollections_AddEnermyPromotions (
     CollectionType text not null references PromotionCollections(Type),
     OtherCollectionType text not null references PromotionCollections(Type)
 );

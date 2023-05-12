@@ -4426,6 +4426,7 @@ void CvUnitCombat::DoNewBattleEffects(const CvCombatInfo& kCombatInfo)
 		return;
 	DoSplashDamage(kCombatInfo);
 	DoCollateralDamage(kCombatInfo);
+	DoAddEnermyPromotions(kCombatInfo);
 }
 
 bool CvUnitCombat::ShouldDoNewBattleEffects(const CvCombatInfo& kCombatInfo)
@@ -4662,6 +4663,92 @@ void CvUnitCombat::DoCollateralDamage(const CvCombatInfo& kCombatInfo)
 			}
 		}
 	}
+}
+#endif
+
+#ifdef MOD_PROMOTION_ADD_ENERMY_PROMOTIONS
+static void DoAddEnermyPromotionsInner(CvUnit* thisUnit, CvUnit* thatUnit, BattleUnitTypes thisBattleType, const CvCombatInfo& kCombatInfo)
+{
+	if (thisUnit == nullptr || thisUnit->GetPromotionCollections().empty()) return;
+	if (thatUnit == nullptr || thatUnit->isDelayedDeath() || thatUnit->IsDead() || /*immune*/false) return;
+
+	bool ranged = kCombatInfo.getAttackIsRanged() || kCombatInfo.getAttackIsBombingMission();
+	bool melee = !ranged;
+	bool attack = thisBattleType == BATTLE_UNIT_ATTACKER;
+	bool defense = thisBattleType == BATTLE_UNIT_DEFENDER;
+	bool rangedAttack = ranged && attack;
+	bool meleeAttack = melee && attack;
+	bool rangedDefense = ranged && defense;
+	bool meleeDefense = melee && defense;
+
+	auto collections = thisUnit->GetPromotionCollections();
+	for (auto collectionIter = collections.begin(); collectionIter != collections.end(); collectionIter++)
+	{
+		if (collectionIter->second <= 0) continue;
+
+		auto collectionType = collectionIter->first;
+		auto* collection = GC.GetPromotionCollection(collectionType);
+		if (!collection->CanAddEnermyPromotions()) continue;
+
+		for (auto promotionIter = collection->GetPromotions().rbegin(); promotionIter != collection->GetPromotions().rend(); promotionIter++)
+		{
+			if (!thisUnit->HasPromotion(promotionIter->m_ePromotionType)) continue;
+
+			auto& triggerInfo = promotionIter->m_kTriggerAddPromotionInfo;
+			bool combatTypeOK = ((rangedAttack && triggerInfo.m_bRangedAttack)
+				|| (rangedDefense && triggerInfo.m_bRangedDefense)
+				|| (meleeAttack && triggerInfo.m_bMeleeAttack)
+				|| (meleeDefense && triggerInfo.m_bMeleeDefense));
+			if (!combatTypeOK) continue;
+
+			bool triggerFlag = false;
+			if (triggerInfo.m_bLuaCheck)
+			{
+				// TODO
+			}
+			int thatHP = thatUnit->GetCurrHitPoints();
+			if (thatHP < triggerInfo.m_iHPFixed + triggerInfo.m_iHPPercent * thatUnit->GetMaxHitPoints() / 100)
+			{
+				triggerFlag = true;
+			}
+
+			if (!triggerFlag) continue;
+
+			for (auto collectionToAdd : collection->GetAddEnermyPromotionPools())
+			{
+				auto* pCollectionToAdd = GC.GetPromotionCollection(collectionToAdd);
+				for (auto& promotionToAdd : pCollectionToAdd->GetPromotions())
+				{
+					if (thatUnit->HasPromotion(promotionToAdd.m_ePromotionType)) continue;
+
+					thatUnit->setHasPromotion(promotionToAdd.m_ePromotionType, true);
+					if (triggerInfo.m_bLuaHook)
+					{
+						// TODO: hook event
+					}
+					break;
+				}
+			}
+		}
+	}
+}
+
+void CvUnitCombat::DoAddEnermyPromotions(const CvCombatInfo& kCombatInfo)
+{
+	if (!MOD_PROMOTION_ADD_ENERMY_PROMOTIONS) {
+		return;
+	}
+
+	CvUnit* pAttackerUnit = kCombatInfo.getUnit(BATTLE_UNIT_ATTACKER);
+	CvCity* pAttackerCity = kCombatInfo.getCity(BATTLE_UNIT_ATTACKER);
+	CvUnit* pDefenderUnit = kCombatInfo.getUnit(BATTLE_UNIT_DEFENDER);
+	CvCity* pDefenderCity = kCombatInfo.getCity(BATTLE_UNIT_DEFENDER);
+
+	if (pAttackerCity || pDefenderCity) return; // no city combat
+	if (kCombatInfo.getAttackIsNuclear() || kCombatInfo.getAttackIsAirSweep()) return;
+
+	DoAddEnermyPromotionsInner(pAttackerUnit, pDefenderUnit, BATTLE_UNIT_ATTACKER, kCombatInfo);
+	DoAddEnermyPromotionsInner(pDefenderUnit, pAttackerUnit, BATTLE_UNIT_DEFENDER, kCombatInfo);
 }
 #endif
 

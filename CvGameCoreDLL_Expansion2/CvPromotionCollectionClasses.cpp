@@ -23,7 +23,7 @@ bool CvPromotionCollectionEntry::CacheResults(Database::Results& kResults, CvDat
 		if (pResults == NULL)
 		{
 			pResults = kUtility.PrepareResults(strKey, "select *, t2.ID as PromotionID from PromotionCollections_Entries t1 "
-            "left join UnitPromotions t2 on t1.PromotionType = t2.Type where t1.CollectionType = ? order by t1.PromotionIndex desc;");
+            "left join UnitPromotions t2 on t1.PromotionType = t2.Type where t1.CollectionType = ? order by t1.PromotionIndex;");
 		}
 
 		pResults->Bind(1, szThisType, lenThisType, false);
@@ -52,8 +52,8 @@ bool CvPromotionCollectionEntry::CacheResults(Database::Results& kResults, CvDat
 		Database::Results* pResults = kUtility.GetResults(strKey);
 		if (pResults == NULL)
 		{
-			pResults = kUtility.PrepareResults(strKey, "select PromotionCollections.ID as OtherID from PromotionCollections_AddEnermyPromotionPools "
-                "left join PromotionCollections on PromotionCollections_AddEnermyPromotionPools.OtherCollectionType = PromotionCollections.Type where CollectionType = ?;");
+			pResults = kUtility.PrepareResults(strKey, "select PromotionCollections.ID as OtherID from PromotionCollections_AddEnermyPromotions "
+                "left join PromotionCollections on PromotionCollections_AddEnermyPromotions.OtherCollectionType = PromotionCollections.Type where CollectionType = ?;");
 		}
 
 		pResults->Bind(1, szThisType, lenThisType, false);
