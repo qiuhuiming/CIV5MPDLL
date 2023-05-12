@@ -4704,12 +4704,16 @@ static void DoAddEnermyPromotionsInner(CvUnit* thisUnit, CvUnit* thatUnit, Battl
 			bool triggerFlag = false;
 			if (triggerInfo.m_bLuaCheck)
 			{
-				// TODO
+				triggerFlag = GAMEEVENTINVOKE_TESTALL(GAMEEVENT_CanAddEnermyPromotion, promotionIter->m_ePromotionType, collectionType, 
+					thisBattleType, thisUnit->getOwner(), thisUnit->GetID(), thatUnit->getOwner(), thatUnit->GetID()) == GAMEEVENTRETURN_TRUE;
 			}
-			int thatHP = thatUnit->GetCurrHitPoints();
-			if (thatHP < triggerInfo.m_iHPFixed + triggerInfo.m_iHPPercent * thatUnit->GetMaxHitPoints() / 100)
+			if (!triggerFlag)
 			{
-				triggerFlag = true;
+				int thatHP = thatUnit->GetCurrHitPoints();
+				if (thatHP < triggerInfo.m_iHPFixed + triggerInfo.m_iHPPercent * thatUnit->GetMaxHitPoints() / 100)
+				{
+					triggerFlag = true;
+				}
 			}
 
 			if (!triggerFlag) continue;
@@ -4717,16 +4721,18 @@ static void DoAddEnermyPromotionsInner(CvUnit* thisUnit, CvUnit* thatUnit, Battl
 			for (auto collectionToAdd : collection->GetAddEnermyPromotionPools())
 			{
 				auto* pCollectionToAdd = GC.GetPromotionCollection(collectionToAdd);
+				PromotionTypes thatPromotion = NO_PROMOTION;
 				for (auto& promotionToAdd : pCollectionToAdd->GetPromotions())
 				{
 					if (thatUnit->HasPromotion(promotionToAdd.m_ePromotionType)) continue;
 
 					thatUnit->setHasPromotion(promotionToAdd.m_ePromotionType, true);
-					if (triggerInfo.m_bLuaHook)
-					{
-						// TODO: hook event
-					}
 					break;
+				}
+				if (triggerInfo.m_bLuaHook)
+				{
+					GAMEEVENTINVOKE_HOOK(GAMEEVENT_OnTriggerAddEnermyPromotion, promotionIter->m_ePromotionType, collectionType, thisBattleType, thisUnit->getOwner(), thisUnit->GetID(),
+					thisUnit->getUnitInfo().GetID(), thatPromotion, pCollectionToAdd->GetID(), thatUnit->getOwner(), thatUnit->GetID(), thatUnit->getUnitInfo().GetID());
 				}
 			}
 		}

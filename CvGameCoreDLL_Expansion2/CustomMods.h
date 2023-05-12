@@ -1226,6 +1226,8 @@ enum BattleTypeTypes
 
 #define GAMEEVENT_OnCityScaleChange			"OnCityScaleChange",		        "iiii"
 
+#define GAMEEVENT_CanAddEnermyPromotion			"CanAddEnermyPromotion",		        "iiiiiii"
+#define GAMEEVENT_OnTriggerAddEnermyPromotion			"OnTriggerAddEnermyPromotion",		        "iiiiiiiiiii"
 
 // Serialization wrappers
 #define MOD_SERIALIZE
