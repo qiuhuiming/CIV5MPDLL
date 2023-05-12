@@ -23482,6 +23482,10 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		}
 #endif
 
+#ifdef MOD_PROMOTION_ADD_ENERMY_PROMOTIONS
+		ChangeAddEnermyPromotionImmuneRC(thisPromotion.GetAddEnermyPromotionImmune() ? iChange : 0);
+#endif
+
 #if !defined(NO_ACHIEVEMENTS)
 		PromotionTypes eBuffaloChest =(PromotionTypes) GC.getInfoTypeForString("PROMOTION_BUFFALO_CHEST", true /*bHideAssert*/);
 		PromotionTypes eBuffaloLoins =(PromotionTypes) GC.getInfoTypeForString("PROMOTION_BUFFALO_LOINS", true /*bHideAssert*/);
@@ -23912,6 +23916,10 @@ void CvUnit::read(FDataStream& kStream)
 	}
 #endif
 
+#ifdef MOD_PROMOTION_ADD_ENERMY_PROMOTIONS
+	kStream >> m_iAddEnermyPromotionImmuneRC;
+#endif
+
 	//  Read mission queue
 	UINT uSize;
 	kStream >> uSize;
@@ -24110,6 +24118,10 @@ void CvUnit::write(FDataStream& kStream) const
 		kStream << (int) iter->first;
 		kStream << (int) iter->second;
 	}
+#endif
+
+#ifdef MOD_PROMOTION_ADD_ENERMY_PROMOTIONS
+	kStream << m_iAddEnermyPromotionImmuneRC;
 #endif
 
 	//  Write mission list
@@ -28344,5 +28356,16 @@ void CvUnit::SetCollateralXP(int iValue) {
 std::tr1::unordered_map<PromotionCollectionsTypes, int>& CvUnit::GetPromotionCollections()
 {
 	return m_sPromotionCollections;
+}
+#endif
+
+#ifdef MOD_PROMOTION_ADD_ENERMY_PROMOTIONS
+int CvUnit::GetAddEnermyPromotionImmuneRC() const
+{
+	return m_iAddEnermyPromotionImmuneRC;
+}
+void CvUnit::ChangeAddEnermyPromotionImmuneRC(int iChange)
+{
+	m_iAddEnermyPromotionImmuneRC += iChange;
 }
 #endif

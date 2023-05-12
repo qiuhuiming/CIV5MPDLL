@@ -1724,6 +1724,11 @@ public:
 	std::tr1::unordered_map<PromotionCollectionsTypes, int>& GetPromotionCollections();
 #endif
 
+#ifdef MOD_PROMOTION_ADD_ENERMY_PROMOTIONS
+	int GetAddEnermyPromotionImmuneRC() const;
+	void ChangeAddEnermyPromotionImmuneRC(int iChange);
+#endif
+
 #ifdef MOD_PROMOTION_COLLATERAL_DAMAGE
 	std::vector<CollateralInfo>& GetCollateralInfoVec();
 
@@ -2106,6 +2111,10 @@ protected:
 #ifdef MOD_PROMOTION_COLLECTIONS
 	std::tr1::unordered_map<PromotionCollectionsTypes, int> m_sPromotionCollections;
 #endif
+
+ #ifdef MOD_PROMOTION_ADD_ENERMY_PROMOTIONS
+	int m_iAddEnermyPromotionImmuneRC = 0;
+ #endif
 
 	int m_iEmbarkExtraVisibility;
 	int m_iEmbarkDefensiveModifier;

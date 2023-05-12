@@ -610,6 +610,10 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iCollateralXP = kResults.GetInt("CollateralXP");
 #endif
 
+#ifdef MOD_PROMOTION_ADD_ENERMY_PROMOTIONS
+	m_bAddEnermyPromotionImmune = kResults.GetBool("AddEnermyPromotionImmune");
+#endif
+
 	//References
 	const char* szLayerAnimationPath = kResults.GetText("LayerAnimationPath");
 	m_iLayerAnimationPath = GC.getInfoTypeForString(szLayerAnimationPath, true);
@@ -2707,6 +2711,13 @@ int CvPromotionEntry::GetCollateralXP() const
 	return m_iCollateralXP;
 }
 #endif
+
+ #ifdef MOD_PROMOTION_ADD_ENERMY_PROMOTIONS
+bool CvPromotionEntry::GetAddEnermyPromotionImmune() const
+{
+	return m_bAddEnermyPromotionImmune;
+}
+ #endif
 
 //=====================================
 // CvPromotionEntryXMLEntries

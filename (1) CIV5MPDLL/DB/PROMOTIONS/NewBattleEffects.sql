@@ -16,4 +16,4 @@ create table PromotionCollections_AddEnermyPromotions (
     OtherCollectionType text not null references PromotionCollections(Type)
 );
 
-alter table UnitPromotions add column AddEnermyPromotionImmuneAll boolean not null default 0;
+alter table UnitPromotions add column AddEnermyPromotionImmune boolean not null default 0;

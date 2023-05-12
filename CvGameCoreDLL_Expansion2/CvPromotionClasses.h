@@ -340,6 +340,10 @@ public:
 	int GetWarCasualtiesModifier() const;
  #endif
 
+ #ifdef MOD_PROMOTION_ADD_ENERMY_PROMOTIONS
+	bool GetAddEnermyPromotionImmune() const;
+ #endif
+
  #ifdef MOD_PROMOTION_SPLASH_DAMAGE
 	int GetSplashDamageRadius() const;
 	int GetSplashDamagePercent() const;
@@ -667,6 +671,10 @@ protected:
  #ifdef MOD_GLOBAL_WAR_CASUALTIES
 	int m_iWarCasualtiesModifier = 0;
  #endif
+
+#ifdef MOD_PROMOTION_ADD_ENERMY_PROMOTIONS
+	bool m_bAddEnermyPromotionImmune = 0;
+#endif
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

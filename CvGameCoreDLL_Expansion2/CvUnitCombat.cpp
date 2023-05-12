@@ -4670,7 +4670,7 @@ void CvUnitCombat::DoCollateralDamage(const CvCombatInfo& kCombatInfo)
 static void DoAddEnermyPromotionsInner(CvUnit* thisUnit, CvUnit* thatUnit, BattleUnitTypes thisBattleType, const CvCombatInfo& kCombatInfo)
 {
 	if (thisUnit == nullptr || thisUnit->GetPromotionCollections().empty()) return;
-	if (thatUnit == nullptr || thatUnit->isDelayedDeath() || thatUnit->IsDead() || /*immune*/false) return;
+	if (thatUnit == nullptr || thatUnit->isDelayedDeath() || thatUnit->IsDead() || thatUnit->GetAddEnermyPromotionImmuneRC() > 0) return;
 
 	bool ranged = kCombatInfo.getAttackIsRanged() || kCombatInfo.getAttackIsBombingMission();
 	bool melee = !ranged;
