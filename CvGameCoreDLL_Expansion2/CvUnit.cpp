@@ -23555,6 +23555,11 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		}
 #endif
 
+#ifdef MOD_PROMOTION_SELF_DAMAGE
+		ChangeDamagePerTurn(thisPromotion.GetDamagePerTurn() * iChange);
+		ChangeDamagePerTurnNoneFriendlyLand(thisPromotion.GetDamagePerTurnNoneFriendlyLand() * iChange);
+#endif
+
 #if !defined(NO_ACHIEVEMENTS)
 		PromotionTypes eBuffaloChest =(PromotionTypes) GC.getInfoTypeForString("PROMOTION_BUFFALO_CHEST", true /*bHideAssert*/);
 		PromotionTypes eBuffaloLoins =(PromotionTypes) GC.getInfoTypeForString("PROMOTION_BUFFALO_LOINS", true /*bHideAssert*/);
@@ -28489,5 +28494,23 @@ std::tr1::unordered_set<PromotionTypes>& CvUnit::GetPromotionsThatCanBeActionCle
 {
 	return m_sPromotionsThatCanBeActionCleared;
 }
+#endif
 
+#ifdef MOD_PROMOTION_SELF_DAMAGE
+int CvUnit::GetDamagePerTurn() const
+{
+	return m_iDamagePerTurn;
+}
+int CvUnit::GetDamagePerTurnNoneFriendlyLand() const
+{
+	return m_iDamagePerTurnNoneFriendlyLand;
+}
+void CvUnit::ChangeDamagePerTurn(int iChange)
+{
+	m_iDamagePerTurn += iChange;
+}
+void CvUnit::ChangeDamagePerTurnNoneFriendlyLand(int iChange)
+{
+	m_iDamagePerTurnNoneFriendlyLand += iChange;
+}
 #endif

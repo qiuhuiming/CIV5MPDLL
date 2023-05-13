@@ -369,6 +369,11 @@ public:
 	int GetCollateralXP() const;
 #endif
 
+#ifdef MOD_PROMOTION_SELF_DAMAGE
+	int GetDamagePerTurn() const;
+	int GetDamagePerTurnNoneFriendlyLand() const;
+#endif
+
 protected:
 	int m_iLayerAnimationPath;
 	int m_iPrereqPromotion;
@@ -689,6 +694,11 @@ protected:
 	bool m_bRemoveAfterFullyHeal = 0;
 	bool m_bRemoveWithLuaCheck = 0;
 	bool m_bCanActionClear = 0;
+#endif
+
+#ifdef MOD_PROMOTION_SELF_DAMAGE
+	int m_iDamagePerTurn = 0;
+	int m_iDamagePerTurnNoneFriendlyLand = 0;
 #endif
 
 };

@@ -495,6 +495,11 @@
         <Type>UpdateDatabase</Type>
         <FileName>DB/PROMOTIONS/AutoRemove.sql</FileName>
       </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>DB/PROMOTIONS/SelfDamage.sql</FileName>
+      </Action>
     </ModActions>
     <ModReferences />
   </PropertyGroup>
@@ -863,6 +868,10 @@
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="DB\PROMOTIONS\PromotionCollections.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="DB\PROMOTIONS\SelfDamage.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>

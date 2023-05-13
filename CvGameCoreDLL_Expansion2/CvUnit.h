@@ -1734,6 +1734,13 @@ public:
 	std::tr1::unordered_set<PromotionTypes>& GetPromotionsThatCanBeActionCleared();
 #endif
 
+#ifdef MOD_PROMOTION_SELF_DAMAGE
+	int GetDamagePerTurn() const;
+	int GetDamagePerTurnNoneFriendlyLand() const;
+	void ChangeDamagePerTurn(int iChange);
+	void ChangeDamagePerTurnNoneFriendlyLand(int iChange);
+#endif
+
 #ifdef MOD_PROMOTION_COLLATERAL_DAMAGE
 	std::vector<CollateralInfo>& GetCollateralInfoVec();
 
@@ -2124,6 +2131,11 @@ protected:
 #ifdef MOD_GLOBAL_PROMOTIONS_REMOVAL
 	std::tr1::unordered_map<PromotionTypes, AutoRemoveInfo> m_mapAutoRemovePromotions;
 	std::tr1::unordered_set<PromotionTypes> m_sPromotionsThatCanBeActionCleared;
+#endif
+
+#ifdef MOD_PROMOTION_SELF_DAMAGE
+	int m_iDamagePerTurn = 0;
+	int m_iDamagePerTurnNoneFriendlyLand = 0;
 #endif
 
 	int m_iEmbarkExtraVisibility;

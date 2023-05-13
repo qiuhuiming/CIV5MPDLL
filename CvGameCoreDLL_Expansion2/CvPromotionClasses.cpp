@@ -621,6 +621,11 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_bCanActionClear = kResults.GetBool("CanActionClear");
 #endif
 
+#ifdef MOD_PROMOTION_SELF_DAMAGE
+	m_iDamagePerTurn = kResults.GetInt("DamagePerTurn");
+	m_iDamagePerTurnNoneFriendlyLand = kResults.GetInt("DamagePerTurnNoneFriendlyLand");
+#endif
+
 	//References
 	const char* szLayerAnimationPath = kResults.GetText("LayerAnimationPath");
 	m_iLayerAnimationPath = GC.getInfoTypeForString(szLayerAnimationPath, true);
@@ -2745,6 +2750,17 @@ bool CvPromotionEntry::GetRemoveWithLuaCheck() const{
 
 bool CvPromotionEntry::GetCanActionClear() const{
 	return m_bCanActionClear;
+}
+#endif
+
+#ifdef MOD_PROMOTION_SELF_DAMAGE
+int CvPromotionEntry::GetDamagePerTurn() const
+{
+	return m_iDamagePerTurn
+}
+int CvPromotionEntry::GetDamagePerTurnNoneFriendlyLand() const
+{
+	return m_iDamagePerTurnNoneFriendlyLand;
 }
 #endif
 
