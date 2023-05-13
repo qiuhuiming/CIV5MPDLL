@@ -1734,6 +1734,10 @@ public:
 	std::tr1::unordered_set<PromotionTypes>& GetPromotionsThatCanBeActionCleared();
 #endif
 
+#ifdef MOD_PROMOTION_CITY_DESTROYER
+	std::tr1::unordered_map<PromotionTypes, DestroyBuildingsInfo>& GetDestroyBuildings();
+#endif
+
 #ifdef MOD_PROMOTION_COLLATERAL_DAMAGE
 	std::vector<CollateralInfo>& GetCollateralInfoVec();
 
@@ -2124,6 +2128,10 @@ protected:
 #ifdef MOD_GLOBAL_PROMOTIONS_REMOVAL
 	std::tr1::unordered_map<PromotionTypes, AutoRemoveInfo> m_mapAutoRemovePromotions;
 	std::tr1::unordered_set<PromotionTypes> m_sPromotionsThatCanBeActionCleared;
+#endif
+
+#ifdef MOD_PROMOTION_CITY_DESTROYER
+	std::tr1::unordered_map<PromotionTypes, DestroyBuildingsInfo> m_mapDestroyBuildings;
 #endif
 
 	int m_iEmbarkExtraVisibility;

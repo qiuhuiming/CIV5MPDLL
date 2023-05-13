@@ -621,6 +621,33 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_bCanActionClear = kResults.GetBool("CanActionClear");
 #endif
 
+#ifdef MOD_PROMOTION_CITY_DESTROYER
+	m_iDestroyBuildingProbability =  kResults.GetInt("DestroyBuildingProbability");
+	m_iDestroyBuildingNumLimit = kResults.GetInt("DestroyBuildingNumLimit");
+	const char* strDestroyBuildingCollection = kResults.GetText("DestroyBuildingCollection");
+	if (strDestroyBuildingCollection != nullptr)
+	{
+		int iLen = strlen(strDestroyBuildingCollection);
+		if (iLen > 0)
+		{
+			std::string sqlKey = "UnitPromotions_DestroyBuildingCollection";
+			Database::Results* pResults = kUtility.GetResults(sqlKey);
+			if (pResults == NULL)
+			{
+				const char* szSQL = "select ID from BuildingClassCollections where Type = ?;";
+				pResults = kUtility.PrepareResults(sqlKey, szSQL);
+			}
+
+			pResults->Bind(1, strDestroyBuildingCollection, iLen, false);
+			if (pResults->Step())
+			{
+				int id = pResults->GetInt(0);
+				m_iDestroyBuildingCollection = (BuildingClassCollectionsTypes)id;
+			}
+		}
+	}
+#endif
+
 	//References
 	const char* szLayerAnimationPath = kResults.GetText("LayerAnimationPath");
 	m_iLayerAnimationPath = GC.getInfoTypeForString(szLayerAnimationPath, true);
@@ -2745,6 +2772,25 @@ bool CvPromotionEntry::GetRemoveWithLuaCheck() const{
 
 bool CvPromotionEntry::GetCanActionClear() const{
 	return m_bCanActionClear;
+}
+#endif
+
+#ifdef MOD_PROMOTION_CITY_DESTROYER
+BuildingClassCollectionsTypes CvPromotionEntry::GetDestroyBuildingCollection() const
+{
+	return m_iDestroyBuildingCollection;
+}
+int CvPromotionEntry::GetDestroyBuildingProbability() const
+{
+	return m_iDestroyBuildingProbability;
+}
+int CvPromotionEntry::GetDestroyBuildingNumLimit() const
+{
+	return m_iDestroyBuildingNumLimit;
+}
+bool CvPromotionEntry::CanDestroyBuildings() const
+{
+	return m_iDestroyBuildingCollection != NO_BUILDINGCLASS_COLLECTION && m_iDestroyBuildingProbability > 0 && m_iDestroyBuildingNumLimit > 0;
 }
 #endif
 
