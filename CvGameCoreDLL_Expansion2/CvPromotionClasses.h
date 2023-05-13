@@ -357,6 +357,9 @@ public:
 	int GetDestroyBuildingProbability() const;
 	int GetDestroyBuildingNumLimit() const;
 	bool CanDestroyBuildings() const;
+
+	int GetSiegeKillCitizensPercent() const;
+	int GetSiegeKillCitizensFixed() const;
 #endif
 
  #ifdef MOD_PROMOTION_SPLASH_DAMAGE
@@ -702,6 +705,9 @@ protected:
 	BuildingClassCollectionsTypes m_iDestroyBuildingCollection = NO_BUILDINGCLASS_COLLECTION;
 	int m_iDestroyBuildingProbability = 0;
 	int m_iDestroyBuildingNumLimit = 0;
+
+	int m_iSiegeKillCitizensPercent = 0;
+	int m_iSiegeKillCitizensFixed = 0;
 #endif
 };
 

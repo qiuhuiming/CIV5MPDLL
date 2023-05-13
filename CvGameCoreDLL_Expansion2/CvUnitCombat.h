@@ -64,6 +64,7 @@ public:
 	static void DoCollateralDamage(const CvCombatInfo& kInfo);
 	static void DoAddEnermyPromotions(const CvCombatInfo& kInfo);
 	static void DoDestroyBuildings(const CvCombatInfo& kInfo);
+	static void DoKillCitizens(const CvCombatInfo& kInfo);
 #endif
 #endif
 

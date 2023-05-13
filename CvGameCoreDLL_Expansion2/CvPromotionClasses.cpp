@@ -646,6 +646,9 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 			}
 		}
 	}
+
+	m_iSiegeKillCitizensFixed = kResults.GetInt("SiegeKillCitizensFixed");
+	m_iSiegeKillCitizensPercent = kResults.GetInt("SiegeKillCitizensPercent");
 #endif
 
 	//References
@@ -2791,6 +2794,15 @@ int CvPromotionEntry::GetDestroyBuildingNumLimit() const
 bool CvPromotionEntry::CanDestroyBuildings() const
 {
 	return m_iDestroyBuildingCollection != NO_BUILDINGCLASS_COLLECTION && m_iDestroyBuildingProbability > 0 && m_iDestroyBuildingNumLimit > 0;
+}
+
+int CvPromotionEntry::GetSiegeKillCitizensPercent() const
+{
+	return m_iSiegeKillCitizensPercent;
+}
+int CvPromotionEntry::GetSiegeKillCitizensFixed() const
+{
+	return m_iSiegeKillCitizensFixed;
 }
 #endif
 

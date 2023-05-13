@@ -23567,6 +23567,9 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 				m_mapDestroyBuildings.erase(PromotionTypes(thisPromotion.GetID()));
 			}
 		}
+
+		ChangeSiegeKillCitizensFixed(thisPromotion.GetSiegeKillCitizensFixed() * iChange);
+		ChangeSiegeKillCitizensPercent(thisPromotion.GetSiegeKillCitizensPercent() * iChange);
 #endif
 
 #if !defined(NO_ACHIEVEMENTS)
@@ -24011,6 +24014,9 @@ void CvUnit::read(FDataStream& kStream)
 		kStream >> info;
 		m_mapDestroyBuildings[(PromotionTypes)iPromotion] = info;
 	}
+
+	kStream >> m_iSiegeKillCitizensPercent;
+	kStream >> m_iSiegeKillCitizensFixed;
 #endif
 
 #ifdef MOD_PROMOTION_ADD_ENERMY_PROMOTIONS
@@ -24248,6 +24254,9 @@ void CvUnit::write(FDataStream& kStream) const
 		kStream << (int) iter->first;
 		kStream << iter->second;
 	}
+
+	kStream << m_iSiegeKillCitizensPercent;
+	kStream << m_iSiegeKillCitizensFixed;
 #endif
 
 #ifdef MOD_PROMOTION_ADD_ENERMY_PROMOTIONS
@@ -28534,4 +28543,26 @@ std::tr1::unordered_map<PromotionTypes, DestroyBuildingsInfo>& CvUnit::GetDestro
 {
 	return m_mapDestroyBuildings;
 }
+
+int CvUnit::GetSiegeKillCitizensPercent() const
+{
+	return m_iSiegeKillCitizensPercent;
+}
+int CvUnit::GetSiegeKillCitizensFixed() const
+{
+	return m_iSiegeKillCitizensFixed;
+}
+void CvUnit::ChangeSiegeKillCitizensPercent(int iChange)
+{
+	m_iSiegeKillCitizensPercent += iChange;
+}
+void CvUnit::ChangeSiegeKillCitizensFixed(int iChange)
+{
+	m_iSiegeKillCitizensFixed += iChange;
+}
+bool CvUnit::CanSiegeKillCitizens() const
+{
+	return (m_iSiegeKillCitizensPercent > 0 || m_iSiegeKillCitizensFixed > 0);
+}
+
 #endif
