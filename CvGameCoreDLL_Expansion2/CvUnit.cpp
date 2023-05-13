@@ -2325,6 +2325,47 @@ void CvUnit::doTurn()
 	}
 #endif
 
+#ifdef MOD_AUTO_REMOVE_PROMOTIONS
+	if (MOD_AUTO_REMOVE_PROMOTIONS)
+	{
+		std::vector<PromotionTypes> vPromotionsToRemove;
+		for (auto iter = m_mapAutoRemovePromotions.begin(); iter != m_mapAutoRemovePromotions.end(); iter++)
+		{
+			bool bDoRemove = false;
+
+			if (iter->second.m_iTurnToRemove >= 0 && GC.getGame().getGameTurn() >= iter->second.m_iTurnToRemove)
+			{
+				bDoRemove = true;
+				goto CHECK_AND_REMOVE;
+			}
+			if (iter->second.m_bRemoveAfterFullyHeal && getDamage() <= 0)
+			{
+				bDoRemove = true;
+				goto CHECK_AND_REMOVE;
+			}
+			if (iter->second.m_bRemoveLuaCheck)
+			{
+				if (GAMEEVENTINVOKE_TESTANY(GAMEEVENT_CanRemovePromotion, (int)iter->first, getOwner(), GetID()) == GAMEEVENTRETURN_TRUE)
+				{
+					bDoRemove = true;
+					goto CHECK_AND_REMOVE;
+				}
+			}
+
+		CHECK_AND_REMOVE:
+			if (!bDoRemove) continue;
+
+			vPromotionsToRemove.push_back(iter->first);
+		}
+
+		for (auto promotion : vPromotionsToRemove)
+		{
+			setHasPromotion(promotion, false);
+		}
+	}
+
+#endif
+
 	// Only increase our Fortification level if we've actually been told to Fortify
 	if(IsFortifiedThisTurn())
 	{
