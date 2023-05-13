@@ -2325,8 +2325,8 @@ void CvUnit::doTurn()
 	}
 #endif
 
-#ifdef MOD_AUTO_REMOVE_PROMOTIONS
-	if (MOD_AUTO_REMOVE_PROMOTIONS)
+#ifdef MOD_GLOBAL_PROMOTIONS_REMOVAL
+	if (MOD_GLOBAL_PROMOTIONS_REMOVAL)
 	{
 		std::vector<PromotionTypes> vPromotionsToRemove;
 		for (auto iter = m_mapAutoRemovePromotions.begin(); iter != m_mapAutoRemovePromotions.end(); iter++)
@@ -23527,7 +23527,7 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		ChangeAddEnermyPromotionImmuneRC(thisPromotion.GetAddEnermyPromotionImmune() ? iChange : 0);
 #endif
 
-#ifdef MOD_AUTO_REMOVE_PROMOTIONS
+#ifdef MOD_GLOBAL_PROMOTIONS_REMOVAL
 		if (thisPromotion.CanAutoRemove())
 		{
 			if (iChange == 1)
@@ -23539,6 +23539,18 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 			else if (iChange == -1)
 			{
 				m_mapAutoRemovePromotions.erase((PromotionTypes)thisPromotion.GetID());
+			}
+		}
+
+		if (thisPromotion.GetCanActionClear())
+		{
+			if (iChange == 1)
+			{
+				m_sPromotionsThatCanBeActionCleared.insert((PromotionTypes)thisPromotion.GetID());
+			}
+			else if (iChange == -1)
+			{
+				m_sPromotionsThatCanBeActionCleared.erase((PromotionTypes)thisPromotion.GetID());
 			}
 		}
 #endif
@@ -23977,7 +23989,7 @@ void CvUnit::read(FDataStream& kStream)
 	kStream >> m_iAddEnermyPromotionImmuneRC;
 #endif
 
-#ifdef MOD_AUTO_REMOVE_PROMOTIONS
+#ifdef MOD_GLOBAL_PROMOTIONS_REMOVAL
 	int iAutoRemovePromotionsLen = 0;
 	kStream >> iAutoRemovePromotionsLen;
 	m_mapAutoRemovePromotions.clear();
@@ -23988,6 +24000,16 @@ void CvUnit::read(FDataStream& kStream)
 		kStream >> iAutoRemovePromotion;
 		kStream >> info;
 		m_mapAutoRemovePromotions[(PromotionTypes)iAutoRemovePromotion] = info;
+	}
+
+	int iActionClearPromotionLen = 0;
+	kStream >> iActionClearPromotionLen;
+	m_sPromotionsThatCanBeActionCleared.clear();
+	for (int i = 0; i < iActionClearPromotionLen; i++)
+	{
+		int iActionClearPromotion = 0;
+		kStream >> iActionClearPromotion;
+		m_sPromotionsThatCanBeActionCleared.insert((PromotionTypes)iActionClearPromotion);
 	}
 #endif
 
@@ -24195,12 +24217,18 @@ void CvUnit::write(FDataStream& kStream) const
 	kStream << m_iAddEnermyPromotionImmuneRC;
 #endif
 
-#ifdef MOD_AUTO_REMOVE_PROMOTIONS
+#ifdef MOD_GLOBAL_PROMOTIONS_REMOVAL
 	kStream << m_mapAutoRemovePromotions.size();
 	for (auto iter = m_mapAutoRemovePromotions.begin(); iter != m_mapAutoRemovePromotions.end(); iter++)
 	{
 		kStream << (int) iter->first;
 		kStream << iter->second;
+	}
+
+	kStream << m_sPromotionsThatCanBeActionCleared.size();
+	for (auto iter = m_sPromotionsThatCanBeActionCleared.begin(); iter != m_sPromotionsThatCanBeActionCleared.end(); iter++)
+	{
+		kStream << (int) *iter;
 	}
 #endif
 
@@ -28448,4 +28476,18 @@ void CvUnit::ChangeAddEnermyPromotionImmuneRC(int iChange)
 {
 	m_iAddEnermyPromotionImmuneRC += iChange;
 }
+#endif
+
+#ifdef MOD_GLOBAL_PROMOTIONS_REMOVAL
+void CvUnit::ClearSamePlotPromotions()
+{
+	if (plot())
+		plot()->ClearUnitPromotions();
+}
+
+std::tr1::unordered_set<PromotionTypes>& CvUnit::GetPromotionsThatCanBeActionCleared()
+{
+	return m_sPromotionsThatCanBeActionCleared;
+}
+
 #endif

@@ -344,7 +344,7 @@ public:
 	bool GetAddEnermyPromotionImmune() const;
  #endif
 
-#ifdef MOD_AUTO_REMOVE_PROMOTIONS
+#ifdef MOD_GLOBAL_PROMOTIONS_REMOVAL
 	bool CanAutoRemove() const;
 	int GetRemoveAfterXTurns() const;
 	bool GetRemoveAfterFullyHeal() const;
@@ -684,7 +684,7 @@ protected:
 	bool m_bAddEnermyPromotionImmune = 0;
 #endif
 
-#ifdef MOD_AUTO_REMOVE_PROMOTIONS
+#ifdef MOD_GLOBAL_PROMOTIONS_REMOVAL
 	int m_iRemoveAfterXTurns = 0;
 	bool m_bRemoveAfterFullyHeal = 0;
 	bool m_bRemoveWithLuaCheck = 0;
@@ -868,7 +868,7 @@ struct CollateralInfo {
 };
 #endif
 
-#ifdef MOD_AUTO_REMOVE_PROMOTIONS
+#ifdef MOD_GLOBAL_PROMOTIONS_REMOVAL
 struct AutoRemoveInfo {
 	PromotionTypes m_ePromotion = NO_PROMOTION;
 

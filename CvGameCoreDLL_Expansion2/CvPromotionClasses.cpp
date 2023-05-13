@@ -614,7 +614,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_bAddEnermyPromotionImmune = kResults.GetBool("AddEnermyPromotionImmune");
 #endif
 
-#ifdef MOD_AUTO_REMOVE_PROMOTIONS
+#ifdef MOD_GLOBAL_PROMOTIONS_REMOVAL
 	m_iRemoveAfterXTurns = kResults.GetInt("RemoveAfterXTurns");
 	m_bRemoveAfterFullyHeal = kResults.GetBool("RemoveAfterFullyHeal");
 	m_bRemoveWithLuaCheck = kResults.GetBool("RemoveWithLuaCheck");
@@ -2726,7 +2726,7 @@ bool CvPromotionEntry::GetAddEnermyPromotionImmune() const
 }
 #endif
 
-#ifdef MOD_AUTO_REMOVE_PROMOTIONS
+#ifdef MOD_GLOBAL_PROMOTIONS_REMOVAL
 bool CvPromotionEntry::CanAutoRemove() const{
 	return m_iRemoveAfterXTurns > 0 || m_bRemoveAfterFullyHeal || m_bRemoveWithLuaCheck;
 }
