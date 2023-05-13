@@ -2116,6 +2116,10 @@ protected:
 	int m_iAddEnermyPromotionImmuneRC = 0;
  #endif
 
+#ifdef MOD_AUTO_REMOVE_PROMOTIONS
+	std::tr1::unordered_map<PromotionTypes, AutoRemoveInfo> m_mapAutoRemovePromotions;
+#endif
+
 	int m_iEmbarkExtraVisibility;
 	int m_iEmbarkDefensiveModifier;
 	int m_iCapitalDefenseModifier;

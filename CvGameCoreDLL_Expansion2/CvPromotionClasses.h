@@ -344,6 +344,14 @@ public:
 	bool GetAddEnermyPromotionImmune() const;
  #endif
 
+#ifdef MOD_AUTO_REMOVE_PROMOTIONS
+	bool CanAutoRemove() const;
+	int GetRemoveAfterXTurns() const;
+	bool GetRemoveAfterFullyHeal() const;
+	bool GetRemoveWithLuaCheck() const;
+	bool GetCanActionClear() const;
+#endif
+
  #ifdef MOD_PROMOTION_SPLASH_DAMAGE
 	int GetSplashDamageRadius() const;
 	int GetSplashDamagePercent() const;
@@ -675,6 +683,14 @@ protected:
 #ifdef MOD_PROMOTION_ADD_ENERMY_PROMOTIONS
 	bool m_bAddEnermyPromotionImmune = 0;
 #endif
+
+#ifdef MOD_AUTO_REMOVE_PROMOTIONS
+	int m_iRemoveAfterXTurns = 0;
+	bool m_bRemoveAfterFullyHeal = 0;
+	bool m_bRemoveWithLuaCheck = 0;
+	bool m_bCanActionClear = 0;
+#endif
+
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -850,4 +866,42 @@ struct CollateralInfo {
 		kStream << iPlotUnitLimit;
 	}
 };
+#endif
+
+#ifdef MOD_AUTO_REMOVE_PROMOTIONS
+struct AutoRemoveInfo {
+	PromotionTypes m_ePromotion = NO_PROMOTION;
+
+	int m_iTurnToRemove = -1;
+	bool m_bRemoveAfterFullyHeal = false;
+	bool m_bRemoveLuaCheck = false;
+
+	AutoRemoveInfo() = default;
+
+	AutoRemoveInfo(const CvPromotionEntry& entry, int iTurnToRemove):
+		m_ePromotion((PromotionTypes)entry.GetID()),
+		m_iTurnToRemove(iTurnToRemove),
+		m_bRemoveAfterFullyHeal(entry.GetRemoveAfterFullyHeal()),
+		m_bRemoveLuaCheck(entry.GetRemoveWithLuaCheck()) {}
+};
+
+inline FDataStream& operator<<(FDataStream& os, const AutoRemoveInfo& info) {
+	os << (int)info.m_ePromotion;
+	os << info.m_iTurnToRemove;
+	os << info.m_bRemoveAfterFullyHeal;
+	os << info.m_bRemoveLuaCheck;
+
+	return os;
+}
+
+inline FDataStream& operator>>(FDataStream& is, AutoRemoveInfo& info) {
+	int iPromotion = -1;
+	is >> iPromotion;
+	info.m_ePromotion = (PromotionTypes)iPromotion;
+	is >> info.m_iTurnToRemove;
+	is >> info.m_bRemoveAfterFullyHeal;
+	is >> info.m_bRemoveLuaCheck;
+
+	return is;
+}
 #endif

@@ -614,6 +614,13 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_bAddEnermyPromotionImmune = kResults.GetBool("AddEnermyPromotionImmune");
 #endif
 
+#ifdef MOD_AUTO_REMOVE_PROMOTIONS
+	m_iRemoveAfterXTurns = kResults.GetInt("RemoveAfterXTurns");
+	m_bRemoveAfterFullyHeal = kResults.GetBool("RemoveAfterFullyHeal");
+	m_bRemoveWithLuaCheck = kResults.GetBool("RemoveWithLuaCheck");
+	m_bCanActionClear = kResults.GetBool("CanActionClear");
+#endif
+
 	//References
 	const char* szLayerAnimationPath = kResults.GetText("LayerAnimationPath");
 	m_iLayerAnimationPath = GC.getInfoTypeForString(szLayerAnimationPath, true);
@@ -2712,12 +2719,34 @@ int CvPromotionEntry::GetCollateralXP() const
 }
 #endif
 
- #ifdef MOD_PROMOTION_ADD_ENERMY_PROMOTIONS
+#ifdef MOD_PROMOTION_ADD_ENERMY_PROMOTIONS
 bool CvPromotionEntry::GetAddEnermyPromotionImmune() const
 {
 	return m_bAddEnermyPromotionImmune;
 }
- #endif
+#endif
+
+#ifdef MOD_AUTO_REMOVE_PROMOTIONS
+bool CvPromotionEntry::CanAutoRemove() const{
+	return m_iRemoveAfterXTurns > 0 || m_bRemoveAfterFullyHeal || m_bRemoveWithLuaCheck;
+}
+
+int CvPromotionEntry::GetRemoveAfterXTurns() const{
+	return m_iRemoveAfterXTurns;
+}
+
+bool CvPromotionEntry::GetRemoveAfterFullyHeal() const{
+	return m_bRemoveAfterFullyHeal;
+}
+
+bool CvPromotionEntry::GetRemoveWithLuaCheck() const{
+	return m_bRemoveWithLuaCheck;
+}
+
+bool CvPromotionEntry::GetCanActionClear() const{
+	return m_bCanActionClear;
+}
+#endif
 
 //=====================================
 // CvPromotionEntryXMLEntries
