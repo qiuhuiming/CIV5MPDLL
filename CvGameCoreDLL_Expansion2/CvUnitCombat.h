@@ -15,19 +15,19 @@
 
 struct InflictDamageContext
 {
-	CvUnit *pAttackerUnit;
-	CvCity *pAttackerCity;
-	CvUnit *pDefenderUnit;
-	CvCity *pDefenderCity;
+	CvUnit* pAttackerUnit = nullptr;
+	CvCity* pAttackerCity = nullptr;
+	CvUnit* pDefenderUnit = nullptr;
+	CvCity *pDefenderCity = nullptr;
 
 	// battle type
-	bool bRanged;
-	bool bMelee;
-	bool bAirCombat;
+	bool bRanged = false;
+	bool bMelee = false;
+	bool bAirCombat = false;
 
 	// output
-	int *piAttackInflictDamage;
-	int *piDefenseInflictDamage;
+	int *piAttackInflictDamage = nullptr;
+	int *piDefenseInflictDamage = nullptr;
 };
 
 // Combat controller for CvUnits
