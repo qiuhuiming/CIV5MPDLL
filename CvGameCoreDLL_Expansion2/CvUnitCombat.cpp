@@ -4331,7 +4331,7 @@ inline static CvPlayerAI& getDefenderPlayer(const CvCombatInfo& kCombatInfo)
 }
 
 #ifdef MOD_ROG_CORE
-void UnitDamageChangeInterveneHelper(CvUnit* thisUnit, int* enemyInflictDamage)
+void UnitDamageChangeInterveneNoCondition(CvUnit* thisUnit, int* enemyInflictDamage)
 {
 	if (!thisUnit || !enemyInflictDamage) return;
 	if (thisUnit->getForcedDamageValue() != 0)
@@ -4346,11 +4346,11 @@ void UnitDamageChangeInterveneHelper(CvUnit* thisUnit, int* enemyInflictDamage)
 
 void UnitDamageChangeIntervene(InflictDamageContext* ctx)
 {
-	UnitDamageChangeInterveneHelper(ctx->pAttackerUnit, ctx->piDefenseInflictDamage);
-	UnitDamageChangeInterveneHelper(ctx->pDefenderUnit, ctx->piAttackInflictDamage);
+	UnitDamageChangeInterveneNoCondition(ctx->pAttackerUnit, ctx->piDefenseInflictDamage);
+	UnitDamageChangeInterveneNoCondition(ctx->pDefenderUnit, ctx->piAttackInflictDamage);
 }
 
-void CityDamageChangeInterveneHelper(CvCity* thisCity, int* enemyInflictDamage)
+void CityDamageChangeInterveneNoCondition(CvCity* thisCity, int* enemyInflictDamage)
 {
 	if (!thisCity || !enemyInflictDamage) return;
 
@@ -4366,7 +4366,7 @@ void CityDamageChangeInterveneHelper(CvCity* thisCity, int* enemyInflictDamage)
 
 void CityDamageChangeIntervene(InflictDamageContext* ctx)
 {
-	CityDamageChangeInterveneHelper(ctx->pDefenderCity, ctx->piAttackInflictDamage);
+	CityDamageChangeInterveneNoCondition(ctx->pDefenderCity, ctx->piAttackInflictDamage);
 }
 
 void CvUnitCombat::InterveneInflictDamage(InflictDamageContext* ctx)
