@@ -127,31 +127,14 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 		int iDefenderDamageInflicted = kAttacker.getCombatDamage(iDefenderStrength, iAttackerStrength, pkCity->getDamage(), /*bIncludeRand*/ true, /*bAttackerIsCity*/ true, /*bDefenderIsCity*/ false);
 
 #if defined(MOD_ROG_CORE)
-		if (kAttacker.getForcedDamageValue() != 0)
-		{
-			iDefenderDamageInflicted = kAttacker.getForcedDamageValue();
-		}
-		if (kAttacker.getChangeDamageValue() != 0)
-		{
-			iDefenderDamageInflicted += kAttacker.getChangeDamageValue();
-			if (iDefenderDamageInflicted <= 0)
-				iDefenderDamageInflicted = 0;
-		}
+		InflictDamageContext ctx;
+		ctx.pDefenderCity = pkCity;
+		ctx.pAttackerUnit = &kAttacker;
+		ctx.piAttackInflictDamage = &iAttackerDamageInflicted;
+		ctx.piDefenseInflictDamage = &iDefenderDamageInflicted;
+		ctx.bMelee = true;
+		InflictDamageChange(&ctx);
 #endif
-
-#if defined(MOD_ROG_CORE)
-		if (pkCity->getResetDamageValue() != 0)
-		{
-			iAttackerDamageInflicted = pkCity->getResetDamageValue();
-		}
-		if (pkCity->getReduceDamageValue() != 0)
-		{
-			iAttackerDamageInflicted += pkCity->getReduceDamageValue();
-			if (iAttackerDamageInflicted <= 0)
-				iAttackerDamageInflicted = 0;
-		}
-#endif
-
 
 		int iAttackerTotalDamageInflicted = iAttackerDamageInflicted + pkCity->getDamage();
 		int iDefenderTotalDamageInflicted = iDefenderDamageInflicted + kAttacker.getDamage();
@@ -244,28 +227,14 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 		}
 
 #if defined(MOD_ROG_CORE)
-		if (kAttacker.getForcedDamageValue() != 0)
-		{
-			iDefenderDamageInflicted = kAttacker.getForcedDamageValue();
-		}
-		if (pkDefender->getForcedDamageValue() != 0)
-		{
-			iAttackerDamageInflicted = pkDefender->getForcedDamageValue();
-		}
-		if (kAttacker.getChangeDamageValue() != 0)
-		{
-			iDefenderDamageInflicted += kAttacker.getChangeDamageValue();
-			if (iDefenderDamageInflicted <= 0)
-				iDefenderDamageInflicted = 0;
-		}
-		if (pkDefender->getChangeDamageValue() != 0)
-		{
-			iAttackerDamageInflicted += pkDefender->getChangeDamageValue();
-			if (iAttackerDamageInflicted <= 0)
-				iAttackerDamageInflicted = 0;
-		}
+		InflictDamageContext ctx;
+		ctx.pDefenderUnit = pkDefender;
+		ctx.pAttackerUnit = &kAttacker;
+		ctx.piAttackInflictDamage = &iAttackerDamageInflicted;
+		ctx.piDefenseInflictDamage = &iDefenderDamageInflicted;
+		ctx.bMelee = true;
+		InflictDamageChange(&ctx);
 #endif
-
 
 		int iAttackerTotalDamageInflicted = iAttackerDamageInflicted + pkDefender->getDamage();
 		int iDefenderTotalDamageInflicted = iDefenderDamageInflicted + kAttacker.getDamage();
@@ -761,16 +730,12 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvUnit& kAttacker, CvUnit* pkDefende
 		iDamage = kAttacker.GetRangeCombatDamage(pkDefender, /*pCity*/ NULL, /*bIncludeRand*/ true);
 
 #if defined(MOD_ROG_CORE)
-		if (pkDefender->getForcedDamageValue() != 0)
-		{
-			iDamage = pkDefender->getForcedDamageValue();
-		}
-		if (pkDefender->getChangeDamageValue() != 0)
-		{
-			iDamage += pkDefender->getChangeDamageValue();
-			if (iDamage <= 0)
-				iDamage = 0;
-		}
+		InflictDamageContext ctx;
+		ctx.pDefenderUnit = pkDefender;
+		ctx.pAttackerUnit = &kAttacker;
+		ctx.piAttackInflictDamage = &iDamage;
+		ctx.bRanged = true;
+		InflictDamageChange(&ctx);
 #endif
 
 #if defined(MOD_UNITS_MAX_HP)
@@ -787,7 +752,7 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvUnit& kAttacker, CvUnit* pkDefende
 
 		iTotalDamage = std::max(pkDefender->getDamage(), pkDefender->getDamage() + iDamage);
 	}
-	else
+	else // plot.isCity()
 	{
 		if (kAttacker.isRangedSupportFire()) return; // can't attack cities with this
 
@@ -814,19 +779,13 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvUnit& kAttacker, CvUnit* pkDefende
 		iDamage = kAttacker.GetRangeCombatDamage(/*pDefender*/ NULL, pCity, /*bIncludeRand*/ true);
 
 #if defined(MOD_ROG_CORE)
-		if (pCity->getResetDamageValue() != 0)
-		{
-			iDamage = pCity->getResetDamageValue();
-		}
-		if (pCity->getReduceDamageValue() != 0)
-		{
-			iDamage += pCity->getReduceDamageValue();
-			if (iDamage <= 0)
-				iDamage = 0;
-		}
+		InflictDamageContext ctx;
+		ctx.pDefenderCity = pCity;
+		ctx.pAttackerUnit = &kAttacker;
+		ctx.piAttackInflictDamage = &iDamage;
+		ctx.bRanged = true;
+		InflictDamageChange(&ctx);
 #endif
-
-
 
 		// Cities can't be knocked to less than 1 HP
 		if(iDamage + pCity->getDamage() >= pCity->GetMaxHitPoints())
@@ -936,16 +895,12 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvCity& kAttacker, CvUnit* pkDefende
 
 
 #if defined(MOD_ROG_CORE)
-		if (pkDefender->getForcedDamageValue() != 0)
-		{
-			iDamage = pkDefender->getForcedDamageValue();
-		}
-		if (pkDefender->getChangeDamageValue() != 0)
-		{
-			iDamage += pkDefender->getChangeDamageValue();
-			if (iDamage <= 0)
-				iDamage = 0;
-		}
+		InflictDamageContext ctx;
+		ctx.pDefenderUnit = pkDefender;
+		ctx.pAttackerCity = &kAttacker;
+		ctx.piAttackInflictDamage = &iDamage;
+		ctx.bRanged = true;
+		InflictDamageChange(&ctx);
 #endif
 
 #if defined(MOD_UNITS_MAX_HP)
@@ -1615,21 +1570,18 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 
 		// Calculate attacker damage
 		iAttackerDamageInflicted = kAttacker.GetAirCombatDamage(pkDefender, /*pCity*/ NULL, /*bIncludeRand*/ true, iInterceptionDamage);
-
+		// Calculate defense damage
+		iDefenderDamageInflicted = pkDefender->GetAirStrikeDefenseDamage(&kAttacker);
 
 #if defined(MOD_ROG_CORE)
-		if (pkDefender->getForcedDamageValue() != 0)
-		{
-			iAttackerDamageInflicted = pkDefender->getForcedDamageValue();
-		}
-		if (pkDefender->getChangeDamageValue() != 0)
-		{
-			iAttackerDamageInflicted += pkDefender->getChangeDamageValue();
-			if (iAttackerDamageInflicted <= 0)
-				iAttackerDamageInflicted = 0;
-		}
+		InflictDamageContext ctx;
+		ctx.pDefenderUnit = pkDefender;
+		ctx.pAttackerUnit = &kAttacker;
+		ctx.piAttackInflictDamage = &iAttackerDamageInflicted;
+		ctx.piDefenseInflictDamage = &iDefenderDamageInflicted;
+		ctx.bAirCombat = true;
+		InflictDamageChange(&ctx);
 #endif
-
 
 #if defined(MOD_UNITS_MAX_HP)
 		if(iAttackerDamageInflicted + pkDefender->getDamage() > pkDefender->GetMaxHitPoints())
@@ -1645,21 +1597,6 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 
 		iAttackerTotalDamageInflicted = std::max(pkDefender->getDamage(), pkDefender->getDamage() + iAttackerDamageInflicted);
 
-		// Calculate defense damage
-		iDefenderDamageInflicted = pkDefender->GetAirStrikeDefenseDamage(&kAttacker);
-
-#if defined(MOD_ROG_CORE)
-		if (kAttacker.getForcedDamageValue() != 0)
-		{
-			iDefenderDamageInflicted = kAttacker.getForcedDamageValue();
-		}
-		if (kAttacker.getChangeDamageValue() != 0)
-		{
-			iDefenderDamageInflicted += kAttacker.getChangeDamageValue();
-			if (iDefenderDamageInflicted <= 0)
-				iDefenderDamageInflicted = 0;
-		}
-#endif
 
 #if defined(MOD_UNITS_MAX_HP)
 		if(iDefenderDamageInflicted + kAttacker.getDamage() > kAttacker.GetMaxHitPoints())
@@ -1705,18 +1642,17 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 		iMaxXP = 1000;
 
 		iAttackerDamageInflicted = kAttacker.GetAirCombatDamage(/*pUnit*/ NULL, pCity, /*bIncludeRand*/ true, iInterceptionDamage);
+		// Calculate defense damage
+		iDefenderDamageInflicted = pCity->GetAirStrikeDefenseDamage(&kAttacker);
 
 #if defined(MOD_ROG_CORE)
-		if (pCity->getResetDamageValue() != 0)
-		{
-			iAttackerDamageInflicted = pCity->getResetDamageValue();
-		}
-		if (pCity->getReduceDamageValue() != 0)
-		{
-			iAttackerDamageInflicted += pCity->getReduceDamageValue();
-			if (iAttackerDamageInflicted <= 0)
-				iAttackerDamageInflicted = 0;
-		}
+		InflictDamageContext ctx;
+		ctx.pDefenderCity = pCity;
+		ctx.pAttackerUnit = &kAttacker;
+		ctx.piAttackInflictDamage = &iAttackerDamageInflicted;
+		ctx.piDefenseInflictDamage = &iDefenderDamageInflicted;
+		ctx.bAirCombat = true;
+		InflictDamageChange(&ctx);
 #endif
 
 
@@ -1728,8 +1664,6 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 
 		iAttackerTotalDamageInflicted = std::max(pCity->getDamage(), pCity->getDamage() + iAttackerDamageInflicted);
 
-		// Calculate defense damage
-		iDefenderDamageInflicted = pCity->GetAirStrikeDefenseDamage(&kAttacker);
 
 		if(iDefenderDamageInflicted + kAttacker.getDamage() > pCity->GetMaxHitPoints())
 		{
@@ -4395,6 +4329,65 @@ inline static CvPlayerAI& getDefenderPlayer(const CvCombatInfo& kCombatInfo)
 	CvCity* pDefenderCity = kCombatInfo.getCity(BATTLE_UNIT_DEFENDER);
 	return GET_PLAYER(pDefenderUnit ? pDefenderUnit->getOwner() : pDefenderCity->getOwner());
 }
+
+#ifdef MOD_ROG_CORE
+void CvUnitCombat::InflictDamageChange(InflictDamageContext* ctx)
+{
+	if (ctx == nullptr) return;
+
+	if (ctx->piAttackInflictDamage)
+	{
+		if (ctx->pDefenderUnit)
+		{
+			auto& pkDefenderUnit = *ctx->pDefenderUnit;
+			if (pkDefenderUnit.getForcedDamageValue() != 0)
+			{
+				*ctx->piAttackInflictDamage = pkDefenderUnit.getForcedDamageValue();
+			}
+			if (pkDefenderUnit.getChangeDamageValue() != 0)
+			{
+				*ctx->piAttackInflictDamage += pkDefenderUnit.getChangeDamageValue();
+			}
+		}
+		if (ctx->pDefenderCity)
+		{
+			auto& pkDefenderCity = *ctx->pDefenderCity;
+			if (pkDefenderCity.getResetDamageValue() != 0)
+			{
+				*ctx->piAttackInflictDamage = pkDefenderCity.getResetDamageValue();
+			}
+			if (pkDefenderCity.getReduceDamageValue() != 0)
+			{
+				*ctx->piAttackInflictDamage += pkDefenderCity.getReduceDamageValue();
+			}
+		}
+
+		if (*ctx->piAttackInflictDamage <= 0)
+			*ctx->piAttackInflictDamage = 0;
+	}
+
+	if (ctx->piDefenseInflictDamage)
+	{
+		if (ctx->pAttackerUnit)
+		{
+			auto& pkAttackerUnit = *ctx->pAttackerUnit;
+			if (pkAttackerUnit.getForcedDamageValue() != 0)
+			{
+				*ctx->piDefenseInflictDamage = pkAttackerUnit.getForcedDamageValue();
+			}
+			if (pkAttackerUnit.getChangeDamageValue() != 0)
+			{
+				*ctx->piDefenseInflictDamage += pkAttackerUnit.getChangeDamageValue();
+			}
+		}
+
+		if (*ctx->piDefenseInflictDamage <= 0)
+		{
+			*ctx->piDefenseInflictDamage = 0;
+		}
+	}
+}
+#endif
 
 static int calcOrCacheDamage(CvUnit* pAttacker, CvPlot* pFromPlot, CvUnit* pDefender, CvPlot* pTargetPlot, bool bRangedAttack, std::tr1::unordered_map<CvUnit*, int>& mUnitDamageBaseMap)
 {

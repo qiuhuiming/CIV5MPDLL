@@ -13,6 +13,23 @@
 #include "CvUnit.h"
 #include "CvPlot.h"
 
+struct InflictDamageContext
+{
+	CvUnit *pAttackerUnit;
+	CvCity *pAttackerCity;
+	CvUnit *pDefenderUnit;
+	CvCity *pDefenderCity;
+
+	// battle type
+	bool bRanged;
+	bool bMelee;
+	bool bAirCombat;
+
+	// output
+	int *piAttackInflictDamage;
+	int *piDefenseInflictDamage;
+};
+
 // Combat controller for CvUnits
 class CvUnitCombat
 {
@@ -67,6 +84,10 @@ public:
 	static void DoKillCitizens(const CvCombatInfo& kInfo);
 	static void DoStackingFightBack(const CvCombatInfo& kInfo);
 #endif
+#endif
+
+#ifdef MOD_ROG_CORE
+	static void InflictDamageChange(InflictDamageContext* ctx);
 #endif
 
 protected:
