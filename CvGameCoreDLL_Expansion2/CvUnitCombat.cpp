@@ -133,7 +133,7 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 		ctx.piAttackInflictDamage = &iAttackerDamageInflicted;
 		ctx.piDefenseInflictDamage = &iDefenderDamageInflicted;
 		ctx.bMelee = true;
-		InflictDamageChange(&ctx);
+		InterveneInflictDamage(&ctx);
 #endif
 
 		int iAttackerTotalDamageInflicted = iAttackerDamageInflicted + pkCity->getDamage();
@@ -233,7 +233,7 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 		ctx.piAttackInflictDamage = &iAttackerDamageInflicted;
 		ctx.piDefenseInflictDamage = &iDefenderDamageInflicted;
 		ctx.bMelee = true;
-		InflictDamageChange(&ctx);
+		InterveneInflictDamage(&ctx);
 #endif
 
 		int iAttackerTotalDamageInflicted = iAttackerDamageInflicted + pkDefender->getDamage();
@@ -735,7 +735,7 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvUnit& kAttacker, CvUnit* pkDefende
 		ctx.pAttackerUnit = &kAttacker;
 		ctx.piAttackInflictDamage = &iDamage;
 		ctx.bRanged = true;
-		InflictDamageChange(&ctx);
+		InterveneInflictDamage(&ctx);
 #endif
 
 #if defined(MOD_UNITS_MAX_HP)
@@ -784,7 +784,7 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvUnit& kAttacker, CvUnit* pkDefende
 		ctx.pAttackerUnit = &kAttacker;
 		ctx.piAttackInflictDamage = &iDamage;
 		ctx.bRanged = true;
-		InflictDamageChange(&ctx);
+		InterveneInflictDamage(&ctx);
 #endif
 
 		// Cities can't be knocked to less than 1 HP
@@ -900,7 +900,7 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvCity& kAttacker, CvUnit* pkDefende
 		ctx.pAttackerCity = &kAttacker;
 		ctx.piAttackInflictDamage = &iDamage;
 		ctx.bRanged = true;
-		InflictDamageChange(&ctx);
+		InterveneInflictDamage(&ctx);
 #endif
 
 #if defined(MOD_UNITS_MAX_HP)
@@ -1580,7 +1580,7 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 		ctx.piAttackInflictDamage = &iAttackerDamageInflicted;
 		ctx.piDefenseInflictDamage = &iDefenderDamageInflicted;
 		ctx.bAirCombat = true;
-		InflictDamageChange(&ctx);
+		InterveneInflictDamage(&ctx);
 #endif
 
 #if defined(MOD_UNITS_MAX_HP)
@@ -1652,7 +1652,7 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 		ctx.piAttackInflictDamage = &iAttackerDamageInflicted;
 		ctx.piDefenseInflictDamage = &iDefenderDamageInflicted;
 		ctx.bAirCombat = true;
-		InflictDamageChange(&ctx);
+		InterveneInflictDamage(&ctx);
 #endif
 
 
@@ -4331,7 +4331,7 @@ inline static CvPlayerAI& getDefenderPlayer(const CvCombatInfo& kCombatInfo)
 }
 
 #ifdef MOD_ROG_CORE
-void CvUnitCombat::InflictDamageChange(InflictDamageContext* ctx)
+void CvUnitCombat::InterveneInflictDamage(InflictDamageContext* ctx)
 {
 	if (ctx == nullptr) return;
 

@@ -87,7 +87,7 @@ public:
 #endif
 
 #ifdef MOD_ROG_CORE
-	static void InflictDamageChange(InflictDamageContext* ctx);
+	static void InterveneInflictDamage(InflictDamageContext* ctx);
 #endif
 
 protected:
