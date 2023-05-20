@@ -4331,60 +4331,58 @@ inline static CvPlayerAI& getDefenderPlayer(const CvCombatInfo& kCombatInfo)
 }
 
 #ifdef MOD_ROG_CORE
+void UnitDamageChangeInterveneHelper(CvUnit* thisUnit, int* enemyInflictDamage)
+{
+	if (!thisUnit || !enemyInflictDamage) return;
+	if (thisUnit->getForcedDamageValue() != 0)
+	{
+		*enemyInflictDamage = thisUnit->getForcedDamageValue();
+	}
+	if (thisUnit->getChangeDamageValue() != 0)
+	{
+		*enemyInflictDamage += thisUnit->getChangeDamageValue();
+	}
+}
+
+void UnitDamageChangeIntervene(InflictDamageContext* ctx)
+{
+	UnitDamageChangeInterveneHelper(ctx->pAttackerUnit, ctx->piDefenseInflictDamage);
+	UnitDamageChangeInterveneHelper(ctx->pDefenderUnit, ctx->piAttackInflictDamage);
+}
+
+void CityDamageChangeInterveneHelper(CvCity* thisCity, int* enemyInflictDamage)
+{
+	if (!thisCity || !enemyInflictDamage) return;
+
+	if (thisCity->getResetDamageValue() != 0)
+	{
+		*enemyInflictDamage = thisCity->getResetDamageValue();
+	}
+	if (thisCity->getReduceDamageValue() != 0)
+	{
+		*enemyInflictDamage += thisCity->getReduceDamageValue();
+	}
+}
+
+void CityDamageChangeIntervene(InflictDamageContext* ctx)
+{
+	CityDamageChangeInterveneHelper(ctx->pDefenderCity, ctx->piAttackInflictDamage);
+}
+
 void CvUnitCombat::InterveneInflictDamage(InflictDamageContext* ctx)
 {
 	if (ctx == nullptr) return;
+	UnitDamageChangeIntervene(ctx);
+	CityDamageChangeIntervene(ctx);
 
-	if (ctx->piAttackInflictDamage)
+	if (ctx->piAttackInflictDamage && *ctx->piAttackInflictDamage <= 0)
 	{
-		if (ctx->pDefenderUnit)
-		{
-			auto& pkDefenderUnit = *ctx->pDefenderUnit;
-			if (pkDefenderUnit.getForcedDamageValue() != 0)
-			{
-				*ctx->piAttackInflictDamage = pkDefenderUnit.getForcedDamageValue();
-			}
-			if (pkDefenderUnit.getChangeDamageValue() != 0)
-			{
-				*ctx->piAttackInflictDamage += pkDefenderUnit.getChangeDamageValue();
-			}
-		}
-		if (ctx->pDefenderCity)
-		{
-			auto& pkDefenderCity = *ctx->pDefenderCity;
-			if (pkDefenderCity.getResetDamageValue() != 0)
-			{
-				*ctx->piAttackInflictDamage = pkDefenderCity.getResetDamageValue();
-			}
-			if (pkDefenderCity.getReduceDamageValue() != 0)
-			{
-				*ctx->piAttackInflictDamage += pkDefenderCity.getReduceDamageValue();
-			}
-		}
-
-		if (*ctx->piAttackInflictDamage <= 0)
-			*ctx->piAttackInflictDamage = 0;
+		*ctx->piAttackInflictDamage = 0;
 	}
 
-	if (ctx->piDefenseInflictDamage)
+	if (ctx->piDefenseInflictDamage && *ctx->piDefenseInflictDamage <= 0)
 	{
-		if (ctx->pAttackerUnit)
-		{
-			auto& pkAttackerUnit = *ctx->pAttackerUnit;
-			if (pkAttackerUnit.getForcedDamageValue() != 0)
-			{
-				*ctx->piDefenseInflictDamage = pkAttackerUnit.getForcedDamageValue();
-			}
-			if (pkAttackerUnit.getChangeDamageValue() != 0)
-			{
-				*ctx->piDefenseInflictDamage += pkAttackerUnit.getChangeDamageValue();
-			}
-		}
-
-		if (*ctx->piDefenseInflictDamage <= 0)
-		{
-			*ctx->piDefenseInflictDamage = 0;
-		}
+		*ctx->piDefenseInflictDamage = 0;
 	}
 }
 #endif
