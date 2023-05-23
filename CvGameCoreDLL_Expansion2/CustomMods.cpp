@@ -555,6 +555,8 @@ int CustomMods::getOption(string sOption, int defValue) {
 
 		MOD_OPT_CACHE(GLOBAL_CITY_SCALES);
 		MOD_OPT_CACHE(EVENTS_CITY_SCALES);
+
+		MOD_OPT_CACHE(SPECIALIST_RESOURCES);
 		
 		m_bInit = true;
 	}

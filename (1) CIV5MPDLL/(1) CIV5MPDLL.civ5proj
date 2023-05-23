@@ -515,6 +515,11 @@
         <Type>UpdateDatabase</Type>
         <FileName>DB/PROMOTIONS/InflictDamageChange.sql</FileName>
       </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>DB/SPECIALISTS/Specialist_Resources.sql</FileName>
+      </Action>
     </ModActions>
     <ModReferences />
     <ModBlockers>
@@ -540,6 +545,7 @@
     <Folder Include="DB\ERAS" />
     <Folder Include="DB\IMPROVEMENTS" />
     <Folder Include="DB\CITY_SCALES" />
+    <Folder Include="DB\SPECIALISTS" />
     <Folder Include="DB\YIELDS" />
     <Folder Include="DB\POLICIES" />
     <Folder Include="DB\UNITS" />
@@ -908,6 +914,10 @@
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="DB\PROMOTIONS\PromotionCollections.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="DB\SPECIALISTS\Specialist_Resources.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>

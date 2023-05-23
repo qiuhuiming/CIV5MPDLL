@@ -7443,6 +7443,17 @@ void CvCity::processSpecialist(SpecialistTypes eSpecialist, int iChange)
 	// Culture
 	int iCulturePerSpecialist = GetCultureFromSpecialist(eSpecialist);
 	ChangeJONSCulturePerTurnFromSpecialists(iCulturePerSpecialist * iChange);
+
+#ifdef MOD_SPECIALIST_RESOURCES
+	if (MOD_SPECIALIST_RESOURCES)
+	{
+		CvPlayerAI& onwer = GET_PLAYER(getOwner());
+		for (auto& resourceInfo : pkSpecialist->GetResourceInfo())
+		{
+			onwer.changeResourceFromSpecialists(resourceInfo.m_eResource, resourceInfo.m_iQuantity * iChange);
+		}
+	}
+#endif
 }
 
 //	--------------------------------------------------------------------------------
