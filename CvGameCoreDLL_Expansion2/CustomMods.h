@@ -296,6 +296,8 @@
 #define MOD_PROMOTIONS_IMPROVEMENT_BONUS            gCustomMods.isPROMOTIONS_IMPROVEMENT_BONUS()
 // Permits units to receive a combat bonus from Ally City States
 #define MOD_PROMOTIONS_ALLYCITYSTATE_BONUS			gCustomMods.isPROMOTIONS_ALLYCITYSTATE_BONUS()
+// Permits units to receive defense bonus from Left/Used Moves
+#define MOD_DEFENSE_MOVES_BONUS						gCustomMods.isDEFENSE_MOVES_BONUS()
 
 // Permit the focus (gold/production/culture) of puppet cities to be set (but not what is being built or how specialists are allocated)
 #define MOD_UI_CITY_PRODUCTION                      gCustomMods.isUI_CITY_PRODUCTION()
@@ -794,6 +796,9 @@
 #define MOD_IMPROVEMENTS_CREATE_ITEMS            	gCustomMods.isIMPROVEMENTS_CREATE_ITEMS()
 
 #define MOD_IMPROVEMENTS_UPGRADE                    gCustomMods.isIMPROVEMENTS_UPGRADE()
+
+// Enables the Improvement Trade Route Bonus
+#define MOD_IMPROVEMENT_TRADE_ROUTE_BONUSES			gCustomMods.isIMPROVEMENT_TRADE_ROUTE_BONUSES()
 
 #define MOD_GLOBAL_WAR_CASUALTIES                   gCustomMods.isGLOBAL_WAR_CASUALTIES()
 
@@ -1418,6 +1423,7 @@ public:
 	MOD_OPT_DECL(PROMOTIONS_UNIT_NAMING);
 	MOD_OPT_DECL(PROMOTIONS_IMPROVEMENT_BONUS);
 	MOD_OPT_DECL(PROMOTIONS_ALLYCITYSTATE_BONUS);
+	MOD_OPT_DECL(DEFENSE_MOVES_BONUS);
 
 	MOD_OPT_DECL(UI_CITY_PRODUCTION);
 	MOD_OPT_DECL(UI_CITY_EXPANSION);
@@ -1585,6 +1591,7 @@ public:
 
 	MOD_OPT_DECL(IMPROVEMENTS_UPGRADE);
 	MOD_OPT_DECL(IMPROVEMENTS_CREATE_ITEMS);
+	MOD_OPT_DECL(IMPROVEMENT_TRADE_ROUTE_BONUSES);
 
 	MOD_OPT_DECL(GLOBAL_UNLIMITED_ONE_TURN_GROWTH);
 	MOD_OPT_DECL(GLOBAL_UNLIMITED_ONE_TURN_PRODUCTION);
