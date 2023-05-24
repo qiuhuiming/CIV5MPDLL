@@ -1363,6 +1363,8 @@ public:
 #ifdef MOD_SPECIALIST_RESOURCES
 	int getResourceFromSpecialists(ResourceTypes eIndex) const;
 	void changeResourceFromSpecialists(ResourceTypes eIndex, int iChange);
+	void UpdateResourceFromSpecialists();
+	bool MeetSpecialistResourceRequirement(const CvSpecialistInfo::ResourceInfo& info) const;
 #endif
 
 	int getResourceInOwnedPlots(ResourceTypes eIndex);

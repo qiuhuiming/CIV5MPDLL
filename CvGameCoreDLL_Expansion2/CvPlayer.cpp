@@ -20945,6 +20945,7 @@ int CvPlayer::getResourceFromSpecialists(ResourceTypes eIndex) const
 
 	return m_paiResourcesFromSpecialists[eIndex];
 }
+
 void CvPlayer::changeResourceFromSpecialists(ResourceTypes eIndex, int iChange)
 {
 	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
@@ -20958,6 +20959,42 @@ void CvPlayer::changeResourceFromSpecialists(ResourceTypes eIndex, int iChange)
 		DoUpdateHappiness();
 	}
 }
+
+void CvPlayer::UpdateResourceFromSpecialists()
+{
+	if (!MOD_SPECIALIST_RESOURCES) return;
+
+	for (auto& v : m_paiResourcesFromSpecialists)
+	{
+		v = 0;
+	}
+
+	int cityLoop = 0;
+	for (CvCity* city = firstCity(&cityLoop); city != NULL; city = nextCity(&cityLoop))
+	{
+		for (int i = 0; i < GC.getNumSpecialistInfos(); i++)
+		{
+			SpecialistTypes specialistType = (SpecialistTypes)i;
+			CvSpecialistInfo* sinfo = GC.getSpecialistInfo(specialistType);
+			int num = city->GetCityCitizens()->GetSpecialistCount(specialistType);
+
+			for (auto& rinfo : sinfo->GetResourceInfo())
+			{
+				if (MeetSpecialistResourceRequirement(rinfo))
+				{
+					m_paiResourcesFromSpecialists[rinfo.m_eResource] += rinfo.m_iQuantity;
+				}
+			}
+		}
+	}
+}
+
+bool CvPlayer::MeetSpecialistResourceRequirement(const CvSpecialistInfo::ResourceInfo& resourceInfo) const
+{
+	return (resourceInfo.m_eRequiredPolicy == NO_POLICY || (HasPolicy(resourceInfo.m_eRequiredPolicy) && !GetPlayerPolicies()->IsPolicyBlocked(resourceInfo.m_eRequiredPolicy))
+		&& (resourceInfo.m_eRequiredTech == NO_TECH || HasTech(resourceInfo.m_eRequiredTech)));
+}
+
 #endif
 
 //	--------------------------------------------------------------------------------
@@ -25264,6 +25301,13 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 			}
 		}
 	}
+
+#ifdef MOD_SPECIALIST_RESOURCES
+	if (MOD_SPECIALIST_RESOURCES && GC.getSpecialistResourcesPolicies().count(ePolicy) > 0)
+	{
+		UpdateResourceFromSpecialists();
+	}
+#endif
 
 	DoUpdateHappiness();
 	GetTrade()->UpdateTradeConnectionValues();
