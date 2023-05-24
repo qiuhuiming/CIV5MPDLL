@@ -20962,27 +20962,30 @@ void CvPlayer::changeResourceFromSpecialists(ResourceTypes eIndex, int iChange)
 
 void CvPlayer::UpdateResourceFromSpecialists()
 {
-	if (!MOD_SPECIALIST_RESOURCES) return;
+	if (!MOD_SPECIALIST_RESOURCES)
+		return;
 
-	for (auto& v : m_paiResourcesFromSpecialists)
+	for (auto &v : m_paiResourcesFromSpecialists)
 	{
 		v = 0;
 	}
 
-	int cityLoop = 0;
-	for (CvCity* city = firstCity(&cityLoop); city != NULL; city = nextCity(&cityLoop))
+	for (int i = 0; i < GC.getNumSpecialistInfos(); i++)
 	{
-		for (int i = 0; i < GC.getNumSpecialistInfos(); i++)
+		int cityLoop = 0;
+		for (CvCity *city = firstCity(&cityLoop); city != NULL; city = nextCity(&cityLoop))
 		{
 			SpecialistTypes specialistType = (SpecialistTypes)i;
-			CvSpecialistInfo* sinfo = GC.getSpecialistInfo(specialistType);
+			CvSpecialistInfo *sinfo = GC.getSpecialistInfo(specialistType);
 			int num = city->GetCityCitizens()->GetSpecialistCount(specialistType);
+			if (num == 0)
+				continue;
 
-			for (auto& rinfo : sinfo->GetResourceInfo())
+			for (auto &rinfo : sinfo->GetResourceInfo())
 			{
 				if (MeetSpecialistResourceRequirement(rinfo))
 				{
-					m_paiResourcesFromSpecialists[rinfo.m_eResource] += rinfo.m_iQuantity;
+					m_paiResourcesFromSpecialists[rinfo.m_eResource] += rinfo.m_iQuantity * num;
 				}
 			}
 		}
@@ -20991,8 +20994,9 @@ void CvPlayer::UpdateResourceFromSpecialists()
 
 bool CvPlayer::MeetSpecialistResourceRequirement(const CvSpecialistInfo::ResourceInfo& resourceInfo) const
 {
-	return (resourceInfo.m_eRequiredPolicy == NO_POLICY || (HasPolicy(resourceInfo.m_eRequiredPolicy) && !GetPlayerPolicies()->IsPolicyBlocked(resourceInfo.m_eRequiredPolicy))
-		&& (resourceInfo.m_eRequiredTech == NO_TECH || HasTech(resourceInfo.m_eRequiredTech)));
+	bool hasTech = resourceInfo.m_eRequiredTech == NO_TECH || HasTech(resourceInfo.m_eRequiredTech);
+	bool hasPolicy = resourceInfo.m_eRequiredPolicy == NO_POLICY || (HasPolicy(resourceInfo.m_eRequiredPolicy) && !GetPlayerPolicies()->IsPolicyBlocked(resourceInfo.m_eRequiredPolicy));
+	return hasTech && hasPolicy;
 }
 
 #endif
