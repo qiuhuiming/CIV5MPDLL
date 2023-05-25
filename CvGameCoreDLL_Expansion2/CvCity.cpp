@@ -11233,14 +11233,20 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 	}
 
 	// Golden Age Yield Modifier
-	if(GET_PLAYER(getOwner()).isGoldenAge())
+	if (GET_PLAYER(getOwner()).isGoldenAge())
 	{
-		CvYieldInfo* pYield = GC.getYieldInfo(eIndex);
-		if(pYield)
+		CvYieldInfo *pYield = GC.getYieldInfo(eIndex);
+		if (pYield)
 		{
 			iTempMod = pYield->getGoldenAgeYieldMod();
+#ifdef MOD_TRAITS_GOLDEN_AGE_YIELD_MODIFIER
+			if (MOD_TRAITS_GOLDEN_AGE_YIELD_MODIFIER)
+			{
+				iTempMod += GET_PLAYER(getOwner()).getGoldenAgeYieldRateModifier(eIndex);
+			}
+#endif
 			iModifier += iTempMod;
-			if(toolTipSink)
+			if (toolTipSink)
 				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD_GOLDEN_AGE", iTempMod);
 		}
 	}

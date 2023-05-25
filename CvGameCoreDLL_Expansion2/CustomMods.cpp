@@ -559,6 +559,8 @@ int CustomMods::getOption(string sOption, int defValue) {
 		MOD_OPT_CACHE(EVENTS_CITY_SCALES);
 
 		MOD_OPT_CACHE(SPECIALIST_RESOURCES);
+
+		MOD_OPT_CACHE(TRAITS_GOLDEN_AGE_YIELD_MODIFIER);
 		
 		m_bInit = true;
 	}
