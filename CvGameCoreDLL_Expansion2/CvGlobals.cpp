@@ -2270,12 +2270,6 @@ void CvGlobals::init()
 
 	m_pLuaEvaluatorManager->Init(this);
 
-	// test codes
-	auto* eval = m_pLuaEvaluatorManager->GetEvaluator("FORMULA_TEST");
-	auto res = eval->Evaluate<int, int, int>(1, 2);
-	auto res2 = eval->Evaluate<int, int, int>(3, 4);
-	auto res3 = eval->Evaluate<int, int, int>(5, 6);
-
 	memcpy(m_aiPlotDirectionX, aiPlotDirectionX, sizeof(m_aiPlotDirectionX));
 	memcpy(m_aiPlotDirectionY, aiPlotDirectionY, sizeof(m_aiPlotDirectionY));
 	memcpy(m_aiCityPlotX, aiCityPlotX, sizeof(m_aiCityPlotX));

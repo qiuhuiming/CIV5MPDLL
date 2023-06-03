@@ -1,5 +1,6 @@
 #pragma once
 #include "CvEnums.h"
+#include "sstream"
 
 class CvLuaFormula : public CvBaseInfo
 {
@@ -26,7 +27,7 @@ namespace lua {
     template <typename T>
     struct Result {
         bool ok = true;
-        T result;
+        T value;
 
         static Result Error()
         {
@@ -39,12 +40,25 @@ namespace lua {
         {
             Result result;
             result.ok = true;
-            result.result = value;
+            result.value = value;
             return result;
         }
     };
 
     class EvaluatorFactory;
+
+    template <typename FirstArg, typename... OtherArgs>
+    inline void Dump(std::ostringstream& out_str, FirstArg first, OtherArgs... args)
+    {
+        Dump(out_str, first);
+        Dump(out_str, args...);
+    }
+
+    template <typename Arg>
+    inline void Dump(std::ostringstream& out_str, Arg first)
+    {
+        out_str << first << ",";
+    }
 
     template <typename FirstArg, typename... OtherArgs>
     inline void Push(lua_State* l, FirstArg first, OtherArgs... args)
@@ -131,13 +145,34 @@ namespace lua {
             vsprintf_s(buf, format, vl);
             va_end(vl);
 
-            LOGFILEMGR.GetLog("embed_lua.log", uiFlags)->Msg(buf);
+            LOGFILEMGR.GetLog("embedding_lua.log", uiFlags)->Msg(buf);
         }
+
+#undef DEBUG_EVALUATOR // can activate if you want to check if the stack leak.
+#ifdef DEBUG_EVALUATOR
+        struct StackChecker {
+            Evaluator* parent;
+            StackChecker(Evaluator* parent) : parent(parent) {}
+            ~StackChecker()
+            {
+                if (parent == nullptr) return;
+
+                int n = lua_gettop(parent->m_pL);
+                parent->LogMsg("DEBUG %s: stack_size=%d", parent->m_pLuaFormula->GetType(), n);
+            }
+        };
+
+        friend class StackChecker;
+#endif
 
     public:
         template <typename T, typename... Args>
         Result<T> Evaluate(Args... args)
         {
+#ifdef DEBUG_EVALUATOR
+            StackChecker check{ this };
+#endif
+
             if (m_pL == nullptr || m_pLuaFormula == nullptr)
             {
                 return Result<T>::Error();
@@ -157,10 +192,9 @@ namespace lua {
             if (code != 0)
             {
                 const char* err_msg = lua_tostring(m_pL, -1);
-                if (err_msg != nullptr)
-                {
-                    LogMsg("%s: pcall failed", m_pLuaFormula->GetType());
-                }
+                std::ostringstream ss;
+                Dump<Args...>(ss, args...);
+                LogMsg("%s: pcall failed. args=%s; formula=%s; msg=%s", m_pLuaFormula->GetType(), ss.str().c_str(), m_pLuaFormula->GetFormula().c_str(), err_msg != nullptr ? err_msg : "null msg");
                 lua_pop(m_pL, 1);
                 return Result<T>::Error();
             }
