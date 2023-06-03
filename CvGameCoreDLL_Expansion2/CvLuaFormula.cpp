@@ -43,3 +43,49 @@ int CvLuaFormulaXMLEntries::GetNumEntries()
 {
 	return m_vEntries.size();
 }
+
+namespace lua {
+	Evaluator* EvaluatorManager::GetEvaluator(const char* type)
+	{
+		if (m_pGlobal == nullptr)
+		{
+			return nullptr;
+		}
+		LuaFormulaTypes eType = static_cast<LuaFormulaTypes>(m_pGlobal->getInfoTypeForString(type));
+		return GetEvaluator(eType);
+	}
+
+	Evaluator* EvaluatorManager::GetEvaluator(LuaFormulaTypes eType)
+	{
+		auto it = m_data.find(eType);
+		if (it == m_data.end())
+		{
+			return nullptr;
+		}
+
+		return &it->second;
+	}
+
+	bool EvaluatorManager::Init(CvGlobals* gc)
+	{
+		if (gc == nullptr)
+		{
+			return false;
+		}
+
+		m_pGlobal = gc;
+		m_data.clear();
+		EvaluatorFactory factory;
+		for (auto* formula : gc->GetLuaFormulaEntries())
+		{
+			Evaluator evaluator;
+			if (!factory.Init(formula, &evaluator))
+			{
+				continue;
+			}
+			m_data[static_cast<LuaFormulaTypes>(formula->GetID())].Swap(&evaluator);
+		}
+
+		return true;
+	}
+}

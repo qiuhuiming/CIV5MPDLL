@@ -2251,6 +2251,8 @@ void CvGlobals::init()
 
 	m_pLuaFormulaEntries = FNEW(CvLuaFormulaXMLEntries, c_eCiv5GameplayDLL, 0);
 
+	m_pLuaEvaluatorManager = FNEW(lua::EvaluatorManager, c_eCiv5GameplayDLL, 0);
+
 	auto_ptr<ICvDLLDatabaseUtility1> pkLoader(getDatabaseLoadUtility());
 
 	Database::Connection* pDB = GetGameDatabase();
@@ -2265,6 +2267,14 @@ void CvGlobals::init()
 #ifdef MOD_SPECIALIST_RESOURCES
 	GC.initSpecialistResourcesDependencies();
 #endif
+
+	m_pLuaEvaluatorManager->Init(this);
+
+	// test codes
+	auto* eval = m_pLuaEvaluatorManager->GetEvaluator("FORMULA_TEST");
+	auto res = eval->Evaluate<int, int, int>(1, 2);
+	auto res2 = eval->Evaluate<int, int, int>(3, 4);
+	auto res3 = eval->Evaluate<int, int, int>(5, 6);
 
 	memcpy(m_aiPlotDirectionX, aiPlotDirectionX, sizeof(m_aiPlotDirectionX));
 	memcpy(m_aiPlotDirectionY, aiPlotDirectionY, sizeof(m_aiPlotDirectionY));
@@ -2360,6 +2370,7 @@ void CvGlobals::uninit()
 #endif
 
 	SAFE_DELETE(m_pLuaFormulaEntries);
+	SAFE_DELETE(m_pLuaEvaluatorManager);
 
 	// already deleted outside of the dll, set to null for safety
 	m_pathFinder=NULL;
@@ -4255,6 +4266,11 @@ int CvGlobals::GetNumLuaFormulaEntries()
 CvLuaFormula* CvGlobals::GetLuaFormulaEntry(LuaFormulaTypes eFormula)
 {
 	return m_pLuaFormulaEntries->GetEntry(eFormula);
+}
+
+lua::EvaluatorManager* CvGlobals::GetLuaEvaluatorManager()
+{
+	return m_pLuaEvaluatorManager;
 }
 
 CvString*& CvGlobals::getFootstepAudioTags()

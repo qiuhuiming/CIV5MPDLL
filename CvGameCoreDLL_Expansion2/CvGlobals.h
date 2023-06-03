@@ -632,6 +632,8 @@ public:
 	int GetNumLuaFormulaEntries();
 	CvLuaFormula* GetLuaFormulaEntry(LuaFormulaTypes eFormula);
 
+	lua::EvaluatorManager* GetLuaEvaluatorManager();
+
 	//
 	// Global Types
 	// All type strings are upper case and are kept in this hash map for fast lookup
@@ -7856,6 +7858,7 @@ protected:
 #endif
 
 	CvLuaFormulaXMLEntries* m_pLuaFormulaEntries;
+	lua::EvaluatorManager* m_pLuaEvaluatorManager;
 
 	//////////////////////////////////////////////////////////////////////////
 	// GLOBAL TYPES
