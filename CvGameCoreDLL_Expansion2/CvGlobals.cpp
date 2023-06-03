@@ -2249,6 +2249,8 @@ void CvGlobals::init()
 	m_pBuildingClassCollections = FNEW(CvBuildingClassCollectionsXMLEntries, c_eCiv5GameplayDLL, 0);
 #endif
 
+	m_pLuaFormulaEntries = FNEW(CvLuaFormulaXMLEntries, c_eCiv5GameplayDLL, 0);
+
 	auto_ptr<ICvDLLDatabaseUtility1> pkLoader(getDatabaseLoadUtility());
 
 	Database::Connection* pDB = GetGameDatabase();
@@ -2356,6 +2358,8 @@ void CvGlobals::uninit()
 #ifdef MOD_BUILDINGCLASS_COLLECTIONS
 	SAFE_DELETE(m_pBuildingClassCollections);
 #endif
+
+	SAFE_DELETE(m_pLuaFormulaEntries);
 
 	// already deleted outside of the dll, set to null for safety
 	m_pathFinder=NULL;
@@ -4239,6 +4243,19 @@ std::tr1::unordered_set<TechTypes>& CvGlobals::getSpecialistResourcesTechnologie
 	return m_vSpecialistResourcesTechnologies;
 }
 #endif
+
+std::vector<CvLuaFormula*>& CvGlobals::GetLuaFormulaEntries()
+{
+	return m_pLuaFormulaEntries->GetEntries();
+}
+int CvGlobals::GetNumLuaFormulaEntries()
+{
+	return m_pLuaFormulaEntries->GetNumEntries();
+}
+CvLuaFormula* CvGlobals::GetLuaFormulaEntry(LuaFormulaTypes eFormula)
+{
+	return m_pLuaFormulaEntries->GetEntry(eFormula);
+}
 
 CvString*& CvGlobals::getFootstepAudioTags()
 {
