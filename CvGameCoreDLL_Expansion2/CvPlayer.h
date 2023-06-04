@@ -1381,6 +1381,12 @@ public:
 
 	int getResourceInOwnedPlots(ResourceTypes eIndex);
 
+#ifdef MOD_RESOURCE_EXTRA_BUFF
+	int getUnhappinessFromResource(ResourceTypes eIndex, int num) const;
+	int getUnhappinessFromResource(CvResourceInfo* pInfo, int num) const;
+	void updateUnhappinessFromResource(ResourceTypes eIndex, int oldNum, int newNum);
+#endif
+
 	int getTotalImprovementsBuilt() const;
 	void changeTotalImprovementsBuilt(int iChange);
 	int getImprovementCount(ImprovementTypes eIndex) const;

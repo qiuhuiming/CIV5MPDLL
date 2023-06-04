@@ -1284,6 +1284,10 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 #endif
 
 	Method(GetHappinessFromFaith);
+
+#ifdef MOD_RESOURCE_EXTRA_BUFF
+	Method(GetUnHappinessModFromResourceByIndex);
+#endif
 }
 //------------------------------------------------------------------------------
 void CvLuaPlayer::HandleMissingInstance(lua_State* L)
@@ -12410,3 +12414,15 @@ int CvLuaPlayer::lGetSpecialistResources(lua_State* L)
 #endif
 
 LUAAPIIMPL(Player, GetHappinessFromFaith)
+
+#ifdef MOD_RESOURCE_EXTRA_BUFF
+// player:GetUnHappinessModFromResourceByIndex(eResource)
+int CvLuaPlayer::lGetUnHappinessModFromResourceByIndex(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	ResourceTypes eResource = static_cast<ResourceTypes>(lua_tointeger(L, 2));
+	int result = pkPlayer->getUnhappinessFromResource(eResource, pkPlayer->getNumResourceAvailable(eResource));
+	lua_pushinteger(L, result);
+	return 1;
+}
+#endif

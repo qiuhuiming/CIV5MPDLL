@@ -1204,6 +1204,10 @@ protected:
 #endif
 
 	LUAAPIEXTN(GetHappinessFromFaith, int);
+
+#ifdef MOD_RESOURCE_EXTRA_BUFF
+	LUAAPIEXTN(GetUnHappinessModFromResourceByIndex, int, eResourceType);
+#endif
 };
 
 #endif //CVLUAPLAYER_H
