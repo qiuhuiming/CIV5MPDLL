@@ -1424,8 +1424,20 @@ public:
 
 	int getFlavorValue(int i) const;
 
-	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
+	struct YieldInfo {
+		YieldTypes eYield = NO_YIELD;
+		LuaFormulaTypes eFormula = NO_LUA_FORMULA;
+	};
 
+	LuaFormulaTypes GetHappinessModifierFormula() const;
+	LuaFormulaTypes GetUnHappinessModifierFormula() const;
+	LuaFormulaTypes GetCityConnectionTradeRouteGoldModifierFormula() const;
+	LuaFormulaTypes GetUnitPurchaseCostModifierFormula() const;
+	LuaFormulaTypes GetBuildingPurchaseCostModifierFormula() const;
+
+	const std::vector<YieldInfo>& GetGlobalYieldModifiers() const;
+
+	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
 protected:
 	int m_iResourceClassType;
 	int m_iChar;
@@ -1482,6 +1494,14 @@ protected:
 	bool* m_pbTerrain;
 	bool* m_pbFeature;
 	bool* m_pbFeatureTerrain;
+
+	LuaFormulaTypes m_eHappinessModifierFormula = NO_LUA_FORMULA;
+	LuaFormulaTypes m_eUnHappinessModifierFormula = NO_LUA_FORMULA;
+	LuaFormulaTypes m_eCityConnectionTradeRouteGoldModifierFormula = NO_LUA_FORMULA;
+	LuaFormulaTypes m_eUnitPurchaseCostModifierFormula = NO_LUA_FORMULA;
+	LuaFormulaTypes m_eBuildingPurchaseCostModifierFormula = NO_LUA_FORMULA;
+
+	std::vector<YieldInfo> m_vGlobalYieldModifiers;
 
 private:
 	CvResourceInfo(const CvResourceInfo&);

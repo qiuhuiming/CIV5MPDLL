@@ -550,6 +550,11 @@
         <Type>UpdateDatabase</Type>
         <FileName>DB/LUA_FORMULA/LuaFormula.sql</FileName>
       </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>DB/RESOURCES/ResourceExtraBuff.sql</FileName>
+      </Action>
     </ModActions>
     <ModReferences />
     <ModBlockers>
@@ -576,6 +581,7 @@
     <Folder Include="DB\IMPROVEMENTS" />
     <Folder Include="DB\CITY_SCALES" />
     <Folder Include="DB\LUA_FORMULA" />
+    <Folder Include="DB\RESOURCES" />
     <Folder Include="DB\TECHS" />
     <Folder Include="DB\SPECIALISTS" />
     <Folder Include="DB\YIELDS" />
@@ -962,6 +968,10 @@
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="DB\PROMOTIONS\PromotionCollections.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="DB\RESOURCES\ResourceExtraBuff.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>

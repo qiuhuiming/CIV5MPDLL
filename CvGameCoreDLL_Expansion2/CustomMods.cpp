@@ -570,6 +570,8 @@ int CustomMods::getOption(string sOption, int defValue) {
 		MOD_OPT_CACHE(BATTLE_CAPTURE_NEW_RULE);
 
 		MOD_OPT_CACHE(BUGFIX_INVISIBLE_UNIT_MOVE_ENEMY_CITY);
+
+		MOD_OPT_CACHE(RESOURCE_EXTRA_BUFF);
 		
 		m_bInit = true;
 	}

@@ -4897,8 +4897,60 @@ bool CvResourceInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 
 	}
 
+	m_eHappinessModifierFormula = static_cast<LuaFormulaTypes>(GC.getInfoTypeForString(kResults.GetText("HappinessModifierFormula"), true));
+	m_eUnHappinessModifierFormula = static_cast<LuaFormulaTypes>(GC.getInfoTypeForString(kResults.GetText("UnHappinessModifierFormula"), true));
+	m_eCityConnectionTradeRouteGoldModifierFormula = static_cast<LuaFormulaTypes>(GC.getInfoTypeForString(kResults.GetText("CityConnectionTradeRouteGoldModifierFormula"), true));
+	m_eUnitPurchaseCostModifierFormula = static_cast<LuaFormulaTypes>(GC.getInfoTypeForString(kResults.GetText("UnitPurchaseCostModifierFormula"), true));
+	m_eBuildingPurchaseCostModifierFormula = static_cast<LuaFormulaTypes>(GC.getInfoTypeForString(kResults.GetText("BuildingPurchaseCostModifierFormula"), true));
+
+	{
+		std::string sqlKey = "Resoureces - m_vGlobalYieldModifiers";
+		Database::Results* pResults = kUtility.GetResults(sqlKey);
+		if (pResults == NULL)
+		{
+			const char* szSQL = "select * from Resource_GlobalYieldModifiers where ResourceType = ?";
+			pResults = kUtility.PrepareResults(sqlKey, szSQL);
+		}
+
+		pResults->Bind(1, GetType(), false);
+
+		while (pResults->Step())
+		{
+			YieldInfo info;
+			info.eFormula = static_cast<LuaFormulaTypes>(GC.getInfoTypeForString(pResults->GetText("YieldFormula")));
+			info.eYield = static_cast<YieldTypes>(GC.getInfoTypeForString(pResults->GetText("YieldType")));
+			m_vGlobalYieldModifiers.push_back(info);
+		}
+
+		pResults->Reset();
+	}
 
 	return true;
+}
+
+LuaFormulaTypes CvResourceInfo::GetHappinessModifierFormula() const
+{
+	return m_eHappinessModifierFormula;
+}
+LuaFormulaTypes CvResourceInfo::GetUnHappinessModifierFormula() const
+{
+	return m_eUnHappinessModifierFormula;
+}
+LuaFormulaTypes CvResourceInfo::GetCityConnectionTradeRouteGoldModifierFormula() const
+{
+	return m_eCityConnectionTradeRouteGoldModifierFormula;
+}
+LuaFormulaTypes CvResourceInfo::GetUnitPurchaseCostModifierFormula() const
+{
+	return m_eUnitPurchaseCostModifierFormula;
+}
+LuaFormulaTypes CvResourceInfo::GetBuildingPurchaseCostModifierFormula() const
+{
+	return m_eBuildingPurchaseCostModifierFormula;
+}
+const std::vector<CvResourceInfo::YieldInfo>& CvResourceInfo::GetGlobalYieldModifiers() const
+{
+	return m_vGlobalYieldModifiers;
 }
 
 //======================================================================================================
