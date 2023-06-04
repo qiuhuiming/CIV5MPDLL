@@ -996,6 +996,11 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iGlobalHappinessFromFaithPercent = kResults.GetInt("GlobalHappinessFromFaithPercent");
 	m_iHappinessInWLTKDCities = kResults.GetInt("HappinessInWLTKDCities");
 
+#ifdef MOD_RESOURCE_EXTRA_BUFF
+	m_iResourceUnhappinessModifier = kResults.GetInt("ResourceUnhappinessModifier");
+	m_iResourceCityConnectionTradeRouteGoldModifier = kResults.GetInt("ResourceCityConnectionTradeRouteGoldModifier");
+#endif
+
 #if defined(MOD_RELIGION_POLICY_BRANCH_FAITH_GP)
 	//FaithPurchaseUnitClasses
 	if (MOD_RELIGION_POLICY_BRANCH_FAITH_GP)
@@ -2573,6 +2578,17 @@ int CvPolicyEntry::GetHappinessInWLTKDCities() const
 {
 	return m_iHappinessInWLTKDCities;
 }
+
+#ifdef MOD_RESOURCE_EXTRA_BUFF
+int CvPolicyEntry::GetResourceUnhappinessModifier() const
+{
+	return m_iResourceUnhappinessModifier;
+}
+int CvPolicyEntry::GetResourceCityConnectionTradeRouteGoldModifier() const
+{
+	return m_iResourceCityConnectionTradeRouteGoldModifier;
+}
+#endif
 
 //=====================================
 // CvPolicyBranchEntry

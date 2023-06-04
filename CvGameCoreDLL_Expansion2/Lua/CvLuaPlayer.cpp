@@ -12422,7 +12422,7 @@ int CvLuaPlayer::lGetUnHappinessModFromResourceByIndex(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	ResourceTypes eResource = static_cast<ResourceTypes>(lua_tointeger(L, 2));
-	int result = pkPlayer->getUnhappinessFromResource(eResource, pkPlayer->getNumResourceAvailable(eResource));
+	int result = pkPlayer->CalculateUnhappinessModFromResource(eResource, pkPlayer->getNumResourceAvailable(eResource));
 	lua_pushinteger(L, result);
 	return 1;
 }
@@ -12432,7 +12432,7 @@ int CvLuaPlayer::lGetCityConnectionTradeRouteGoldModifierFromResourceByIndex(lua
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	ResourceTypes eResource = static_cast<ResourceTypes>(lua_tointeger(L, 2));
-	int result = pkPlayer->getCityConnectionTradeRouteGoldModifierFromResource(eResource, pkPlayer->getNumResourceAvailable(eResource));
+	int result = pkPlayer->CalculateCityConnectionTradeRouteGoldModifierFromResource(eResource, pkPlayer->getNumResourceAvailable(eResource));
 	lua_pushinteger(L, result);
 	return 1;
 }

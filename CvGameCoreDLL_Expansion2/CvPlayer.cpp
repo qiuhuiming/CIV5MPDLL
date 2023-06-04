@@ -13415,7 +13415,14 @@ void CvPlayer::ChangeUnhappinessFromUnitsMod(int iChange)
 /// Unhappiness Mod (-50 = 50% of normal)
 int CvPlayer::GetUnhappinessMod() const
 {
-	return m_iUnhappinessMod;
+	int iTemp = 0;
+#ifdef MOD_RESOURCE_EXTRA_BUFF
+	if (MOD_RESOURCE_EXTRA_BUFF)
+	{
+		iTemp += GetUnhappinessModFromResource();
+	}
+#endif
+	return m_iUnhappinessMod + iTemp;
 }
 
 //	--------------------------------------------------------------------------------
@@ -13427,6 +13434,28 @@ void CvPlayer::ChangeUnhappinessMod(int iChange)
 		m_iUnhappinessMod += iChange;
 	}
 }
+
+#ifdef MOD_RESOURCE_EXTRA_BUFF
+int CvPlayer::GetUnhappinessModFromResource() const
+{
+	return m_iUnhappinessModFromResource;
+}
+void CvPlayer::ChangeUnhappinessModFromResource(int iChange)
+{
+	m_iUnhappinessModFromResource += iChange;
+}
+void CvPlayer::UpdateUnhappinessModFromResource()
+{
+	m_iUnhappinessModFromResource = 0;
+	for (auto* info : GC.getResourceInfo())
+	{
+		if (info->GetUnHappinessModifierFormula() != NO_LUA_FORMULA)
+		{
+			m_iUnhappinessModFromResource += CalculateUnhappinessModFromResource(info, m_paiNumResourceAvailableCache[info->GetID()]);
+		}
+	}
+}
+#endif
 
 //	--------------------------------------------------------------------------------
 /// City Count Unhappiness Mod (-50 = 50% of normal)
@@ -20903,6 +20932,7 @@ int CvPlayer::getNumResourceAvailable(ResourceTypes eIndex, bool bIncludeImport)
 
 void CvPlayer::onNumResourceAvailableChanges(ResourceTypes eIndex, int oldNum, int newNum)
 {
+#ifdef MOD_RESOURCE_EXTRA_BUFF
 	if (!MOD_RESOURCE_EXTRA_BUFF)
 	{
 		return;
@@ -20916,13 +20946,14 @@ void CvPlayer::onNumResourceAvailableChanges(ResourceTypes eIndex, int oldNum, i
 
 	if (info->GetUnHappinessModifierFormula() != NO_LUA_FORMULA)
 	{
-		updateUnhappinessFromResource(eIndex, oldNum, newNum);
+		UpdateUnhappinessModFromResource(eIndex, oldNum, newNum);
 	}
 
 	if (info->GetCityConnectionTradeRouteGoldModifierFormula() != NO_LUA_FORMULA)
 	{
-		updateCityConnectionTradeRouteGoldModifierFromResource(eIndex, oldNum, newNum);
+		UpdateCityConnectionTradeRouteGoldModifierFromResource(eIndex, oldNum, newNum);
 	}
+#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -21142,7 +21173,7 @@ int CvPlayer::getResourceInOwnedPlots(ResourceTypes eIndex)
 }
 
 #ifdef MOD_RESOURCE_EXTRA_BUFF
-int CvPlayer::getUnhappinessFromResource(ResourceTypes eIndex, int num) const
+int CvPlayer::CalculateUnhappinessModFromResource(ResourceTypes eIndex, int num) const
 {
 	if (!MOD_RESOURCE_EXTRA_BUFF)
 	{
@@ -21155,10 +21186,10 @@ int CvPlayer::getUnhappinessFromResource(ResourceTypes eIndex, int num) const
 		return 0;
 	}
 
-	return getUnhappinessFromResource(info, num);
+	return CalculateUnhappinessModFromResource(info, num);
 }
 
-int CvPlayer::getUnhappinessFromResource(CvResourceInfo* info, int num) const
+int CvPlayer::CalculateUnhappinessModFromResource(CvResourceInfo* info, int num) const
 {
 	auto* evaluator = GC.GetLuaEvaluatorManager()->GetEvaluator(info->GetUnHappinessModifierFormula());
 	if (evaluator == nullptr)
@@ -21172,10 +21203,15 @@ int CvPlayer::getUnhappinessFromResource(CvResourceInfo* info, int num) const
 		return 0;
 	}
 
+	if (result.value < 0)
+	{
+		return result.value * (100 + GetResourceUnhappinessModifier()) / 100;
+	}
+
 	return result.value;
 }
 
-void CvPlayer::updateUnhappinessFromResource(ResourceTypes eIndex, int oldNum, int newNum)
+void CvPlayer::UpdateUnhappinessModFromResource(ResourceTypes eIndex, int oldNum, int newNum)
 {
 	if (oldNum == newNum)
 	{
@@ -21188,17 +21224,17 @@ void CvPlayer::updateUnhappinessFromResource(ResourceTypes eIndex, int oldNum, i
 		return;
 	}
 
-	int oldValue = getUnhappinessFromResource(info, oldNum);
-	int newValue = getUnhappinessFromResource(info, newNum);
+	int oldValue = CalculateUnhappinessModFromResource(info, oldNum);
+	int newValue = CalculateUnhappinessModFromResource(info, newNum);
 	if (oldValue == newValue)
 	{
 		return;
 	}
 
-	ChangeUnhappinessMod(newValue - oldValue);
+	ChangeUnhappinessModFromResource(newValue - oldValue);
 }
 
-int CvPlayer::getCityConnectionTradeRouteGoldModifierFromResource(ResourceTypes eIndex, int num) const
+int CvPlayer::CalculateCityConnectionTradeRouteGoldModifierFromResource(ResourceTypes eIndex, int num) const
 {
 	if (!MOD_RESOURCE_EXTRA_BUFF)
 	{
@@ -21211,10 +21247,10 @@ int CvPlayer::getCityConnectionTradeRouteGoldModifierFromResource(ResourceTypes 
 		return 0;
 	}
 
-	return getCityConnectionTradeRouteGoldModifierFromResource(info, num);
+	return CalculateCityConnectionTradeRouteGoldModifierFromResource(info, num);
 }
 
-int CvPlayer::getCityConnectionTradeRouteGoldModifierFromResource(CvResourceInfo* info, int num) const
+int CvPlayer::CalculateCityConnectionTradeRouteGoldModifierFromResource(CvResourceInfo* info, int num) const
 {
 	auto* evaluator = GC.GetLuaEvaluatorManager()->GetEvaluator(info->GetCityConnectionTradeRouteGoldModifierFormula());
 	if (evaluator == nullptr)
@@ -21228,10 +21264,10 @@ int CvPlayer::getCityConnectionTradeRouteGoldModifierFromResource(CvResourceInfo
 		return 0;
 	}
 
-	return result.value;
+	return result.value * (100 + GetResourceCityConnectionTradeRouteGoldModifier()) / 100;
 }
 
-void CvPlayer::updateCityConnectionTradeRouteGoldModifierFromResource(ResourceTypes eIndex, int oldNum, int newNum)
+void CvPlayer::UpdateCityConnectionTradeRouteGoldModifierFromResource(ResourceTypes eIndex, int oldNum, int newNum)
 {
 	if (oldNum == newNum)
 	{
@@ -21244,14 +21280,44 @@ void CvPlayer::updateCityConnectionTradeRouteGoldModifierFromResource(ResourceTy
 		return;
 	}
 
-	int oldValue = getCityConnectionTradeRouteGoldModifierFromResource(info, oldNum);
-	int newValue = getCityConnectionTradeRouteGoldModifierFromResource(info, newNum);
+	int oldValue = CalculateCityConnectionTradeRouteGoldModifierFromResource(info, oldNum);
+	int newValue = CalculateCityConnectionTradeRouteGoldModifierFromResource(info, newNum);
 	if (oldValue == newValue)
 	{
 		return;
 	}
 
-	GetTreasury()->ChangeCityConnectionTradeRouteGoldModifier(newValue - oldValue);
+	GetTreasury()->ChangeCityConnectionTradeRouteGoldModifierFromResource(newValue - oldValue);
+}
+
+void CvPlayer::UpdateCityConnectionTradeRouteGoldModifierFromResource()
+{
+	int result = 0;
+	for (auto* info : GC.getResourceInfo())
+	{
+		if (info != nullptr && info->GetCityConnectionTradeRouteGoldModifierFormula() != NO_LUA_FORMULA)
+		{
+			result += CalculateCityConnectionTradeRouteGoldModifierFromResource(info, m_paiNumResourceAvailableCache[info->GetID()]);
+		}
+	}
+	GetTreasury()->SetCityConnectionTradeRouteGoldModifierFromResource(result);
+}
+
+int CvPlayer::GetResourceUnhappinessModifier() const
+{
+	return m_iResourceUnhappinessModifier;
+}
+void CvPlayer::ChangeResourceUnhappinessModifier(int value)
+{
+	m_iResourceUnhappinessModifier += value;
+}
+int CvPlayer::GetResourceCityConnectionTradeRouteGoldModifier() const
+{
+	return m_iResourceCityConnectionTradeRouteGoldModifier;
+}
+void CvPlayer::ChangeResourceCityConnectionTradeRouteGoldModifier(int value)
+{
+	m_iResourceCityConnectionTradeRouteGoldModifier += value;
 }
 #endif
 
@@ -25320,6 +25386,23 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	ChangeNumCitiesFreeCultureBuilding(iNumCitiesFreeCultureBuilding);
 	ChangeNumCitiesFreeFoodBuilding(iNumCitiesFreeFoodBuilding);
 
+#ifdef MOD_RESOURCE_EXTRA_BUFF
+	if (MOD_RESOURCE_EXTRA_BUFF)
+	{
+		if (pPolicy->GetResourceCityConnectionTradeRouteGoldModifier() != 0)
+		{
+			ChangeResourceCityConnectionTradeRouteGoldModifier(pPolicy->GetResourceCityConnectionTradeRouteGoldModifier());
+			UpdateCityConnectionTradeRouteGoldModifierFromResource();
+		}
+
+		if (pPolicy->GetResourceUnhappinessModifier() != 0)
+		{
+			ChangeResourceUnhappinessModifier(pPolicy->GetResourceUnhappinessModifier());
+			UpdateUnhappinessModFromResource();
+		}
+	}
+#endif
+
 	// Not really techs but this is what we use (for now)
 	for(iI = 0; iI < GC.getNUM_AND_TECH_PREREQS(); iI++)
 	{
@@ -25938,6 +26021,9 @@ void CvPlayer::Read(FDataStream& kStream)
 	kStream >> m_iUnhappinessFromUnits;
 	kStream >> m_iUnhappinessFromUnitsMod;
 	kStream >> m_iUnhappinessMod;
+#ifdef MOD_RESOURCE_EXTRA_BUFF
+	kStream >> m_iUnhappinessModFromResource;
+#endif
 	kStream >> m_iCityCountUnhappinessMod;
 	kStream >> m_iOccupiedPopulationUnhappinessMod;
 	kStream >> m_iCapitalUnhappinessMod;
@@ -26553,6 +26639,10 @@ void CvPlayer::Read(FDataStream& kStream)
 
 	kStream >> m_strEmbarkedGraphicOverride;
 	kStream >> m_piPerMajorReligionFollowerYieldModifier;
+#ifdef MOD_RESOURCE_EXTRA_BUFF
+	kStream >> m_iResourceUnhappinessModifier;
+	kStream >> m_iResourceCityConnectionTradeRouteGoldModifier;
+#endif
 	m_kPlayerAchievements.Read(kStream);
 
 #ifdef MOD_GLOBAL_WAR_CASUALTIES
@@ -26626,6 +26716,9 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << m_iUnhappinessFromUnits;
 	kStream << m_iUnhappinessFromUnitsMod;
 	kStream << m_iUnhappinessMod;
+#ifdef MOD_RESOURCE_EXTRA_BUFF
+	kStream << m_iUnhappinessModFromResource;
+#endif
 	kStream << m_iCityCountUnhappinessMod;
 	kStream << m_iOccupiedPopulationUnhappinessMod;
 	kStream << m_iCapitalUnhappinessMod;
@@ -27105,6 +27198,10 @@ void CvPlayer::Write(FDataStream& kStream) const
 
 	kStream << m_strEmbarkedGraphicOverride;
 	kStream << m_piPerMajorReligionFollowerYieldModifier;
+#ifdef MOD_RESOURCE_EXTRA_BUFF
+	kStream << m_iResourceUnhappinessModifier;
+	kStream << m_iResourceCityConnectionTradeRouteGoldModifier;
+#endif
 
 	m_kPlayerAchievements.Write(kStream);
 

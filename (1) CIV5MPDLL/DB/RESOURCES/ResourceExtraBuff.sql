@@ -4,7 +4,7 @@ alter table Resources add column UnitPurchaseCostModifierFormula text null refer
 alter table Resources add column BuildingPurchaseCostModifierFormula text null references LuaFormula(Type);
 
 alter table Policies add column ResourceCityConnectionTradeRouteGoldModifier integer not null default 0;
-alter table Policies add column ResourceUnHappinessModifier integer not null default 0;
+alter table Policies add column ResourceUnhappinessModifier integer not null default 0;
 
 create table Resource_GlobalYieldModifiers (
     ResourceType text references Resources(Type),

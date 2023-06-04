@@ -288,6 +288,11 @@ public:
 	int GetGlobalHappinessFromFaithPercent() const;
 	int GetHappinessInWLTKDCities() const;
 
+#ifdef MOD_RESOURCE_EXTRA_BUFF
+	int GetResourceUnhappinessModifier() const;
+	int GetResourceCityConnectionTradeRouteGoldModifier() const;
+#endif
+
 private:
 	int m_iTechPrereq;
 	int m_iCultureCost;
@@ -528,6 +533,11 @@ private:
 	std::vector<PolicyYieldInfo> m_vCityNumberCityYieldModifier;
 	int m_iGlobalHappinessFromFaithPercent = 0;
 	int m_iHappinessInWLTKDCities = 0;
+
+#ifdef MOD_RESOURCE_EXTRA_BUFF
+	int m_iResourceUnhappinessModifier = 0;
+	int m_iResourceCityConnectionTradeRouteGoldModifier = 0;
+#endif
 
 	std::vector<PolicyResourceInfo> m_vCityResources;
 };
