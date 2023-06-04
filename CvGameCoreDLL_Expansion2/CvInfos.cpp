@@ -4897,7 +4897,6 @@ bool CvResourceInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 
 	}
 
-	m_eHappinessModifierFormula = static_cast<LuaFormulaTypes>(GC.getInfoTypeForString(kResults.GetText("HappinessModifierFormula"), true));
 	m_eUnHappinessModifierFormula = static_cast<LuaFormulaTypes>(GC.getInfoTypeForString(kResults.GetText("UnHappinessModifierFormula"), true));
 	m_eCityConnectionTradeRouteGoldModifierFormula = static_cast<LuaFormulaTypes>(GC.getInfoTypeForString(kResults.GetText("CityConnectionTradeRouteGoldModifierFormula"), true));
 	m_eUnitPurchaseCostModifierFormula = static_cast<LuaFormulaTypes>(GC.getInfoTypeForString(kResults.GetText("UnitPurchaseCostModifierFormula"), true));
@@ -4928,10 +4927,6 @@ bool CvResourceInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	return true;
 }
 
-LuaFormulaTypes CvResourceInfo::GetHappinessModifierFormula() const
-{
-	return m_eHappinessModifierFormula;
-}
 LuaFormulaTypes CvResourceInfo::GetUnHappinessModifierFormula() const
 {
 	return m_eUnHappinessModifierFormula;

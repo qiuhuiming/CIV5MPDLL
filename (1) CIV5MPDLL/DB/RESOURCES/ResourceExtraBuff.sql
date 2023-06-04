@@ -1,4 +1,3 @@
-alter table Resources add column HappinessModifierFormula text null references LuaFormula(Type);
 alter table Resources add column UnHappinessModifierFormula text null references LuaFormula(Type);
 alter table Resources add column CityConnectionTradeRouteGoldModifierFormula text null references LuaFormula(Type);
 alter table Resources add column UnitPurchaseCostModifierFormula text null references LuaFormula(Type);

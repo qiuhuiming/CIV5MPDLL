@@ -1429,7 +1429,6 @@ public:
 		LuaFormulaTypes eFormula = NO_LUA_FORMULA;
 	};
 
-	LuaFormulaTypes GetHappinessModifierFormula() const;
 	LuaFormulaTypes GetUnHappinessModifierFormula() const;
 	LuaFormulaTypes GetCityConnectionTradeRouteGoldModifierFormula() const;
 	LuaFormulaTypes GetUnitPurchaseCostModifierFormula() const;
@@ -1495,7 +1494,6 @@ protected:
 	bool* m_pbFeature;
 	bool* m_pbFeatureTerrain;
 
-	LuaFormulaTypes m_eHappinessModifierFormula = NO_LUA_FORMULA;
 	LuaFormulaTypes m_eUnHappinessModifierFormula = NO_LUA_FORMULA;
 	LuaFormulaTypes m_eCityConnectionTradeRouteGoldModifierFormula = NO_LUA_FORMULA;
 	LuaFormulaTypes m_eUnitPurchaseCostModifierFormula = NO_LUA_FORMULA;
