@@ -770,6 +770,7 @@ void CvPlayer::init(PlayerTypes eID)
 void CvPlayer::uninit()
 {
 	m_paiNumResourceUsed.clear();
+	m_paiNumResourceAvailableCache.clear();
 	m_paiNumResourceTotal.clear();
 	m_paiResourceGiftedToMinors.clear();
 	m_paiResourceExport.clear();
@@ -1286,6 +1287,9 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 		CvAssertMsg(0 < GC.getNumResourceInfos(), "GC.getNumResourceInfos() is not greater than zero but it is used to allocate memory in CvPlayer::reset");
 		m_paiNumResourceUsed.clear();
 		m_paiNumResourceUsed.resize(GC.getNumResourceInfos(), 0);
+
+		m_paiNumResourceAvailableCache.clear();
+		m_paiNumResourceAvailableCache.resize(GC.getNumResourceInfos(), 0);
 
 		m_paiNumResourceTotal.clear();
 		m_paiNumResourceTotal.resize(GC.getNumResourceInfos(), 0);
@@ -20882,9 +20886,25 @@ int CvPlayer::getNumResourceAvailable(ResourceTypes eIndex, bool bIncludeImport)
 {
 	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	return getNumResourceTotal(eIndex, bIncludeImport) - getNumResourceUsed(eIndex);
+	int result = getNumResourceTotal(eIndex, bIncludeImport) - getNumResourceUsed(eIndex);
+	if (bIncludeImport)
+	{
+		int oldValue = m_paiNumResourceAvailableCache[eIndex];
+		if (oldValue != result)
+		{
+			std::vector<int>& tmp = const_cast<std::vector<int>&>(m_paiNumResourceAvailableCache);
+			tmp[eIndex] = result;
+
+			const_cast<CvPlayer*>(this)->onNumResourceAvailableChanges(eIndex, oldValue, result);
+		}
+	}
+	return result;
 }
 
+void CvPlayer::onNumResourceAvailableChanges(ResourceTypes eIndex, int oldValue, int newValue)
+{
+
+}
 
 //	--------------------------------------------------------------------------------
 int CvPlayer::getResourceGiftedToMinors(ResourceTypes eIndex) const
@@ -26179,6 +26199,7 @@ void CvPlayer::Read(FDataStream& kStream)
 
 	CvAssertMsg((0 < GC.getNumResourceInfos()), "GC.getNumResourceInfos() is not greater than zero but it is expected to be in CvPlayer::read");
 	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_paiNumResourceUsed.dirtyGet());
+	kStream >> m_paiNumResourceAvailableCache;
 	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_paiNumResourceTotal.dirtyGet());
 	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_paiResourceGiftedToMinors.dirtyGet());
 	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_paiResourceExport.dirtyGet());
@@ -26754,6 +26775,7 @@ void CvPlayer::Write(FDataStream& kStream) const
 
 	CvAssertMsg((0 < GC.getNumResourceInfos()), "GC.getNumResourceInfos() is not greater than zero but an array is being allocated in CvPlayer::write");
 	CvInfosSerializationHelper::WriteHashedDataArray<ResourceTypes, int>(kStream, m_paiNumResourceUsed);
+	kStream << m_paiNumResourceAvailableCache;
 	CvInfosSerializationHelper::WriteHashedDataArray<ResourceTypes, int>(kStream, m_paiNumResourceTotal);
 	CvInfosSerializationHelper::WriteHashedDataArray<ResourceTypes, int>(kStream, m_paiResourceGiftedToMinors);
 	CvInfosSerializationHelper::WriteHashedDataArray<ResourceTypes, int>(kStream, m_paiResourceExport);

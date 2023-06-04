@@ -1355,6 +1355,8 @@ public:
 
 	int getNumResourceAvailable(ResourceTypes eIndex, bool bIncludeImport = true) const;
 
+	void onNumResourceAvailableChanges(ResourceTypes eIndex, int oldValue, int newValue);
+
 	int getResourceGiftedToMinors(ResourceTypes eIndex) const;
 	void changeResourceGiftedToMinors(ResourceTypes eIndex, int iChange);
 
@@ -2352,6 +2354,7 @@ protected:
 
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiNumResourceUsed;
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiNumResourceTotal;
+	std::vector<int> m_paiNumResourceAvailableCache;
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiResourceGiftedToMinors;
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiResourceExport;
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiResourceImport;
