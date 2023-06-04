@@ -1385,6 +1385,10 @@ public:
 	int getUnhappinessFromResource(ResourceTypes eIndex, int num) const;
 	int getUnhappinessFromResource(CvResourceInfo* pInfo, int num) const;
 	void updateUnhappinessFromResource(ResourceTypes eIndex, int oldNum, int newNum);
+
+	int getCityConnectionTradeRouteGoldModifierFromResource(ResourceTypes eIndex, int num) const;
+	int getCityConnectionTradeRouteGoldModifierFromResource(CvResourceInfo* pInfo, int num) const;
+	void updateCityConnectionTradeRouteGoldModifierFromResource(ResourceTypes eIndex, int oldNum, int newNum);
 #endif
 
 	int getTotalImprovementsBuilt() const;

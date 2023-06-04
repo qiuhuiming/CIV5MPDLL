@@ -20918,6 +20918,11 @@ void CvPlayer::onNumResourceAvailableChanges(ResourceTypes eIndex, int oldNum, i
 	{
 		updateUnhappinessFromResource(eIndex, oldNum, newNum);
 	}
+
+	if (info->GetCityConnectionTradeRouteGoldModifierFormula() != NO_LUA_FORMULA)
+	{
+		updateCityConnectionTradeRouteGoldModifierFromResource(eIndex, oldNum, newNum);
+	}
 }
 
 //	--------------------------------------------------------------------------------
@@ -21151,7 +21156,6 @@ int CvPlayer::getUnhappinessFromResource(ResourceTypes eIndex, int num) const
 	}
 
 	return getUnhappinessFromResource(info, num);
-
 }
 
 int CvPlayer::getUnhappinessFromResource(CvResourceInfo* info, int num) const
@@ -21192,6 +21196,62 @@ void CvPlayer::updateUnhappinessFromResource(ResourceTypes eIndex, int oldNum, i
 	}
 
 	ChangeUnhappinessMod(newValue - oldValue);
+}
+
+int CvPlayer::getCityConnectionTradeRouteGoldModifierFromResource(ResourceTypes eIndex, int num) const
+{
+	if (!MOD_RESOURCE_EXTRA_BUFF)
+	{
+		return 0;
+	}
+
+	auto* info = GC.getResourceInfo(eIndex);
+	if (info == nullptr || info->GetCityConnectionTradeRouteGoldModifierFormula() == NO_LUA_FORMULA)
+	{
+		return 0;
+	}
+
+	return getCityConnectionTradeRouteGoldModifierFromResource(info, num);
+}
+
+int CvPlayer::getCityConnectionTradeRouteGoldModifierFromResource(CvResourceInfo* info, int num) const
+{
+	auto* evaluator = GC.GetLuaEvaluatorManager()->GetEvaluator(info->GetCityConnectionTradeRouteGoldModifierFormula());
+	if (evaluator == nullptr)
+	{
+		return 0;
+	}
+
+	auto result = evaluator->Evaluate<int>(num, getNumCities());
+	if (!result.ok)
+	{
+		return 0;
+	}
+
+	return result.value;
+}
+
+void CvPlayer::updateCityConnectionTradeRouteGoldModifierFromResource(ResourceTypes eIndex, int oldNum, int newNum)
+{
+	if (oldNum == newNum)
+	{
+		return;
+	}
+
+	auto* info = GC.getResourceInfo(eIndex);
+	if (info == nullptr || info->GetCityConnectionTradeRouteGoldModifierFormula() == NO_LUA_FORMULA)
+	{
+		return;
+	}
+
+	int oldValue = getCityConnectionTradeRouteGoldModifierFromResource(info, oldNum);
+	int newValue = getCityConnectionTradeRouteGoldModifierFromResource(info, newNum);
+	if (oldValue == newValue)
+	{
+		return;
+	}
+
+	GetTreasury()->ChangeCityConnectionTradeRouteGoldModifier(newValue - oldValue);
 }
 #endif
 

@@ -1207,6 +1207,7 @@ protected:
 
 #ifdef MOD_RESOURCE_EXTRA_BUFF
 	LUAAPIEXTN(GetUnHappinessModFromResourceByIndex, int, eResourceType);
+	LUAAPIEXTN(GetCityConnectionTradeRouteGoldModifierFromResourceByIndex, int, eResourceType);
 #endif
 };
 
