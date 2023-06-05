@@ -4897,6 +4897,7 @@ bool CvResourceInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 
 	}
 
+#ifdef MOD_RESOURCE_EXTRA_BUFF
 	m_eUnHappinessModifierFormula = static_cast<LuaFormulaTypes>(GC.getInfoTypeForString(kResults.GetText("UnHappinessModifierFormula"), true));
 	m_eCityConnectionTradeRouteGoldModifierFormula = static_cast<LuaFormulaTypes>(GC.getInfoTypeForString(kResults.GetText("CityConnectionTradeRouteGoldModifierFormula"), true));
 	m_eGoldHurryCostModifierFormula = static_cast<LuaFormulaTypes>(GC.getInfoTypeForString(kResults.GetText("GoldHurryCostModifierFormula"), true));
@@ -4924,6 +4925,7 @@ bool CvResourceInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 
 		pResults->Reset();
 	}
+#endif
 
 	return true;
 }

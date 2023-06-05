@@ -1424,6 +1424,7 @@ public:
 
 	int getFlavorValue(int i) const;
 
+#ifdef MOD_RESOURCE_EXTRA_BUFF
 	struct YieldInfo {
 		YieldTypes eYield = NO_YIELD;
 		LuaFormulaTypes eFormula = NO_LUA_FORMULA;
@@ -1436,6 +1437,7 @@ public:
 	LuaFormulaTypes GetGoldHurryCostModifierFormula() const;
 
 	const std::vector<YieldInfo>& GetGlobalYieldModifiers() const;
+#endif
 
 	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
 protected:
@@ -1495,11 +1497,13 @@ protected:
 	bool* m_pbFeature;
 	bool* m_pbFeatureTerrain;
 
+#ifdef MOD_RESOURCE_EXTRA_BUFF
 	LuaFormulaTypes m_eUnHappinessModifierFormula = NO_LUA_FORMULA;
 	LuaFormulaTypes m_eCityConnectionTradeRouteGoldModifierFormula = NO_LUA_FORMULA;
 	LuaFormulaTypes m_eGoldHurryCostModifierFormula = NO_LUA_FORMULA;
 
 	std::vector<YieldInfo> m_vGlobalYieldModifiers;
+#endif
 
 private:
 	CvResourceInfo(const CvResourceInfo&);
