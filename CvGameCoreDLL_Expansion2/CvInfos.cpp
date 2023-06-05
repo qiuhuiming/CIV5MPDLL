@@ -4899,8 +4899,7 @@ bool CvResourceInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 
 	m_eUnHappinessModifierFormula = static_cast<LuaFormulaTypes>(GC.getInfoTypeForString(kResults.GetText("UnHappinessModifierFormula"), true));
 	m_eCityConnectionTradeRouteGoldModifierFormula = static_cast<LuaFormulaTypes>(GC.getInfoTypeForString(kResults.GetText("CityConnectionTradeRouteGoldModifierFormula"), true));
-	m_eUnitPurchaseCostModifierFormula = static_cast<LuaFormulaTypes>(GC.getInfoTypeForString(kResults.GetText("UnitPurchaseCostModifierFormula"), true));
-	m_eBuildingPurchaseCostModifierFormula = static_cast<LuaFormulaTypes>(GC.getInfoTypeForString(kResults.GetText("BuildingPurchaseCostModifierFormula"), true));
+	m_eGoldHurryCostModifierFormula = static_cast<LuaFormulaTypes>(GC.getInfoTypeForString(kResults.GetText("GoldHurryCostModifierFormula"), true));
 
 	{
 		std::string sqlKey = "Resoureces - m_vGlobalYieldModifiers";
@@ -4935,14 +4934,11 @@ LuaFormulaTypes CvResourceInfo::GetCityConnectionTradeRouteGoldModifierFormula()
 {
 	return m_eCityConnectionTradeRouteGoldModifierFormula;
 }
-LuaFormulaTypes CvResourceInfo::GetUnitPurchaseCostModifierFormula() const
+LuaFormulaTypes CvResourceInfo::GetGoldHurryCostModifierFormula() const
 {
-	return m_eUnitPurchaseCostModifierFormula;
+	return m_eGoldHurryCostModifierFormula;
 }
-LuaFormulaTypes CvResourceInfo::GetBuildingPurchaseCostModifierFormula() const
-{
-	return m_eBuildingPurchaseCostModifierFormula;
-}
+
 const std::vector<CvResourceInfo::YieldInfo>& CvResourceInfo::GetGlobalYieldModifiers() const
 {
 	return m_vGlobalYieldModifiers;

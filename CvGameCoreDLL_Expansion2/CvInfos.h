@@ -1431,8 +1431,7 @@ public:
 
 	LuaFormulaTypes GetUnHappinessModifierFormula() const;
 	LuaFormulaTypes GetCityConnectionTradeRouteGoldModifierFormula() const;
-	LuaFormulaTypes GetUnitPurchaseCostModifierFormula() const;
-	LuaFormulaTypes GetBuildingPurchaseCostModifierFormula() const;
+	LuaFormulaTypes GetGoldHurryCostModifierFormula() const;
 
 	const std::vector<YieldInfo>& GetGlobalYieldModifiers() const;
 
@@ -1496,8 +1495,7 @@ protected:
 
 	LuaFormulaTypes m_eUnHappinessModifierFormula = NO_LUA_FORMULA;
 	LuaFormulaTypes m_eCityConnectionTradeRouteGoldModifierFormula = NO_LUA_FORMULA;
-	LuaFormulaTypes m_eUnitPurchaseCostModifierFormula = NO_LUA_FORMULA;
-	LuaFormulaTypes m_eBuildingPurchaseCostModifierFormula = NO_LUA_FORMULA;
+	LuaFormulaTypes m_eGoldHurryCostModifierFormula = NO_LUA_FORMULA;
 
 	std::vector<YieldInfo> m_vGlobalYieldModifiers;
 

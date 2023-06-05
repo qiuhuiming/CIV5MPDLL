@@ -760,6 +760,10 @@ void CvPlayer::init(PlayerTypes eID)
 	}
 
 	m_aiPlots.clear();
+#ifdef MOD_RESOURCE_EXTRA_BUFF
+	m_paiHurryModifierFromResource.clear();
+#endif
+
 	m_bfEverConqueredBy.ClearAll();
 
 	AI_init();
@@ -1179,6 +1183,10 @@ void CvPlayer::uninit()
 	m_bAlliesGreatPersonBiasApplied = false;
 	m_lastGameTurnInitialAIProcessed = -1;
 
+#ifdef MOD_RESOURCE_EXTRA_BUFF
+	m_paiHurryModifierFromResource.clear();
+#endif
+
 	m_eID = NO_PLAYER;
 }
 
@@ -1350,6 +1358,11 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 		m_paiHurryModifier.clear();
 		m_paiHurryModifier.resize(GC.getNumHurryInfos(), 0);
+
+#ifdef MOD_RESOURCE_EXTRA_BUFF
+		m_paiHurryModifierFromResource.clear();
+		m_paiHurryModifierFromResource.resize(GC.getNumHurryInfos(), 0);
+#endif
 
 		m_pabLoyalMember.clear();
 		m_pabLoyalMember.resize(GC.getNumVoteSourceInfos(), true);
@@ -20931,6 +20944,11 @@ void CvPlayer::onNumResourceAvailableChanges(ResourceTypes eIndex, int oldNum, i
 	{
 		UpdateCityConnectionTradeRouteGoldModifierFromResource(eIndex, oldNum, newNum);
 	}
+
+	if (info->GetGoldHurryCostModifierFormula() != NO_LUA_FORMULA)
+	{
+		UpdateGoldHurryModFromResource(eIndex, oldNum, newNum);
+	}
 #endif
 }
 
@@ -21814,7 +21832,14 @@ int CvPlayer::getHurryModifier(HurryTypes eIndex) const
 {
 	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex < GC.getNumHurryInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	return m_paiHurryModifier[eIndex];
+	int tmp = 0;
+#ifdef MOD_RESOURCE_EXTRA_BUFF
+	if (MOD_RESOURCE_EXTRA_BUFF)
+	{
+		tmp += GetHurryModifierFromResource(eIndex);
+	}
+#endif
+	return m_paiHurryModifier[eIndex] + tmp;
 }
 
 //	--------------------------------------------------------------------------------
@@ -26469,7 +26494,9 @@ void CvPlayer::Read(FDataStream& kStream)
 	kStream >> m_iResourceUnhappinessModifier;
 	kStream >> m_iResourceCityConnectionTradeRouteGoldModifier;
 	kStream >> m_iUnhappinessModFromResource;
+	kStream >> m_paiHurryModifierFromResource;
 #endif
+
 	m_kPlayerAchievements.Read(kStream);
 
 #ifdef MOD_GLOBAL_WAR_CASUALTIES
@@ -27026,6 +27053,7 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << m_iResourceUnhappinessModifier;
 	kStream << m_iResourceCityConnectionTradeRouteGoldModifier;
 	kStream << m_iUnhappinessModFromResource;
+	kStream << m_paiHurryModifierFromResource;
 #endif
 
 	m_kPlayerAchievements.Write(kStream);
@@ -30398,4 +30426,80 @@ void CvPlayer::ChangeResourceCityConnectionTradeRouteGoldModifier(int value)
 {
 	m_iResourceCityConnectionTradeRouteGoldModifier += value;
 }
+
+int CvPlayer::GetHurryModifierFromResource(HurryTypes eIndex) const
+{
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < GC.getNumHurryInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	return m_paiHurryModifierFromResource[eIndex];
+}
+
+void CvPlayer::ChangeHurryModifierFromResource(HurryTypes eIndex, int iChange)
+{
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < GC.getNumHurryInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	m_paiHurryModifierFromResource[eIndex] += iChange;
+}
+
+void CvPlayer::SetHurryModifierFromResource(HurryTypes eIndex, int iValue)
+{
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < GC.getNumHurryInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	m_paiHurryModifierFromResource[eIndex] = iValue;
+}
+
+int CvPlayer::CalculateGoldHurryModFromResource(ResourceTypes eIndex, int num) const
+{
+	auto* info = GC.getResourceInfo(eIndex);
+	return CalculateGoldHurryModFromResource(info, num);
+}
+
+int CvPlayer::CalculateGoldHurryModFromResource(CvResourceInfo* pInfo, int num) const
+{
+	if (pInfo == nullptr || pInfo->GetGoldHurryCostModifierFormula() == NO_LUA_FORMULA)
+	{
+		return 0;
+	}
+
+	auto* evaluator = GC.GetLuaEvaluatorManager()->GetEvaluator(pInfo->GetGoldHurryCostModifierFormula());
+	if (evaluator == nullptr)
+	{
+		return 0;
+	}
+
+	auto result = evaluator->Evaluate<int>(num, getNumCities());
+	if (!result.ok)
+	{
+		return 0;
+	}
+
+	return result.value;
+
+}
+
+void CvPlayer::UpdateGoldHurryModFromResource(ResourceTypes eIndex, int oldNum, int newNum)
+{
+	int oldValue = CalculateGoldHurryModFromResource(eIndex, oldNum);
+	int newValue = CalculateGoldHurryModFromResource(eIndex, newNum);
+	if (oldValue == newValue)
+	{
+		return;
+	}
+
+	ChangeHurryModifierFromResource((HurryTypes)GC.getInfoTypeForString("HURRY_GOLD"), newValue - oldValue);
+}
+
+void CvPlayer::UpdateGoldHurryModFromResource()
+{
+	int result = 0;
+	for (auto* info : GC.getResourceInfo())
+	{
+		if (info != nullptr && info->GetGoldHurryCostModifierFormula() != NO_LUA_FORMULA)
+		{
+			result += CalculateGoldHurryModFromResource(info, m_paiNumResourceAvailableCache[info->GetID()]);
+		}
+	}
+	SetHurryModifierFromResource((HurryTypes)GC.getInfoTypeForString("HURRY_GOLD"), result);
+}
+
 #endif

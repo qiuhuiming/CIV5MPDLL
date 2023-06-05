@@ -1989,11 +1989,6 @@ public:
 	void UpdateCityConnectionTradeRouteGoldModifierFromResource(ResourceTypes eIndex, int oldNum, int newNum);
 	void UpdateCityConnectionTradeRouteGoldModifierFromResource();
 
-	int GetResourceUnhappinessModifier() const;
-	void ChangeResourceUnhappinessModifier(int value);
-	int GetResourceCityConnectionTradeRouteGoldModifier() const;
-	void ChangeResourceCityConnectionTradeRouteGoldModifier(int value);
-
 	int GetUnhappinessModFromResource() const;
 	void ChangeUnhappinessModFromResource(int iChange);
 
@@ -2001,6 +1996,19 @@ public:
 	int CalculateUnhappinessModFromResource(ResourceTypes eIndex, int num) const;
 	int CalculateUnhappinessModFromResource(CvResourceInfo* pInfo, int num) const;
 	void UpdateUnhappinessModFromResource(ResourceTypes eIndex, int oldNum, int newNum);
+
+	int GetResourceUnhappinessModifier() const;
+	void ChangeResourceUnhappinessModifier(int value);
+	int GetResourceCityConnectionTradeRouteGoldModifier() const;
+	void ChangeResourceCityConnectionTradeRouteGoldModifier(int value);
+
+	int GetHurryModifierFromResource(HurryTypes eIndex) const;
+	void ChangeHurryModifierFromResource(HurryTypes eIndex, int iChange);
+	void SetHurryModifierFromResource(HurryTypes eIndex, int iValue);
+	int CalculateGoldHurryModFromResource(ResourceTypes eIndex, int num) const;
+	int CalculateGoldHurryModFromResource(CvResourceInfo* pInfo, int num) const;
+	void UpdateGoldHurryModFromResource(ResourceTypes eIndex, int oldNum, int newNum);
+	void UpdateGoldHurryModFromResource();
 #endif
 
 protected:
@@ -2596,6 +2604,7 @@ protected:
 	int m_iResourceUnhappinessModifier = 0;
 	int m_iResourceCityConnectionTradeRouteGoldModifier = 0;
 	int m_iUnhappinessModFromResource = 0;
+	std::vector<int> m_paiHurryModifierFromResource;
 #endif
 };
 

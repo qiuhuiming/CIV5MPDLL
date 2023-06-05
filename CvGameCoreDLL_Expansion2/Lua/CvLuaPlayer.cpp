@@ -1288,6 +1288,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 #ifdef MOD_RESOURCE_EXTRA_BUFF
 	Method(GetUnHappinessModFromResourceByIndex);
 	Method(GetCityConnectionTradeRouteGoldModifierFromResourceByIndex);
+	Method(GetGoldHurryCostModifierFromResourceByIndex);
 #endif
 }
 //------------------------------------------------------------------------------
@@ -12433,6 +12434,15 @@ int CvLuaPlayer::lGetCityConnectionTradeRouteGoldModifierFromResourceByIndex(lua
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	ResourceTypes eResource = static_cast<ResourceTypes>(lua_tointeger(L, 2));
 	int result = pkPlayer->CalculateCityConnectionTradeRouteGoldModifierFromResource(eResource, pkPlayer->getNumResourceAvailable(eResource));
+	lua_pushinteger(L, result);
+	return 1;
+}
+
+int CvLuaPlayer::lGetGoldHurryCostModifierFromResourceByIndex(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	ResourceTypes eResource = static_cast<ResourceTypes>(lua_tointeger(L, 2));
+	int result = pkPlayer->CalculateGoldHurryModFromResource(eResource, pkPlayer->getNumResourceAvailable(eResource));
 	lua_pushinteger(L, result);
 	return 1;
 }
