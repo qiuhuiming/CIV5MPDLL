@@ -13435,28 +13435,6 @@ void CvPlayer::ChangeUnhappinessMod(int iChange)
 	}
 }
 
-#ifdef MOD_RESOURCE_EXTRA_BUFF
-int CvPlayer::GetUnhappinessModFromResource() const
-{
-	return m_iUnhappinessModFromResource;
-}
-void CvPlayer::ChangeUnhappinessModFromResource(int iChange)
-{
-	m_iUnhappinessModFromResource += iChange;
-}
-void CvPlayer::UpdateUnhappinessModFromResource()
-{
-	m_iUnhappinessModFromResource = 0;
-	for (auto* info : GC.getResourceInfo())
-	{
-		if (info->GetUnHappinessModifierFormula() != NO_LUA_FORMULA)
-		{
-			m_iUnhappinessModFromResource += CalculateUnhappinessModFromResource(info, m_paiNumResourceAvailableCache[info->GetID()]);
-		}
-	}
-}
-#endif
-
 //	--------------------------------------------------------------------------------
 /// City Count Unhappiness Mod (-50 = 50% of normal)
 int CvPlayer::GetCityCountUnhappinessMod() const
@@ -21172,155 +21150,6 @@ int CvPlayer::getResourceInOwnedPlots(ResourceTypes eIndex)
 	return iCount;
 }
 
-#ifdef MOD_RESOURCE_EXTRA_BUFF
-int CvPlayer::CalculateUnhappinessModFromResource(ResourceTypes eIndex, int num) const
-{
-	if (!MOD_RESOURCE_EXTRA_BUFF)
-	{
-		return 0;
-	}
-
-	auto* info = GC.getResourceInfo(eIndex);
-	if (info == nullptr || info->GetUnHappinessModifierFormula() == NO_LUA_FORMULA)
-	{
-		return 0;
-	}
-
-	return CalculateUnhappinessModFromResource(info, num);
-}
-
-int CvPlayer::CalculateUnhappinessModFromResource(CvResourceInfo* info, int num) const
-{
-	auto* evaluator = GC.GetLuaEvaluatorManager()->GetEvaluator(info->GetUnHappinessModifierFormula());
-	if (evaluator == nullptr)
-	{
-		return 0;
-	}
-
-	auto result = evaluator->Evaluate<int>(num, getNumCities());
-	if (!result.ok)
-	{
-		return 0;
-	}
-
-	if (result.value < 0)
-	{
-		return result.value * (100 + GetResourceUnhappinessModifier()) / 100;
-	}
-
-	return result.value;
-}
-
-void CvPlayer::UpdateUnhappinessModFromResource(ResourceTypes eIndex, int oldNum, int newNum)
-{
-	if (oldNum == newNum)
-	{
-		return;
-	}
-
-	auto* info = GC.getResourceInfo(eIndex);
-	if (info == nullptr || info->GetUnHappinessModifierFormula() == NO_LUA_FORMULA)
-	{
-		return;
-	}
-
-	int oldValue = CalculateUnhappinessModFromResource(info, oldNum);
-	int newValue = CalculateUnhappinessModFromResource(info, newNum);
-	if (oldValue == newValue)
-	{
-		return;
-	}
-
-	ChangeUnhappinessModFromResource(newValue - oldValue);
-}
-
-int CvPlayer::CalculateCityConnectionTradeRouteGoldModifierFromResource(ResourceTypes eIndex, int num) const
-{
-	if (!MOD_RESOURCE_EXTRA_BUFF)
-	{
-		return 0;
-	}
-
-	auto* info = GC.getResourceInfo(eIndex);
-	if (info == nullptr || info->GetCityConnectionTradeRouteGoldModifierFormula() == NO_LUA_FORMULA)
-	{
-		return 0;
-	}
-
-	return CalculateCityConnectionTradeRouteGoldModifierFromResource(info, num);
-}
-
-int CvPlayer::CalculateCityConnectionTradeRouteGoldModifierFromResource(CvResourceInfo* info, int num) const
-{
-	auto* evaluator = GC.GetLuaEvaluatorManager()->GetEvaluator(info->GetCityConnectionTradeRouteGoldModifierFormula());
-	if (evaluator == nullptr)
-	{
-		return 0;
-	}
-
-	auto result = evaluator->Evaluate<int>(num, getNumCities());
-	if (!result.ok)
-	{
-		return 0;
-	}
-
-	return result.value * (100 + GetResourceCityConnectionTradeRouteGoldModifier()) / 100;
-}
-
-void CvPlayer::UpdateCityConnectionTradeRouteGoldModifierFromResource(ResourceTypes eIndex, int oldNum, int newNum)
-{
-	if (oldNum == newNum)
-	{
-		return;
-	}
-
-	auto* info = GC.getResourceInfo(eIndex);
-	if (info == nullptr || info->GetCityConnectionTradeRouteGoldModifierFormula() == NO_LUA_FORMULA)
-	{
-		return;
-	}
-
-	int oldValue = CalculateCityConnectionTradeRouteGoldModifierFromResource(info, oldNum);
-	int newValue = CalculateCityConnectionTradeRouteGoldModifierFromResource(info, newNum);
-	if (oldValue == newValue)
-	{
-		return;
-	}
-
-	GetTreasury()->ChangeCityConnectionTradeRouteGoldModifierFromResource(newValue - oldValue);
-}
-
-void CvPlayer::UpdateCityConnectionTradeRouteGoldModifierFromResource()
-{
-	int result = 0;
-	for (auto* info : GC.getResourceInfo())
-	{
-		if (info != nullptr && info->GetCityConnectionTradeRouteGoldModifierFormula() != NO_LUA_FORMULA)
-		{
-			result += CalculateCityConnectionTradeRouteGoldModifierFromResource(info, m_paiNumResourceAvailableCache[info->GetID()]);
-		}
-	}
-	GetTreasury()->SetCityConnectionTradeRouteGoldModifierFromResource(result);
-}
-
-int CvPlayer::GetResourceUnhappinessModifier() const
-{
-	return m_iResourceUnhappinessModifier;
-}
-void CvPlayer::ChangeResourceUnhappinessModifier(int value)
-{
-	m_iResourceUnhappinessModifier += value;
-}
-int CvPlayer::GetResourceCityConnectionTradeRouteGoldModifier() const
-{
-	return m_iResourceCityConnectionTradeRouteGoldModifier;
-}
-void CvPlayer::ChangeResourceCityConnectionTradeRouteGoldModifier(int value)
-{
-	m_iResourceCityConnectionTradeRouteGoldModifier += value;
-}
-#endif
-
 //	--------------------------------------------------------------------------------
 int CvPlayer::getTotalImprovementsBuilt() const
 {
@@ -26021,9 +25850,6 @@ void CvPlayer::Read(FDataStream& kStream)
 	kStream >> m_iUnhappinessFromUnits;
 	kStream >> m_iUnhappinessFromUnitsMod;
 	kStream >> m_iUnhappinessMod;
-#ifdef MOD_RESOURCE_EXTRA_BUFF
-	kStream >> m_iUnhappinessModFromResource;
-#endif
 	kStream >> m_iCityCountUnhappinessMod;
 	kStream >> m_iOccupiedPopulationUnhappinessMod;
 	kStream >> m_iCapitalUnhappinessMod;
@@ -26642,6 +26468,7 @@ void CvPlayer::Read(FDataStream& kStream)
 #ifdef MOD_RESOURCE_EXTRA_BUFF
 	kStream >> m_iResourceUnhappinessModifier;
 	kStream >> m_iResourceCityConnectionTradeRouteGoldModifier;
+	kStream >> m_iUnhappinessModFromResource;
 #endif
 	m_kPlayerAchievements.Read(kStream);
 
@@ -26716,9 +26543,6 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << m_iUnhappinessFromUnits;
 	kStream << m_iUnhappinessFromUnitsMod;
 	kStream << m_iUnhappinessMod;
-#ifdef MOD_RESOURCE_EXTRA_BUFF
-	kStream << m_iUnhappinessModFromResource;
-#endif
 	kStream << m_iCityCountUnhappinessMod;
 	kStream << m_iOccupiedPopulationUnhappinessMod;
 	kStream << m_iCapitalUnhappinessMod;
@@ -27201,6 +27025,7 @@ void CvPlayer::Write(FDataStream& kStream) const
 #ifdef MOD_RESOURCE_EXTRA_BUFF
 	kStream << m_iResourceUnhappinessModifier;
 	kStream << m_iResourceCityConnectionTradeRouteGoldModifier;
+	kStream << m_iUnhappinessModFromResource;
 #endif
 
 	m_kPlayerAchievements.Write(kStream);
@@ -30405,3 +30230,172 @@ int CvPlayer::GetRazeSpeedModifier() const
 {
 	return GetPlayerTraits()->GetRazeSpeedModifier() + GET_TEAM(getTeam()).GetRazeSpeedModifier();
 }
+
+#ifdef MOD_RESOURCE_EXTRA_BUFF
+int CvPlayer::GetUnhappinessModFromResource() const
+{
+	return m_iUnhappinessModFromResource;
+}
+void CvPlayer::ChangeUnhappinessModFromResource(int iChange)
+{
+	m_iUnhappinessModFromResource += iChange;
+}
+void CvPlayer::UpdateUnhappinessModFromResource()
+{
+	m_iUnhappinessModFromResource = 0;
+	for (auto* info : GC.getResourceInfo())
+	{
+		if (info->GetUnHappinessModifierFormula() != NO_LUA_FORMULA)
+		{
+			m_iUnhappinessModFromResource += CalculateUnhappinessModFromResource(info, m_paiNumResourceAvailableCache[info->GetID()]);
+		}
+	}
+}
+
+int CvPlayer::CalculateUnhappinessModFromResource(ResourceTypes eIndex, int num) const
+{
+	if (!MOD_RESOURCE_EXTRA_BUFF)
+	{
+		return 0;
+	}
+
+	auto* info = GC.getResourceInfo(eIndex);
+	if (info == nullptr || info->GetUnHappinessModifierFormula() == NO_LUA_FORMULA)
+	{
+		return 0;
+	}
+
+	return CalculateUnhappinessModFromResource(info, num);
+}
+
+int CvPlayer::CalculateUnhappinessModFromResource(CvResourceInfo* info, int num) const
+{
+	auto* evaluator = GC.GetLuaEvaluatorManager()->GetEvaluator(info->GetUnHappinessModifierFormula());
+	if (evaluator == nullptr)
+	{
+		return 0;
+	}
+
+	auto result = evaluator->Evaluate<int>(num, getNumCities());
+	if (!result.ok)
+	{
+		return 0;
+	}
+
+	if (result.value < 0)
+	{
+		return result.value * (100 + GetResourceUnhappinessModifier()) / 100;
+	}
+
+	return result.value;
+}
+
+void CvPlayer::UpdateUnhappinessModFromResource(ResourceTypes eIndex, int oldNum, int newNum)
+{
+	if (oldNum == newNum)
+	{
+		return;
+	}
+
+	auto* info = GC.getResourceInfo(eIndex);
+	if (info == nullptr || info->GetUnHappinessModifierFormula() == NO_LUA_FORMULA)
+	{
+		return;
+	}
+
+	int oldValue = CalculateUnhappinessModFromResource(info, oldNum);
+	int newValue = CalculateUnhappinessModFromResource(info, newNum);
+	if (oldValue == newValue)
+	{
+		return;
+	}
+
+	ChangeUnhappinessModFromResource(newValue - oldValue);
+}
+
+int CvPlayer::CalculateCityConnectionTradeRouteGoldModifierFromResource(ResourceTypes eIndex, int num) const
+{
+	if (!MOD_RESOURCE_EXTRA_BUFF)
+	{
+		return 0;
+	}
+
+	auto* info = GC.getResourceInfo(eIndex);
+	if (info == nullptr || info->GetCityConnectionTradeRouteGoldModifierFormula() == NO_LUA_FORMULA)
+	{
+		return 0;
+	}
+
+	return CalculateCityConnectionTradeRouteGoldModifierFromResource(info, num);
+}
+
+int CvPlayer::CalculateCityConnectionTradeRouteGoldModifierFromResource(CvResourceInfo* info, int num) const
+{
+	auto* evaluator = GC.GetLuaEvaluatorManager()->GetEvaluator(info->GetCityConnectionTradeRouteGoldModifierFormula());
+	if (evaluator == nullptr)
+	{
+		return 0;
+	}
+
+	auto result = evaluator->Evaluate<int>(num, getNumCities());
+	if (!result.ok)
+	{
+		return 0;
+	}
+
+	return result.value * (100 + GetResourceCityConnectionTradeRouteGoldModifier()) / 100;
+}
+
+void CvPlayer::UpdateCityConnectionTradeRouteGoldModifierFromResource(ResourceTypes eIndex, int oldNum, int newNum)
+{
+	if (oldNum == newNum)
+	{
+		return;
+	}
+
+	auto* info = GC.getResourceInfo(eIndex);
+	if (info == nullptr || info->GetCityConnectionTradeRouteGoldModifierFormula() == NO_LUA_FORMULA)
+	{
+		return;
+	}
+
+	int oldValue = CalculateCityConnectionTradeRouteGoldModifierFromResource(info, oldNum);
+	int newValue = CalculateCityConnectionTradeRouteGoldModifierFromResource(info, newNum);
+	if (oldValue == newValue)
+	{
+		return;
+	}
+
+	GetTreasury()->ChangeCityConnectionTradeRouteGoldModifierFromResource(newValue - oldValue);
+}
+
+void CvPlayer::UpdateCityConnectionTradeRouteGoldModifierFromResource()
+{
+	int result = 0;
+	for (auto* info : GC.getResourceInfo())
+	{
+		if (info != nullptr && info->GetCityConnectionTradeRouteGoldModifierFormula() != NO_LUA_FORMULA)
+		{
+			result += CalculateCityConnectionTradeRouteGoldModifierFromResource(info, m_paiNumResourceAvailableCache[info->GetID()]);
+		}
+	}
+	GetTreasury()->SetCityConnectionTradeRouteGoldModifierFromResource(result);
+}
+
+int CvPlayer::GetResourceUnhappinessModifier() const
+{
+	return m_iResourceUnhappinessModifier;
+}
+void CvPlayer::ChangeResourceUnhappinessModifier(int value)
+{
+	m_iResourceUnhappinessModifier += value;
+}
+int CvPlayer::GetResourceCityConnectionTradeRouteGoldModifier() const
+{
+	return m_iResourceCityConnectionTradeRouteGoldModifier;
+}
+void CvPlayer::ChangeResourceCityConnectionTradeRouteGoldModifier(int value)
+{
+	m_iResourceCityConnectionTradeRouteGoldModifier += value;
+}
+#endif

@@ -562,13 +562,6 @@ public:
 	int GetUnhappinessMod() const;
 	void ChangeUnhappinessMod(int iChange);
 
-	int GetUnhappinessModFromResource() const;
-	void ChangeUnhappinessModFromResource(int iChange);
-	void UpdateUnhappinessModFromResource();
-	int CalculateUnhappinessModFromResource(ResourceTypes eIndex, int num) const;
-	int CalculateUnhappinessModFromResource(CvResourceInfo* pInfo, int num) const;
-	void UpdateUnhappinessModFromResource(ResourceTypes eIndex, int oldNum, int newNum);
-
 	int GetCityCountUnhappinessMod() const;
 	void ChangeCityCountUnhappinessMod(int iChange);
 
@@ -1388,18 +1381,6 @@ public:
 
 	int getResourceInOwnedPlots(ResourceTypes eIndex);
 
-#ifdef MOD_RESOURCE_EXTRA_BUFF
-	int CalculateCityConnectionTradeRouteGoldModifierFromResource(ResourceTypes eIndex, int num) const;
-	int CalculateCityConnectionTradeRouteGoldModifierFromResource(CvResourceInfo* pInfo, int num) const;
-	void UpdateCityConnectionTradeRouteGoldModifierFromResource(ResourceTypes eIndex, int oldNum, int newNum);
-	void UpdateCityConnectionTradeRouteGoldModifierFromResource();
-
-	int GetResourceUnhappinessModifier() const;
-	void ChangeResourceUnhappinessModifier(int value);
-	int GetResourceCityConnectionTradeRouteGoldModifier() const;
-	void ChangeResourceCityConnectionTradeRouteGoldModifier(int value);
-#endif
-
 	int getTotalImprovementsBuilt() const;
 	void changeTotalImprovementsBuilt(int iChange);
 	int getImprovementCount(ImprovementTypes eIndex) const;
@@ -2002,6 +1983,26 @@ public:
 
 	int GetRazeSpeedModifier() const;
 
+#ifdef MOD_RESOURCE_EXTRA_BUFF
+	int CalculateCityConnectionTradeRouteGoldModifierFromResource(ResourceTypes eIndex, int num) const;
+	int CalculateCityConnectionTradeRouteGoldModifierFromResource(CvResourceInfo* pInfo, int num) const;
+	void UpdateCityConnectionTradeRouteGoldModifierFromResource(ResourceTypes eIndex, int oldNum, int newNum);
+	void UpdateCityConnectionTradeRouteGoldModifierFromResource();
+
+	int GetResourceUnhappinessModifier() const;
+	void ChangeResourceUnhappinessModifier(int value);
+	int GetResourceCityConnectionTradeRouteGoldModifier() const;
+	void ChangeResourceCityConnectionTradeRouteGoldModifier(int value);
+
+	int GetUnhappinessModFromResource() const;
+	void ChangeUnhappinessModFromResource(int iChange);
+
+	void UpdateUnhappinessModFromResource();
+	int CalculateUnhappinessModFromResource(ResourceTypes eIndex, int num) const;
+	int CalculateUnhappinessModFromResource(CvResourceInfo* pInfo, int num) const;
+	void UpdateUnhappinessModFromResource(ResourceTypes eIndex, int oldNum, int newNum);
+#endif
+
 protected:
 	class ConqueredByBoolField
 	{
@@ -2078,9 +2079,6 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iUnhappinessFromUnits;
 	FAutoVariable<int, CvPlayer> m_iUnhappinessFromUnitsMod;
 	FAutoVariable<int, CvPlayer> m_iUnhappinessMod;
-#ifdef MOD_RESOURCE_EXTRA_BUFF
-	int m_iUnhappinessModFromResource = 0;
-#endif
 	FAutoVariable<int, CvPlayer> m_iCityCountUnhappinessMod;
 	FAutoVariable<int, CvPlayer> m_iOccupiedPopulationUnhappinessMod;
 	FAutoVariable<int, CvPlayer> m_iCapitalUnhappinessMod;
@@ -2597,6 +2595,7 @@ protected:
 #ifdef MOD_RESOURCE_EXTRA_BUFF
 	int m_iResourceUnhappinessModifier = 0;
 	int m_iResourceCityConnectionTradeRouteGoldModifier = 0;
+	int m_iUnhappinessModFromResource = 0;
 #endif
 };
 
