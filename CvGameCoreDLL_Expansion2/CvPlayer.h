@@ -1355,8 +1355,6 @@ public:
 
 	int getNumResourceAvailable(ResourceTypes eIndex, bool bIncludeImport = true) const;
 
-	void onNumResourceAvailableChanges(ResourceTypes eIndex, int oldValue, int newValue);
-
 	int getResourceGiftedToMinors(ResourceTypes eIndex) const;
 	void changeResourceGiftedToMinors(ResourceTypes eIndex, int iChange);
 
@@ -1984,35 +1982,23 @@ public:
 	int GetRazeSpeedModifier() const;
 
 #ifdef MOD_RESOURCE_EXTRA_BUFF
-	int CalculateCityConnectionTradeRouteGoldModifierFromResource(ResourceTypes eIndex, int num) const;
-	int CalculateCityConnectionTradeRouteGoldModifierFromResource(CvResourceInfo* pInfo, int num) const;
-	void UpdateCityConnectionTradeRouteGoldModifierFromResource(ResourceTypes eIndex, int oldNum, int newNum);
-	void UpdateCityConnectionTradeRouteGoldModifierFromResource();
-
 	int GetUnhappinessModFromResource() const;
-	void ChangeUnhappinessModFromResource(int iChange);
-
-	void UpdateUnhappinessModFromResource();
-	int CalculateUnhappinessModFromResource(ResourceTypes eIndex, int num) const;
 	int CalculateUnhappinessModFromResource(CvResourceInfo* pInfo, int num) const;
-	void UpdateUnhappinessModFromResource(ResourceTypes eIndex, int oldNum, int newNum);
 
+	int GetCityConnectionTradeRouteGoldModifierFromResource() const;
+	int CalculateCityConnectionTradeRouteGoldModifierFromResource(CvResourceInfo* pInfo, int num) const;
+
+	int GetHurryModifierFromResource(HurryTypes eIndex) const;
+	int CalculateGoldHurryModFromResource(CvResourceInfo* pInfo, int num) const;
+
+	int GetGlobalYieldModifierFromResource(YieldTypes eYield) const;
+	int CalculateGlobalYieldModifierFromResource(CvResourceInfo* pInfo, int num, YieldTypes eYield) const;
+
+	// modifiers from policies ...
 	int GetResourceUnhappinessModifier() const;
 	void ChangeResourceUnhappinessModifier(int value);
 	int GetResourceCityConnectionTradeRouteGoldModifier() const;
 	void ChangeResourceCityConnectionTradeRouteGoldModifier(int value);
-
-	int GetHurryModifierFromResource(HurryTypes eIndex) const;
-	void ChangeHurryModifierFromResource(HurryTypes eIndex, int iChange);
-	void SetHurryModifierFromResource(HurryTypes eIndex, int iValue);
-	int CalculateGoldHurryModFromResource(ResourceTypes eIndex, int num) const;
-	int CalculateGoldHurryModFromResource(CvResourceInfo* pInfo, int num) const;
-	void UpdateGoldHurryModFromResource(ResourceTypes eIndex, int oldNum, int newNum);
-	void UpdateGoldHurryModFromResource();
-
-	int GetGlobalYieldModifierFromResource(YieldTypes eYield) const;
-	int CalculateGlobalYieldModifierFromResource(ResourceTypes eIndex, int num, YieldTypes eYield) const;
-	int CalculateGlobalYieldModifierFromResource(CvResourceInfo* pInfo, int num, YieldTypes eYield) const;
 #endif
 
 protected:
@@ -2607,8 +2593,6 @@ protected:
 #ifdef MOD_RESOURCE_EXTRA_BUFF
 	int m_iResourceUnhappinessModifier = 0;
 	int m_iResourceCityConnectionTradeRouteGoldModifier = 0;
-	int m_iUnhappinessModFromResource = 0;
-	std::vector<int> m_paiHurryModifierFromResource;
 #endif
 };
 

@@ -760,9 +760,6 @@ void CvPlayer::init(PlayerTypes eID)
 	}
 
 	m_aiPlots.clear();
-#ifdef MOD_RESOURCE_EXTRA_BUFF
-	m_paiHurryModifierFromResource.clear();
-#endif
 
 	m_bfEverConqueredBy.ClearAll();
 
@@ -1183,10 +1180,6 @@ void CvPlayer::uninit()
 	m_bAlliesGreatPersonBiasApplied = false;
 	m_lastGameTurnInitialAIProcessed = -1;
 
-#ifdef MOD_RESOURCE_EXTRA_BUFF
-	m_paiHurryModifierFromResource.clear();
-#endif
-
 	m_eID = NO_PLAYER;
 }
 
@@ -1358,11 +1351,6 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 		m_paiHurryModifier.clear();
 		m_paiHurryModifier.resize(GC.getNumHurryInfos(), 0);
-
-#ifdef MOD_RESOURCE_EXTRA_BUFF
-		m_paiHurryModifierFromResource.clear();
-		m_paiHurryModifierFromResource.resize(GC.getNumHurryInfos(), 0);
-#endif
 
 		m_pabLoyalMember.clear();
 		m_pabLoyalMember.resize(GC.getNumVoteSourceInfos(), true);
@@ -20914,42 +20902,9 @@ int CvPlayer::getNumResourceAvailable(ResourceTypes eIndex, bool bIncludeImport)
 		{
 			std::vector<int>& tmp = const_cast<std::vector<int>&>(m_paiNumResourceAvailableCache);
 			tmp[eIndex] = result;
-
-			const_cast<CvPlayer*>(this)->onNumResourceAvailableChanges(eIndex, oldValue, result);
 		}
 	}
 	return result;
-}
-
-void CvPlayer::onNumResourceAvailableChanges(ResourceTypes eIndex, int oldNum, int newNum)
-{
-#ifdef MOD_RESOURCE_EXTRA_BUFF
-	if (!MOD_RESOURCE_EXTRA_BUFF)
-	{
-		return;
-	}
-
-	auto* info = GC.getResourceInfo(eIndex);
-	if (info == nullptr)
-	{
-		return;
-	}
-
-	if (info->GetUnHappinessModifierFormula() != NO_LUA_FORMULA)
-	{
-		UpdateUnhappinessModFromResource(eIndex, oldNum, newNum);
-	}
-
-	if (info->GetCityConnectionTradeRouteGoldModifierFormula() != NO_LUA_FORMULA)
-	{
-		UpdateCityConnectionTradeRouteGoldModifierFromResource(eIndex, oldNum, newNum);
-	}
-
-	if (info->GetGoldHurryCostModifierFormula() != NO_LUA_FORMULA)
-	{
-		UpdateGoldHurryModFromResource(eIndex, oldNum, newNum);
-	}
-#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -25241,19 +25196,13 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	ChangeNumCitiesFreeFoodBuilding(iNumCitiesFreeFoodBuilding);
 
 #ifdef MOD_RESOURCE_EXTRA_BUFF
-	if (MOD_RESOURCE_EXTRA_BUFF)
+	if (pPolicy->GetResourceCityConnectionTradeRouteGoldModifier() != 0)
 	{
-		if (pPolicy->GetResourceCityConnectionTradeRouteGoldModifier() != 0)
-		{
-			ChangeResourceCityConnectionTradeRouteGoldModifier(pPolicy->GetResourceCityConnectionTradeRouteGoldModifier());
-			UpdateCityConnectionTradeRouteGoldModifierFromResource();
-		}
-
-		if (pPolicy->GetResourceUnhappinessModifier() != 0)
-		{
-			ChangeResourceUnhappinessModifier(pPolicy->GetResourceUnhappinessModifier());
-			UpdateUnhappinessModFromResource();
-		}
+		ChangeResourceCityConnectionTradeRouteGoldModifier(pPolicy->GetResourceCityConnectionTradeRouteGoldModifier() * iChange);
+	}
+	if (pPolicy->GetResourceUnhappinessModifier() != 0)
+	{
+		ChangeResourceUnhappinessModifier(pPolicy->GetResourceUnhappinessModifier() * iChange);
 	}
 #endif
 
@@ -26490,11 +26439,10 @@ void CvPlayer::Read(FDataStream& kStream)
 
 	kStream >> m_strEmbarkedGraphicOverride;
 	kStream >> m_piPerMajorReligionFollowerYieldModifier;
-#ifdef MOD_RESOURCE_EXTRA_BUFF
+
+	#ifdef MOD_RESOURCE_EXTRA_BUFF
 	kStream >> m_iResourceUnhappinessModifier;
 	kStream >> m_iResourceCityConnectionTradeRouteGoldModifier;
-	kStream >> m_iUnhappinessModFromResource;
-	kStream >> m_paiHurryModifierFromResource;
 #endif
 
 	m_kPlayerAchievements.Read(kStream);
@@ -27049,11 +26997,10 @@ void CvPlayer::Write(FDataStream& kStream) const
 
 	kStream << m_strEmbarkedGraphicOverride;
 	kStream << m_piPerMajorReligionFollowerYieldModifier;
+
 #ifdef MOD_RESOURCE_EXTRA_BUFF
 	kStream << m_iResourceUnhappinessModifier;
 	kStream << m_iResourceCityConnectionTradeRouteGoldModifier;
-	kStream << m_iUnhappinessModFromResource;
-	kStream << m_paiHurryModifierFromResource;
 #endif
 
 	m_kPlayerAchievements.Write(kStream);
@@ -30262,38 +30209,12 @@ int CvPlayer::GetRazeSpeedModifier() const
 #ifdef MOD_RESOURCE_EXTRA_BUFF
 int CvPlayer::GetUnhappinessModFromResource() const
 {
-	return m_iUnhappinessModFromResource;
-}
-void CvPlayer::ChangeUnhappinessModFromResource(int iChange)
-{
-	m_iUnhappinessModFromResource += iChange;
-}
-void CvPlayer::UpdateUnhappinessModFromResource()
-{
-	m_iUnhappinessModFromResource = 0;
+	int ret = 0;
 	for (auto* info : GC.getResourceInfo())
 	{
-		if (info->GetUnHappinessModifierFormula() != NO_LUA_FORMULA)
-		{
-			m_iUnhappinessModFromResource += CalculateUnhappinessModFromResource(info, m_paiNumResourceAvailableCache[info->GetID()]);
-		}
+		ret += CalculateUnhappinessModFromResource(info, m_paiNumResourceAvailableCache[info->GetID()]);
 	}
-}
-
-int CvPlayer::CalculateUnhappinessModFromResource(ResourceTypes eIndex, int num) const
-{
-	if (!MOD_RESOURCE_EXTRA_BUFF)
-	{
-		return 0;
-	}
-
-	auto* info = GC.getResourceInfo(eIndex);
-	if (info == nullptr || info->GetUnHappinessModifierFormula() == NO_LUA_FORMULA)
-	{
-		return 0;
-	}
-
-	return CalculateUnhappinessModFromResource(info, num);
+	return 0;
 }
 
 int CvPlayer::CalculateUnhappinessModFromResource(CvResourceInfo* info, int num) const
@@ -30318,43 +30239,14 @@ int CvPlayer::CalculateUnhappinessModFromResource(CvResourceInfo* info, int num)
 	return result.value;
 }
 
-void CvPlayer::UpdateUnhappinessModFromResource(ResourceTypes eIndex, int oldNum, int newNum)
+int CvPlayer::GetCityConnectionTradeRouteGoldModifierFromResource() const
 {
-	if (oldNum == newNum)
+	int ret = 0;
+	for (auto* info : GC.getResourceInfo())
 	{
-		return;
+		ret += CalculateCityConnectionTradeRouteGoldModifierFromResource(info, m_paiNumResourceAvailableCache[info->GetID()]);
 	}
-
-	auto* info = GC.getResourceInfo(eIndex);
-	if (info == nullptr || info->GetUnHappinessModifierFormula() == NO_LUA_FORMULA)
-	{
-		return;
-	}
-
-	int oldValue = CalculateUnhappinessModFromResource(info, oldNum);
-	int newValue = CalculateUnhappinessModFromResource(info, newNum);
-	if (oldValue == newValue)
-	{
-		return;
-	}
-
-	ChangeUnhappinessModFromResource(newValue - oldValue);
-}
-
-int CvPlayer::CalculateCityConnectionTradeRouteGoldModifierFromResource(ResourceTypes eIndex, int num) const
-{
-	if (!MOD_RESOURCE_EXTRA_BUFF)
-	{
-		return 0;
-	}
-
-	auto* info = GC.getResourceInfo(eIndex);
-	if (info == nullptr || info->GetCityConnectionTradeRouteGoldModifierFormula() == NO_LUA_FORMULA)
-	{
-		return 0;
-	}
-
-	return CalculateCityConnectionTradeRouteGoldModifierFromResource(info, num);
+	return ret;
 }
 
 int CvPlayer::CalculateCityConnectionTradeRouteGoldModifierFromResource(CvResourceInfo* info, int num) const
@@ -30374,84 +30266,22 @@ int CvPlayer::CalculateCityConnectionTradeRouteGoldModifierFromResource(CvResour
 	return result.value * (100 + GetResourceCityConnectionTradeRouteGoldModifier()) / 100;
 }
 
-void CvPlayer::UpdateCityConnectionTradeRouteGoldModifierFromResource(ResourceTypes eIndex, int oldNum, int newNum)
-{
-	if (oldNum == newNum)
-	{
-		return;
-	}
-
-	auto* info = GC.getResourceInfo(eIndex);
-	if (info == nullptr || info->GetCityConnectionTradeRouteGoldModifierFormula() == NO_LUA_FORMULA)
-	{
-		return;
-	}
-
-	int oldValue = CalculateCityConnectionTradeRouteGoldModifierFromResource(info, oldNum);
-	int newValue = CalculateCityConnectionTradeRouteGoldModifierFromResource(info, newNum);
-	if (oldValue == newValue)
-	{
-		return;
-	}
-
-	GetTreasury()->ChangeCityConnectionTradeRouteGoldModifierFromResource(newValue - oldValue);
-}
-
-void CvPlayer::UpdateCityConnectionTradeRouteGoldModifierFromResource()
-{
-	int result = 0;
-	for (auto* info : GC.getResourceInfo())
-	{
-		if (info != nullptr && info->GetCityConnectionTradeRouteGoldModifierFormula() != NO_LUA_FORMULA)
-		{
-			result += CalculateCityConnectionTradeRouteGoldModifierFromResource(info, m_paiNumResourceAvailableCache[info->GetID()]);
-		}
-	}
-	GetTreasury()->SetCityConnectionTradeRouteGoldModifierFromResource(result);
-}
-
-int CvPlayer::GetResourceUnhappinessModifier() const
-{
-	return m_iResourceUnhappinessModifier;
-}
-void CvPlayer::ChangeResourceUnhappinessModifier(int value)
-{
-	m_iResourceUnhappinessModifier += value;
-}
-int CvPlayer::GetResourceCityConnectionTradeRouteGoldModifier() const
-{
-	return m_iResourceCityConnectionTradeRouteGoldModifier;
-}
-void CvPlayer::ChangeResourceCityConnectionTradeRouteGoldModifier(int value)
-{
-	m_iResourceCityConnectionTradeRouteGoldModifier += value;
-}
-
 int CvPlayer::GetHurryModifierFromResource(HurryTypes eIndex) const
 {
 	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex < GC.getNumHurryInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	return m_paiHurryModifierFromResource[eIndex];
-}
+	static HurryTypes eHurryGold = static_cast<HurryTypes>(GC.getInfoTypeForString("HURRY_GOLD"));
+	if (eIndex != eHurryGold)
+	{
+		return 0;
+	}
 
-void CvPlayer::ChangeHurryModifierFromResource(HurryTypes eIndex, int iChange)
-{
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumHurryInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	m_paiHurryModifierFromResource[eIndex] += iChange;
-}
-
-void CvPlayer::SetHurryModifierFromResource(HurryTypes eIndex, int iValue)
-{
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumHurryInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	m_paiHurryModifierFromResource[eIndex] = iValue;
-}
-
-int CvPlayer::CalculateGoldHurryModFromResource(ResourceTypes eIndex, int num) const
-{
-	auto* info = GC.getResourceInfo(eIndex);
-	return CalculateGoldHurryModFromResource(info, num);
+	int ret = 0;
+	for (auto* info : GC.getResourceInfo())
+	{
+		ret += CalculateGoldHurryModFromResource(info, m_paiNumResourceAvailableCache[info->GetID()]);
+	}
+	return ret;
 }
 
 int CvPlayer::CalculateGoldHurryModFromResource(CvResourceInfo* pInfo, int num) const
@@ -30474,32 +30304,6 @@ int CvPlayer::CalculateGoldHurryModFromResource(CvResourceInfo* pInfo, int num) 
 	}
 
 	return result.value;
-
-}
-
-void CvPlayer::UpdateGoldHurryModFromResource(ResourceTypes eIndex, int oldNum, int newNum)
-{
-	int oldValue = CalculateGoldHurryModFromResource(eIndex, oldNum);
-	int newValue = CalculateGoldHurryModFromResource(eIndex, newNum);
-	if (oldValue == newValue)
-	{
-		return;
-	}
-
-	ChangeHurryModifierFromResource((HurryTypes)GC.getInfoTypeForString("HURRY_GOLD"), newValue - oldValue);
-}
-
-void CvPlayer::UpdateGoldHurryModFromResource()
-{
-	int result = 0;
-	for (auto* info : GC.getResourceInfo())
-	{
-		if (info != nullptr && info->GetGoldHurryCostModifierFormula() != NO_LUA_FORMULA)
-		{
-			result += CalculateGoldHurryModFromResource(info, m_paiNumResourceAvailableCache[info->GetID()]);
-		}
-	}
-	SetHurryModifierFromResource((HurryTypes)GC.getInfoTypeForString("HURRY_GOLD"), result);
 }
 
 int CvPlayer::GetGlobalYieldModifierFromResource(YieldTypes eYield) const
@@ -30512,12 +30316,6 @@ int CvPlayer::GetGlobalYieldModifierFromResource(YieldTypes eYield) const
 		ret += CalculateGlobalYieldModifierFromResource(info, m_paiNumResourceAvailableCache[info->GetID()], eYield);
 	}
 	return ret;
-}
-
-int CvPlayer::CalculateGlobalYieldModifierFromResource(ResourceTypes eIndex, int num, YieldTypes eYield) const
-{
-	auto* info = GC.getResourceInfo(eIndex);
-	return CalculateGlobalYieldModifierFromResource(eIndex, num, eYield);
 }
 
 int CvPlayer::CalculateGlobalYieldModifierFromResource(CvResourceInfo* pInfo, int num, YieldTypes eYield) const
@@ -30558,6 +30356,24 @@ int CvPlayer::CalculateGlobalYieldModifierFromResource(CvResourceInfo* pInfo, in
 	}
 
 	return ret;
+}
+
+// modifiers from policies ...
+int CvPlayer::GetResourceUnhappinessModifier() const
+{
+	return m_iResourceUnhappinessModifier;
+}
+void CvPlayer::ChangeResourceUnhappinessModifier(int value)
+{
+	m_iResourceUnhappinessModifier += value;
+}
+int CvPlayer::GetResourceCityConnectionTradeRouteGoldModifier() const
+{
+	return m_iResourceCityConnectionTradeRouteGoldModifier;
+}
+void CvPlayer::ChangeResourceCityConnectionTradeRouteGoldModifier(int value)
+{
+	m_iResourceCityConnectionTradeRouteGoldModifier += value;
 }
 
 #endif
