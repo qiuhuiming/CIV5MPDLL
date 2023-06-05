@@ -2009,6 +2009,10 @@ public:
 	int CalculateGoldHurryModFromResource(CvResourceInfo* pInfo, int num) const;
 	void UpdateGoldHurryModFromResource(ResourceTypes eIndex, int oldNum, int newNum);
 	void UpdateGoldHurryModFromResource();
+
+	int GetGlobalYieldModifierFromResource(YieldTypes eYield) const;
+	int CalculateGlobalYieldModifierFromResource(ResourceTypes eIndex, int num, YieldTypes eYield) const;
+	int CalculateGlobalYieldModifierFromResource(CvResourceInfo* pInfo, int num, YieldTypes eYield) const;
 #endif
 
 protected:

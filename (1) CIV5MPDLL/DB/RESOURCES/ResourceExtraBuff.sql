@@ -8,5 +8,7 @@ alter table Policies add column ResourceUnhappinessModifier integer not null def
 create table Resource_GlobalYieldModifiers (
     ResourceType text references Resources(Type),
     YieldType text references Yields(Type),
-    YieldFormula text text references LuaFormula(Type)
+    YieldFormula text references LuaFormula(Type),
+    StartEra text references Eras(Type),
+    EndEra text references Eras(Type)
 );

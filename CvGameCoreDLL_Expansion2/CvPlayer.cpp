@@ -30502,4 +30502,62 @@ void CvPlayer::UpdateGoldHurryModFromResource()
 	SetHurryModifierFromResource((HurryTypes)GC.getInfoTypeForString("HURRY_GOLD"), result);
 }
 
+int CvPlayer::GetGlobalYieldModifierFromResource(YieldTypes eYield) const
+{
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	int ret = 0;
+	for (auto* info : GC.getResourceInfo())
+	{
+		ret += CalculateGlobalYieldModifierFromResource(info, m_paiNumResourceAvailableCache[info->GetID()], eYield);
+	}
+	return ret;
+}
+
+int CvPlayer::CalculateGlobalYieldModifierFromResource(ResourceTypes eIndex, int num, YieldTypes eYield) const
+{
+	auto* info = GC.getResourceInfo(eIndex);
+	return CalculateGlobalYieldModifierFromResource(eIndex, num, eYield);
+}
+
+int CvPlayer::CalculateGlobalYieldModifierFromResource(CvResourceInfo* pInfo, int num, YieldTypes eYield) const
+{
+	if (pInfo == nullptr || pInfo->GetGlobalYieldModifiers().empty())
+	{
+		return 0;
+	}
+
+	int ret = 0;
+	for (auto& yieldInfo : pInfo->GetGlobalYieldModifiers())
+	{
+		if (yieldInfo.eYield != eYield)
+		{
+			continue;
+		}
+
+		bool okEra = (yieldInfo.eStartEra == NO_ERA || GetCurrentEra() >= yieldInfo.eStartEra)
+			&& (yieldInfo.eEndEra == NO_ERA || GetCurrentEra() < yieldInfo.eEndEra);
+		if (!okEra)
+		{
+			continue;
+		}
+
+		auto* evaluator = GC.GetLuaEvaluatorManager()->GetEvaluator(yieldInfo.eFormula);
+		if (evaluator == nullptr)
+		{
+			continue;
+		}
+
+		auto result = evaluator->Evaluate<int>(num, getNumCities(), GET_TEAM( getTeam()).GetTeamTechs()->GetNumTechsKnown());
+		if (!result.ok)
+		{
+			continue;
+		}
+
+		ret += result.value;
+	}
+
+	return ret;
+}
+
 #endif

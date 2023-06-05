@@ -265,6 +265,13 @@
 		<Row Tag="TXT_KEY_NOTIFICATION_ATTACKING_CITY_LOST_MOVEMENT">
 			<Text>你的{@1_name}攻击城市后失去了所有[ICON_MOVES]移动力！</Text>
 		</Row>
+
+		<Row Tag="TXT_KEY_PRODMOD_YIELD_RESOURCE_BUFF">
+			<Text>
+				[NEWLINE][ICON_BULLET]战略资源修正: {1_Num}%
+			</Text>
+		</Row>
+		
 	</Language_zh_CN>
 
 </GameData>

@@ -1427,6 +1427,8 @@ public:
 	struct YieldInfo {
 		YieldTypes eYield = NO_YIELD;
 		LuaFormulaTypes eFormula = NO_LUA_FORMULA;
+		EraTypes eStartEra = NO_ERA;
+		EraTypes eEndEra = NO_ERA;
 	};
 
 	LuaFormulaTypes GetUnHappinessModifierFormula() const;

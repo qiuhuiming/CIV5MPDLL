@@ -11357,6 +11357,19 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD_LOCAL_CITY_WONDER", iTempMod);
 		}
 	}
+
+#ifdef MOD_RESOURCE_EXTRA_BUFF
+	if (MOD_RESOURCE_EXTRA_BUFF)
+	{
+		iTempMod = owner.GetGlobalYieldModifierFromResource(eIndex);
+		if (iTempMod != 0)
+		{
+			iModifier += iTempMod;
+			if (toolTipSink)
+				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD_RESOURCE_BUFF", iTempMod);
+		}
+	}
+#endif
 	
 	int iNumTradeRoutes = owner.GetTrade()->GetNumTradeRoutesUsed(true);
 	if (!owner.GetTradeRouteCityYieldModifier().empty() && iNumTradeRoutes > 0)

@@ -4917,6 +4917,8 @@ bool CvResourceInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 			YieldInfo info;
 			info.eFormula = static_cast<LuaFormulaTypes>(GC.getInfoTypeForString(pResults->GetText("YieldFormula")));
 			info.eYield = static_cast<YieldTypes>(GC.getInfoTypeForString(pResults->GetText("YieldType")));
+			info.eStartEra = static_cast<EraTypes>(GC.getInfoTypeForString(pResults->GetText("StartEra")));
+			info.eEndEra = static_cast<EraTypes>(GC.getInfoTypeForString(pResults->GetText("EndEra")));
 			m_vGlobalYieldModifiers.push_back(info);
 		}
 
