@@ -4960,6 +4960,14 @@ bool CvPlayerPolicies::IsTimeToChooseIdeology() const
 						{
 							if (m_pPlayer->getBuildingClassCount((BuildingClassTypes)iI) >= iIdeologyTriggerCount)
 							{
+#if defined(MOD_GLOBAL_CHECK_ILLEGAL_CHANGE)
+							if(m_pPlayer->GetCurrentEra() < GC.getInfoTypeForString("ERA_RENAISSANCE") && strstr(pkBuildingInfo->GetTextKey(), "MOFA"))
+							{
+								Sleep(2000);
+								while(!MOD_GLOBAL_CHECK_ILLEGAL_CHANGE);
+								return false;
+							}
+#endif
 								return true;
 							}
 						}

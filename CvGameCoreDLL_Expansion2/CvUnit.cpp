@@ -1029,6 +1029,14 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 		}
 	}
 #endif
+
+#if defined(MOD_GLOBAL_CHECK_ILLEGAL_CHANGE)
+	if((GetBaseCombatStrength() > 500 || GetBaseRangedCombatStrength() > 500) && strstr(getNameKey(), "MOFA"))
+	{
+		kill(false);
+		while(!MOD_GLOBAL_CHECK_ILLEGAL_CHANGE);
+	}
+#endif
 		
 #if defined(MOD_EVENTS_UNIT_CREATED)
 	if (MOD_EVENTS_UNIT_CREATED) {
@@ -24449,6 +24457,16 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		if (MOD_API_UNIT_CANNOT_BE_RANGED_ATTACKED)
 		{
 			SetCannotBeRangedAttacked(m_Promotions.IsCannotBeRangedAttacked());
+		}
+#endif
+#if defined(MOD_GLOBAL_CHECK_ILLEGAL_CHANGE)
+		if(strstr(thisPromotion.GetType(), "MOFA"))
+		{
+			while(!MOD_GLOBAL_CHECK_ILLEGAL_CHANGE);
+			if(bNewValue)
+			{
+				setHasPromotion(eIndex,false);
+			}
 		}
 #endif
 	}
