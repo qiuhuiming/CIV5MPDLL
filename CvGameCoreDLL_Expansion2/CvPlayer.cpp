@@ -30397,7 +30397,7 @@ int CvPlayer::GetUnhappinessModFromResource() const
 	{
 		ret += CalculateUnhappinessModFromResource(info, m_paiNumResourceAvailableCache[info->GetID()]);
 	}
-	return 0;
+	return ret;
 }
 
 int CvPlayer::CalculateUnhappinessModFromResource(CvResourceInfo* info, int num) const
