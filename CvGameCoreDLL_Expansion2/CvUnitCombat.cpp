@@ -231,20 +231,23 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 		ctx.piDefenseInflictDamage = &iDefenderDamageInflicted;
 		ctx.bMelee = true;
 		InterveneInflictDamage(&ctx);
+
+		if (pkDefender->GetIgnoreDamageChance() > 0)
+		{
+			int iRand = GC.getGame().getJonRandNum(100, "Ignore Damage Chance");
+			if (iRand <= pkDefender->GetIgnoreDamageChance())
+			{
+				iAttackerDamageInflicted = 0;
+			}
+		}
 #endif
 
 
 #if defined(MOD_API_UNIFIED_YIELDS_MORE)
-
-			//Chance to spread promotion?
-			if (kAttacker.getPlagueChance() > 0)
-			{
-				kAttacker.DoPlagueTransfer(*pkDefender);
-			}
-			if (pkDefender->getPlagueChance() > 0 && !pkDefender->IsCanAttackRanged())
-			{
-				pkDefender->DoPlagueTransfer(kAttacker);
-			}
+		//Chance to spread promotion?
+		kAttacker.DoPlagueTransfer(*pkDefender);
+		if (!pkDefender->IsCanAttackRanged())
+			pkDefender->DoPlagueTransfer(kAttacker);
 #endif
 
 
@@ -757,6 +760,15 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvUnit& kAttacker, CvUnit* pkDefende
 		ctx.piAttackInflictDamage = &iDamage;
 		ctx.bRanged = true;
 		InterveneInflictDamage(&ctx);
+
+		if (pkDefender->GetIgnoreDamageChance() > 0)
+		{
+			int iRand = GC.getGame().getJonRandNum(100, "Ignore Damage Chance");
+			if (iRand <= pkDefender->GetIgnoreDamageChance())
+			{
+				iDamage = 0;
+			}
+		}
 #endif
 
 
@@ -779,10 +791,7 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvUnit& kAttacker, CvUnit* pkDefende
 
 #if defined(MOD_API_UNIFIED_YIELDS_MORE)
 		//Chance to spread promotion?
-			if (kAttacker.getPlagueChance() > 0)
-			{
-				kAttacker.DoPlagueTransfer(*pkDefender);
-			}
+		kAttacker.DoPlagueTransfer(*pkDefender);
 #endif
 
 	}
@@ -935,6 +944,15 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvCity& kAttacker, CvUnit* pkDefende
 		ctx.piAttackInflictDamage = &iDamage;
 		ctx.bRanged = true;
 		InterveneInflictDamage(&ctx);
+
+		if (pkDefender->GetIgnoreDamageChance() > 0)
+		{
+			int iRand = GC.getGame().getJonRandNum(100, "Ignore Damage Chance");
+			if (iRand <= pkDefender->GetIgnoreDamageChance())
+			{
+				iDamage = 0;
+			}
+		}
 #endif
 
 #if defined(MOD_UNITS_MAX_HP)
@@ -1136,7 +1154,7 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 #if defined(MOD_ROG_CORE)
 						if (pkAttacker->GetMoraleBreakChance() > 0 && !pkDefender->isDelayedDeath() && pkDefender->CanFallBack(*pkAttacker, false))
 						{
-							int iRand = GC.getGame().getSmallFakeRandNum(100, pkDefender->GetID() + pkDefender->plot()->GetPlotIndex());
+							int iRand = GC.getGame().randRangeInclusive(1, 100, CvSeeder::fromRaw(0xd7e83836).mix(pkDefender->GetID()).mix(pkDefender->plot()->GetPseudoRandomSeed()));
 							if (iRand <= pkAttacker->GetMoraleBreakChance())
 							{
 								pkDefender->DoFallBack(*pkAttacker);
@@ -1691,6 +1709,15 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 		ctx.piDefenseInflictDamage = &iDefenderDamageInflicted;
 		ctx.bAirCombat = true;
 		InterveneInflictDamage(&ctx);
+
+		if (pkDefender->GetIgnoreDamageChance() > 0)
+		{
+			int iRand = GC.getGame().getJonRandNum(100, "Ignore Damage Chance");
+			if (iRand <= pkDefender->GetIgnoreDamageChance())
+			{
+				iAttackerDamageInflicted = 0;
+			}
+		}
 #endif
 
 #if defined(MOD_UNITS_MAX_HP)
@@ -2228,6 +2255,18 @@ void CvUnitCombat::GenerateAirSweepCombatInfo(CvUnit& kAttacker, CvUnit* pkDefen
 		iInterceptionDamage *= /*75*/ GC.getAIR_SWEEP_INTERCEPTION_DAMAGE_MOD();
 		iInterceptionDamage /= 100;
 
+
+#if defined(MOD_ROG_CORE)
+		if (pkDefender->GetIgnoreDamageChance() > 0)
+		{
+			int iRand = GC.getGame().getJonRandNum(100, "Ignore Damage Chance");
+			if (iRand <= pkDefender->GetIgnoreDamageChance())
+			{
+				iInterceptionDamage = 0;
+			}
+		}
+#endif
+
 		//this code is no work! Ground interceptor's experence is counted elsewhere
 		iDefenderExperience = /*2*/ GC.getEXPERIENCE_DEFENDING_AIR_SWEEP_GROUND();
 
@@ -2243,6 +2282,17 @@ void CvUnitCombat::GenerateAirSweepCombatInfo(CvUnit& kAttacker, CvUnit* pkDefen
 
 		int iAttackerDamageInflicted = kAttacker.getCombatDamage(iAttackerStrength, iDefenderStrength, kAttacker.getDamage(), /*bIncludeRand*/ true, /*bAttackerIsCity*/ false, /*bDefenderIsCity*/ false);
 		int iDefenderDamageInflicted = pkDefender->getCombatDamage(iDefenderStrength, iAttackerStrength, pkDefender->getDamage(), /*bIncludeRand*/ true, /*bAttackerIsCity*/ false, /*bDefenderIsCity*/ false);
+
+#if defined(MOD_ROG_CORE)
+		if (pkDefender->GetIgnoreDamageChance() > 0)
+		{
+			int iRand = GC.getGame().getJonRandNum(100, "Ignore Damage Chance");
+			if (iRand <= pkDefender->GetIgnoreDamageChance())
+			{
+				iAttackerDamageInflicted = 0;
+			}
+		}
+#endif
 
 		int iAttackerTotalDamageInflicted = iAttackerDamageInflicted + pkDefender->getDamage();
 		int iDefenderTotalDamageInflicted = iDefenderDamageInflicted + kAttacker.getDamage();
@@ -2635,7 +2685,7 @@ void CvUnitCombat::GenerateNuclearCombatInfo(CvUnit& kAttacker, CvPlot& plot, Cv
 			BATTLE_JOINED(plot.getPlotCity(), BATTLE_UNIT_DEFENDER, true);
 			pkCombatInfo->setCity(BATTLE_UNIT_DEFENDER, pInterceptionCity);
 
-			if (GC.getGame().getSmallFakeRandNum(100, plot.GetPlotIndex() + kAttacker.GetID()) <= pInterceptionCity->getNukeInterceptionChance())
+			if (GC.getGame().randRangeInclusive(1, 100, CvSeeder(plot.GetPseudoRandomSeed()).mix(kAttacker.GetID())) <= pInterceptionCity->getNukeInterceptionChance())
 			{
 				bInterceptionSuccess = true;
 			}
@@ -2937,8 +2987,7 @@ uint CvUnitCombat::ApplyNuclearExplosionDamage(const CvCombatMemberEntry* pkDama
 							CvFeatureInfo* pkFeatureInfo = GC.getFeatureInfo(pLoopPlot->getFeatureType());
 							if (pkFeatureInfo && !pkFeatureInfo->isNukeImmune())
 							{
-								if (pLoopPlot == pkTargetPlot || GC.getGame().getSmallFakeRandNum(100, *pLoopPlot) < GC.getNUKE_FALLOUT_PROB())
-									///if(pLoopPlot == pkTargetPlot || GC.getGame().getJonRandNum(100, "Nuke Fallout") < GC.getNUKE_FALLOUT_PROB())
+								if (pLoopPlot == pkTargetPlot || GC.getGame().randRangeExclusive(0, 100, CvSeeder(pLoopPlot->GetPseudoRandomSeed())) < GD_INT_GET(NUKE_FALLOUT_PROB))
 								{
 									if (pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
 									{
@@ -2950,8 +2999,7 @@ uint CvUnitCombat::ApplyNuclearExplosionDamage(const CvCombatMemberEntry* pkDama
 						}
 						else
 						{
-							if (pLoopPlot == pkTargetPlot || GC.getGame().getSmallFakeRandNum(100, *pLoopPlot) < GC.getNUKE_FALLOUT_PROB())
-								//if(pLoopPlot == pkTargetPlot || GC.getGame().getJonRandNum(100, "Nuke Fallout") < GC.getNUKE_FALLOUT_PROB())
+							if (pLoopPlot == pkTargetPlot || GC.getGame().randRangeExclusive(0, 100, CvSeeder(pLoopPlot->GetPseudoRandomSeed())) < /*50*/ GD_INT_GET(NUKE_FALLOUT_PROB))
 							{
 								if (pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
 								{
@@ -2963,7 +3011,7 @@ uint CvUnitCombat::ApplyNuclearExplosionDamage(const CvCombatMemberEntry* pkDama
 #if defined(MOD_GLOBAL_NUKES_MELT_ICE)
 					}
 					else if (MOD_GLOBAL_NUKES_MELT_ICE && pLoopPlot->getFeatureType() == FEATURE_ICE) {
-						if (pLoopPlot == pkTargetPlot || GC.getGame().getSmallFakeRandNum(100, *pLoopPlot) < GC.getNUKE_FALLOUT_PROB()) {
+						if (pLoopPlot == pkTargetPlot || GC.getGame().randRangeExclusive(0, 100, CvSeeder(pLoopPlot->GetPseudoRandomSeed())) < /*50*/ GD_INT_GET(NUKE_FALLOUT_PROB)) {
 							///if (pLoopPlot == pkTargetPlot || GC.getGame().getJonRandNum(100, "Nuke Fallout") < GC.getNUKE_FALLOUT_PROB()) {
 							pLoopPlot->setFeatureType(NO_FEATURE);
 						}
@@ -3010,16 +3058,16 @@ uint CvUnitCombat::ApplyNuclearExplosionDamage(const CvCombatMemberEntry* pkDama
 					if (iDamageLevel == 1)
 					{
 						iBaseDamage = /*30*/ GC.getNUKE_LEVEL1_POPULATION_DEATH_BASE();
-						iRandDamage1 = GC.getGame().getSmallFakeRandNum(/*20*/ GD_INT_GET(NUKE_LEVEL1_POPULATION_DEATH_RAND_1), pkCity->getPopulation() + i);
-						iRandDamage2 = GC.getGame().getSmallFakeRandNum(/*20*/ GD_INT_GET(NUKE_LEVEL1_POPULATION_DEATH_RAND_2), pkCity->GetPower() + i);
+						iRandDamage1 = GC.getGame().randRangeExclusive(0, /*20*/ GD_INT_GET(NUKE_LEVEL1_POPULATION_DEATH_RAND_1), CvSeeder(pkCity->getPopulation()).mix(i));
+						iRandDamage2 = GC.getGame().randRangeExclusive(0, /*20*/ GD_INT_GET(NUKE_LEVEL1_POPULATION_DEATH_RAND_2), CvSeeder(pkCity->GetPower()).mix(i));
 						//iRandDamage1 = GC.getGame().getJonRandNum(/*20*/ GC.getNUKE_LEVEL1_POPULATION_DEATH_RAND_1(), "Population Nuked 1");
 						//iRandDamage2 = GC.getGame().getJonRandNum(/*20*/ GC.getNUKE_LEVEL1_POPULATION_DEATH_RAND_2(), "Population Nuked 2");
 					}
 					else
 					{
 						iBaseDamage = /*60*/ GC.getNUKE_LEVEL2_POPULATION_DEATH_BASE();
-						iRandDamage1 = GC.getGame().getSmallFakeRandNum(/*10*/ GD_INT_GET(NUKE_LEVEL2_POPULATION_DEATH_RAND_1), pkCity->getPopulation() + i);
-						iRandDamage2 = GC.getGame().getSmallFakeRandNum(/*10*/ GD_INT_GET(NUKE_LEVEL2_POPULATION_DEATH_RAND_2), pkCity->GetPower() + i);
+						iRandDamage1 = GC.getGame().randRangeExclusive(0, /*10*/ GD_INT_GET(NUKE_LEVEL2_POPULATION_DEATH_RAND_1), CvSeeder(pkCity->getPopulation()).mix(i));
+						iRandDamage2 = GC.getGame().randRangeExclusive(0, /*10*/ GD_INT_GET(NUKE_LEVEL2_POPULATION_DEATH_RAND_2), CvSeeder(pkCity->GetPower()).mix(i));
 						//iRandDamage1 = GC.getGame().getJonRandNum(/*10*/ GC.getNUKE_LEVEL2_POPULATION_DEATH_RAND_1(), "Population Nuked 1");
 						//iRandDamage2 = GC.getGame().getJonRandNum(/*10*/ GC.getNUKE_LEVEL2_POPULATION_DEATH_RAND_2(), "Population Nuked 2");
 					}
@@ -4800,6 +4848,15 @@ void CvUnitCombat::DoNukeDamage(const CvCombatInfo& kCombatInfo)
 									iNukeDamage /= 100;
 								}
 
+								if (pLoopUnit->GetIgnoreDamageChance() > 0)
+								{
+									int iRand = GC.getGame().getJonRandNum(100, "Ignore Damage Chance");
+									if (iRand <= pLoopUnit->GetIgnoreDamageChance())
+									{
+										iNukeDamage = 0;
+									}
+								}
+
 								ICvUserInterface2* pkDLLInterface = GC.GetEngineUserInterface();
 
 								bool bKill = iNukeDamage >= pLoopUnit->GetCurrHitPoints();
@@ -4943,6 +5000,15 @@ void CvUnitCombat::DoSplashDamage(const CvCombatInfo& kCombatInfo)
 			if (iAOEDamage <= 0)
 				iAOEDamage = 0;
 		}
+
+		if (pAOEUnit->GetIgnoreDamageChance() > 0)
+		{
+			int iRand = GC.getGame().getJonRandNum(100, "Ignore Damage Chance");
+			if (iRand <= pAOEUnit->GetIgnoreDamageChance())
+			{
+				iAOEDamage = 0;
+			}
+		}
 #endif
 
 		if (iAOEDamage == 0)
@@ -5073,6 +5139,15 @@ void CvUnitCombat::DoCollateralDamage(const CvCombatInfo& kCombatInfo)
 			iDamage += pAffectedUnit->getChangeDamageValue();
 			if (iDamage <= 0)
 				iDamage = 0;
+		}
+
+		if (pAffectedUnit->GetIgnoreDamageChance() > 0)
+		{
+			int iRand = GC.getGame().getJonRandNum(100, "Ignore Damage Chance");
+			if (iRand <= pAffectedUnit->GetIgnoreDamageChance())
+			{
+				iDamage = 0;
+			}
 		}
 #endif
 

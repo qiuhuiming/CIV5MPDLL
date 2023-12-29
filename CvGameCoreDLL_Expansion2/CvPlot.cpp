@@ -13821,3 +13821,9 @@ bool CvPlot::IsAdjacentToUnitPromotion(PlayerTypes ePlayer, PromotionTypes eUnit
 }
 
 #endif
+
+CvSeeder CvPlot::GetPseudoRandomSeed() const
+{
+	return CvSeeder(static_cast<uint>(getX()) * 17 + static_cast<uint>(getY()) * 23);
+}
+
