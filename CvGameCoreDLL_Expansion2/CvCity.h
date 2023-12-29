@@ -859,6 +859,9 @@ public:
 	int getYieldRateModifier(YieldTypes eIndex) const;
 	void changeYieldRateModifier(YieldTypes eIndex, int iChange);
 
+	int getYieldRateMultiplier(YieldTypes eIndex) const;
+	void changeYieldRateMultiplier(YieldTypes eIndex, int iChange);
+
 	int getPowerYieldRateModifier(YieldTypes eIndex) const;
 	void changePowerYieldRateModifier(YieldTypes eIndex, int iChange);
 
@@ -1485,6 +1488,7 @@ protected:
 	FAutoVariable<std::vector<int>, CvCity> m_aiBaseYieldRateFromMisc;
 	std::vector<int> m_aiBaseYieldRateFromReligion;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldRateModifier;
+	FAutoVariable<std::vector<int>, CvCity> m_aiYieldRateMultiplier;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldPerPop;
 
 	std::vector<int> m_aiNumProjects;
