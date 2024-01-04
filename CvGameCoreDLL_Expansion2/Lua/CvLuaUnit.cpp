@@ -75,6 +75,11 @@ void CvLuaUnit::RegistStaticFunctions() {
 	REGIST_STATIC_FUNCTION(CvLuaUnit::lSetExperience);
 	REGIST_STATIC_FUNCTION(CvLuaUnit::lSetLevel);
 	REGIST_STATIC_FUNCTION(CvLuaUnit::lSetMadeAttack);
+
+	REGIST_STATIC_FUNCTION(CvLuaUnit::lGetNumAttacks);
+	REGIST_STATIC_FUNCTION(CvLuaUnit::lChangeMadeAttackNum);
+	REGIST_STATIC_FUNCTION(CvLuaUnit::lGetNumAttacksMadeThisTurn);
+
 	REGIST_STATIC_FUNCTION(CvLuaUnit::lSetMadeInterception);
 	REGIST_STATIC_FUNCTION(CvLuaUnit::lSetPromotionReady);
 	REGIST_STATIC_FUNCTION(CvLuaUnit::lSetOriginalOwner);
@@ -510,6 +515,8 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(GetDefenseModifier);
 
 #if defined(MOD_ROG_CORE)
+	Method(GetMultiAttackBonus);
+	Method(GetNumAttacksMadeThisTurnAttackMod);
 	Method(GetMeleeDefenseModifier);
 	Method(GetRangedDefenseModifier);
 #endif
@@ -676,6 +683,10 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(IsOutOfAttacks);
 
 	Method(SetMadeAttack);
+
+	Method(GetNumAttacks);
+	Method(ChangeMadeAttackNum);
+	Method(GetNumAttacksMadeThisTurn);
 
 	Method(isOutOfInterceptions);
 	Method(SetMadeInterception);
@@ -3680,6 +3691,61 @@ int CvLuaUnit::lGetDefenseModifier(lua_State* L)
 }
 
 #if defined(MOD_ROG_CORE)
+//------------------------------------------------------------------------------
+int CvLuaUnit::lGetMultiAttackBonus(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	CvUnit* pkOtherUnit = CvLuaUnit::GetInstance(L, 2);
+
+	if (pkUnit == NULL || pkOtherUnit == NULL)
+		return 0;
+
+	int iModifier = 0;
+	//bonus for attacking same unit over and over in a turn?
+	int iTempModifier = pkUnit->getMultiAttackBonus();
+	if (iTempModifier != 0)
+	{
+		iTempModifier *= pkOtherUnit->GetNumTimesAttackedThisTurn(pkUnit->getOwner());
+		iModifier += iTempModifier;
+	}
+
+	lua_pushinteger(L, iModifier);
+	return 1;
+}
+
+//------------------------------------------------------------------------------
+int CvLuaUnit::lGetMultiAttackBonusCity(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	CvCity* pkCity = CvLuaCity::GetInstance(L, 2, false);
+
+	if (pkUnit == NULL || pkCity == NULL)
+		return 0;
+
+	int iModifier = 0;
+	//bonus for attacking same unit over and over in a turn?
+	int iTempModifier = pkUnit->getMultiAttackBonus();
+	if (iTempModifier != 0)
+	{
+		iTempModifier *= pkCity->GetNumTimesAttackedThisTurn(pkUnit->getOwner());
+		iModifier += iTempModifier;
+	}
+
+	lua_pushinteger(L, iModifier);
+	return 1;
+}
+
+
+int CvLuaUnit::lGetNumAttacksMadeThisTurnAttackMod(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+
+	const int iResult = pkUnit->GetNumAttacksMadeThisTurnAttackMod();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+
+
 int CvLuaUnit::lGetMeleeDefenseModifier(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
@@ -5381,6 +5447,29 @@ int CvLuaUnit::lSetMadeAttack(lua_State* L)
 	return 0;
 }
 
+int CvLuaUnit::lGetNumAttacks(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	const int iResult = pkUnit->getNumAttacks();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+
+int CvLuaUnit::lChangeMadeAttackNum(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	const int iChange = lua_toboolean(L, 2);
+	pkUnit->ChangeMadeAttackNum(iChange);
+	return 0;
+}
+
+int CvLuaUnit::lGetNumAttacksMadeThisTurn(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	const int iResult = pkUnit->getNumAttacksMadeThisTurn();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
 //------------------------------------------------------------------------------
 //bool isOutOfInterceptions();
 int CvLuaUnit::lisOutOfInterceptions(lua_State* L)

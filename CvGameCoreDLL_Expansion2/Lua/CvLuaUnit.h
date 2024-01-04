@@ -375,6 +375,9 @@ protected:
 	static int lGetDefenseModifier(lua_State* L);
 
 #if defined(MOD_ROG_CORE)
+	static int lGetMultiAttackBonus(lua_State* L);
+	static int lGetMultiAttackBonusCity(lua_State* L);
+	static int lGetNumAttacksMadeThisTurnAttackMod(lua_State* L);
 	static int lGetMeleeDefenseModifier(lua_State* L);
 	static int lGetRangedDefenseModifier(lua_State* L);
 #endif
@@ -594,6 +597,11 @@ protected:
 
 	static int lIsOutOfAttacks(lua_State* L);
 	static int lSetMadeAttack(lua_State* L);
+
+	static int lGetNumAttacks(lua_State* L);
+	static int lChangeMadeAttackNum(lua_State* L);
+	static int lGetNumAttacksMadeThisTurn(lua_State* L);
+
 	static int lisOutOfInterceptions(lua_State* L);
 	static int lSetMadeInterception(lua_State* L);
 
