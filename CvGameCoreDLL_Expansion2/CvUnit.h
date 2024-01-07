@@ -206,6 +206,8 @@ public:
 	bool canMoveOrAttackInto(const CvPlot& pPlot, byte bMoveFlags = 0) const;
 	bool canMoveThrough(const CvPlot& pPlot, byte bMoveFlags = 0) const;
 
+	int  GetWithdrawChance(const CvUnit& pAttacker, const bool bCheckChances) const;
+
 	bool IsAngerFreeUnit() const;
 
 	int getCombatDamage(int iStrength, int iOpponentStrength, int iCurrentDamage, bool bIncludeRand, bool bAttackerIsCity, bool bDefenderIsCity) const;
@@ -1319,6 +1321,8 @@ public:
 	void ChangeCanDoFallBackDamageCount(int iChange);
 	bool IsCanParadropAnyWhere() const;
 	void ChangeCanParadropAnyWhereCount(int iChange);
+	bool IsCanParadropUnLimit() const;
+	void ChangeIsCanParadropUnLimitCount(int iChange);
 	bool IsSapper() const;
 	void ChangeSapperCount(int iChange);
 	bool IsSappingCity(const CvCity* pTargetCity) const;
@@ -1734,6 +1738,18 @@ public:
 
 	void ChangeGoldenAgeMod(int iValue);
 	int GetGoldenAgeMod() const;
+
+	void ChangeAntiHigherPopMod(int iValue);
+	int GetAntiHigherPopMod() const;
+	bool IsHigherPopThan(const CvUnit* pOtherUnit) const;
+	int getCombatModPerAdjacentUnitCombatModifier(UnitCombatTypes eIndex) const;
+	void changeCombatModPerAdjacentUnitCombatModifier(UnitCombatTypes eIndex, int iChange);
+
+	int getCombatModPerAdjacentUnitCombatAttackMod(UnitCombatTypes eIndex) const;
+	void changeCombatModPerAdjacentUnitCombatAttackMod(UnitCombatTypes eIndex, int iChange);
+
+	int getCombatModPerAdjacentUnitCombatDefenseMod(UnitCombatTypes eIndex) const;
+	void changeCombatModPerAdjacentUnitCombatDefenseMod(UnitCombatTypes eIndex, int iChange);
 
 	void ChangeRangedSupportFireMod(int iValue);
 	int GetRangedSupportFireMod() const;
@@ -2312,6 +2328,7 @@ protected:
 	int m_iIgnoreZOC;
 	int m_iCanDoFallBackDamage;
 	int m_iCanParadropAnyWhere;
+	FAutoVariable<int, CvUnit> m_iIsCanParadropUnLimit;
 	int m_iImmueMeleeAttack;
 #if defined(MOD_UNITS_NO_SUPPLY)
 	int m_iNoSupply;
@@ -2425,10 +2442,14 @@ protected:
 #endif
 
 #if defined(MOD_ROG_CORE)
+	FAutoVariable<std::vector<int>, CvUnit> m_iCombatModPerAdjacentUnitCombatModifier;
+	FAutoVariable<std::vector<int>, CvUnit> m_iCombatModPerAdjacentUnitCombatAttackMod;
+	FAutoVariable<std::vector<int>, CvUnit> m_iCombatModPerAdjacentUnitCombatDefenseMod;
 	int m_iOriginCity;
 	int m_iMoveLfetAttackMod;
 	int m_iMoveUsedAttackMod;
 	int m_iGoldenAgeMod;
+	int m_iAntiHigherPopMod;
 	int m_iRangedSupportFireMod;
 	int m_iBarbCombatBonus;
 	int m_iCanMoraleBreak;
@@ -2569,7 +2590,7 @@ protected:
  #endif
 
 	bool CanFallBack(const CvUnit& pAttacker, bool bCheckChances) const;
-	int  GetWithdrawChance(const CvUnit& pAttacker, const bool bCheckChances) const;
+	//int  GetWithdrawChance(const CvUnit& pAttacker, const bool bCheckChances) const;
 	bool DoFallBack(const CvUnit& pAttacker);
 
 	int m_iCombatStrengthChangeFromKilledUnits = 0;
