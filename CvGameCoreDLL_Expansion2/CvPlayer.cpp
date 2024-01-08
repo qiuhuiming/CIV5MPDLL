@@ -509,6 +509,7 @@ CvPlayer::CvPlayer() :
 	, m_pabLoyalMember("CvPlayer::m_pabLoyalMember", m_syncArchive)
 	, m_pabGetsScienceFromPlayer("CvPlayer::m_pabGetsScienceFromPlayer", m_syncArchive)
 	, m_ppaaiSpecialistExtraYield("CvPlayer::m_ppaaiSpecialistExtraYield", m_syncArchive)
+	, m_ppiYieldFromYieldGlobal("CvPlayer::m_ppiYieldFromYieldGlobal", m_syncArchive)
 #if defined(MOD_API_UNIFIED_YIELDS)
 	, m_piGoldenAgeGreatPersonRateModifier(NULL)
 	, m_piYieldFromKills(NULL)
@@ -889,6 +890,7 @@ void CvPlayer::uninit()
 	}
 
 	m_ppaaiSpecialistExtraYield.clear();
+	m_ppiYieldFromYieldGlobal.clear();
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
 	m_ppiPlotYieldChange.clear();
 #endif
@@ -909,6 +911,7 @@ void CvPlayer::uninit()
 
 #if defined(MOD_ROG_CORE)
 	m_ppiImprovementYieldChange.clear();
+	m_ppiSpecialistYieldModifierGlobal.clear();
 #endif
 
 	m_ppaaiImprovementYieldChange.clear();
@@ -1375,6 +1378,7 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 	m_aiSpecialistExtraYield.clear();
 	m_aiSpecialistExtraYield.resize(NUM_YIELD_TYPES, 0);
 
+
 	m_aiProximityToPlayer.clear();
 	m_aiProximityToPlayer.resize(MAX_PLAYERS, 0);
 
@@ -1556,6 +1560,13 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 			m_ppaaiSpecialistExtraYield.setAt(i, yield);
 		}
 
+		m_ppiYieldFromYieldGlobal.clear();
+		m_ppiYieldFromYieldGlobal.resize(NUM_YIELD_TYPES);
+		for (unsigned int i = 0; i < m_ppiYieldFromYieldGlobal.size(); ++i)
+		{
+			m_ppiYieldFromYieldGlobal.setAt(i, yield); 
+		}
+
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
 		m_ppiPlotYieldChange.clear();
 		m_ppiPlotYieldChange.resize(GC.getNumPlotInfos());
@@ -1571,6 +1582,13 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 		for (unsigned int i = 0; i < m_ppiImprovementYieldChange.size(); ++i)
 		{
 			m_ppiImprovementYieldChange[i] = yield;
+		}
+
+		m_ppiSpecialistYieldModifierGlobal.clear();
+		m_ppiSpecialistYieldModifierGlobal.resize(GC.getNumSpecialistInfos());
+		for (unsigned int i = 0; i < m_ppiSpecialistYieldModifierGlobal.size(); ++i)
+		{
+			m_ppiSpecialistYieldModifierGlobal[i] = yield;
 		}
 #endif
 
@@ -20808,7 +20826,7 @@ void CvPlayer::setTeam(TeamTypes eTeam)
 int CvPlayer::GetImprovementExtraYield(ImprovementTypes eImprovement, YieldTypes eYield) const
 {
 	CvAssertMsg(eImprovement >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eImprovement < GC.getNumFeatureInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
+	CvAssertMsg(eImprovement < GC.getNumImprovementInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
 	CvAssertMsg(eYield >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eYield < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
 	return m_ppiImprovementYieldChange[eImprovement][eYield];
@@ -20832,6 +20850,36 @@ void CvPlayer::ChangeImprovementExtraYield(ImprovementTypes eImprovement, YieldT
 		updateYield();
 	}
 }
+
+
+int CvPlayer::GetYieldModifierFromSpecialistGlobal(SpecialistTypes eSpecialist, YieldTypes eYield) const
+{
+	CvAssertMsg(eSpecialist >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eSpecialist < GC.getNumSpecialistInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
+	CvAssertMsg(eYield >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eYield < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
+	return m_ppiSpecialistYieldModifierGlobal[eSpecialist][eYield];
+}
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::ChangeYieldModifierFromSpecialistGlobal(SpecialistTypes eSpecialist, YieldTypes eYield, int iChange)
+{
+	CvAssertMsg(eSpecialist >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eSpecialist < GC.getNumSpecialistInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
+	CvAssertMsg(eYield >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eYield < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
+
+	if (iChange != 0)
+	{
+		Firaxis::Array<int, NUM_YIELD_TYPES> yields = m_ppiSpecialistYieldModifierGlobal[eSpecialist];
+		yields[eYield] = (m_ppiSpecialistYieldModifierGlobal[eSpecialist][eYield] + iChange);
+		m_ppiSpecialistYieldModifierGlobal[eSpecialist] = yields;
+		CvAssert(GetYieldModifierFromSpecialistGlobal(eSpecialist, eYield) >= 0);
+
+		updateYield();
+	}
+}
+
 
 int CvPlayer::GetYieldFromPillage(YieldTypes eIndex) const
 {
@@ -21468,6 +21516,8 @@ void CvPlayer::changeSpecialistExtraYield(YieldTypes eIndex, int iChange)
 		}
 	}
 }
+
+
 
 //	--------------------------------------------------------------------------------
 /// Returns how "close" we are to another player (useful for diplomacy, war planning, etc.)
@@ -23519,6 +23569,36 @@ void CvPlayer::changeSpecialistExtraYield(SpecialistTypes eIndex1, YieldTypes eI
 		m_ppaaiSpecialistExtraYield.setAt(eIndex1, yields);
 
 		updateExtraSpecialistYield();
+	}
+}
+
+
+
+//	--------------------------------------------------------------------------------
+int CvPlayer::getYieldFromYieldGlobal(YieldTypes eIndex1, YieldTypes eIndex2) const
+{
+	CvAssertMsg(eIndex1 >= 0, "eIndex1 expected to be >= 0");
+	CvAssertMsg(eIndex1 < NUM_YIELD_TYPES, "eIndex1 expected to be < NUM_YIELD_TYPES");
+	CvAssertMsg(eIndex2 >= 0, "eIndex2 expected to be >= 0");
+	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 expected to be < NUM_YIELD_TYPES");
+	return m_ppiYieldFromYieldGlobal[eIndex1][eIndex2];
+}
+
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::changeYieldFromYieldGlobal(YieldTypes eIndex1, YieldTypes eIndex2, int iChange)
+{
+	CvAssertMsg(eIndex1 >= 0, "eIndex1 expected to be >= 0");
+	CvAssertMsg(eIndex1 < NUM_YIELD_TYPES, "eIndex1 expected to be < NUM_YIELD_TYPES");
+	CvAssertMsg(eIndex2 >= 0, "eIndex2 expected to be >= 0");
+	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 expected to be < NUM_YIELD_TYPES");
+
+	if (iChange != 0)
+	{
+		Firaxis::Array<int, NUM_YIELD_TYPES> yields = m_ppiYieldFromYieldGlobal[eIndex1];
+		yields[eIndex2] = (m_ppiYieldFromYieldGlobal[eIndex1][eIndex2] + iChange);
+		m_ppiYieldFromYieldGlobal.setAt(eIndex1, yields);
+		CvAssert(getYieldFromYieldGlobal(eIndex1, eIndex2) >= 0);
 	}
 }
 
@@ -28040,6 +28120,7 @@ void CvPlayer::Read(FDataStream& kStream)
 	}
 
 	kStream >> m_ppaaiSpecialistExtraYield;
+	kStream >> m_ppiYieldFromYieldGlobal;
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
 	// MOD_SERIALIZE_READ - v57/v58/v59 broke the save format  couldn't be helped, but don't make a habit of it!!!
 	kStream >> m_ppiPlotYieldChange;
@@ -28048,6 +28129,7 @@ void CvPlayer::Read(FDataStream& kStream)
 #if defined(MOD_ROG_CORE)
 	// MOD_SERIALIZE_READ - v57/v58/v59 and v61 broke the save format  couldn't be helped, but don't make a habit of it!!!
 	kStream >> m_ppiImprovementYieldChange;
+	kStream >> m_ppiSpecialistYieldModifierGlobal;
 #endif
 
 #if defined(MOD_API_UNIFIED_YIELDS)
@@ -28693,6 +28775,7 @@ void CvPlayer::Write(FDataStream& kStream) const
 	m_pTreasury->Write(kStream);
 
 	kStream << m_ppaaiSpecialistExtraYield;
+	kStream << m_ppiYieldFromYieldGlobal;
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
 	// MOD_SERIALIZE_WRITE - v57/v58/v59 broke the save format  couldn't be helped, but don't make a habit of it!!!
 	kStream << m_ppiPlotYieldChange;
@@ -28701,6 +28784,7 @@ void CvPlayer::Write(FDataStream& kStream) const
 #if defined(MOD_ROG_CORE)
 	// MOD_SERIALIZE_READ - v57/v58/v59 and v61 broke the save format  couldn't be helped, but don't make a habit of it!!!
 	kStream << m_ppiImprovementYieldChange;
+	kStream << m_ppiSpecialistYieldModifierGlobal;
 #endif
 
 #if defined(MOD_API_UNIFIED_YIELDS)
@@ -32745,3 +32829,5 @@ void CvPlayer::DoInstantResearchFromFriendlyGreatScientist(CvUnit* pUnit, int iX
 			bHasBoostThisPlayer = true;
 	}
 }
+
+

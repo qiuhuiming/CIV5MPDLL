@@ -325,6 +325,8 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_ppaiTerrainYieldModifier(NULL),
 	m_ppaiSpecialistYieldChange(NULL),
 	m_ppaiImprovementYieldModifier(NULL),
+	m_ppaiSpecialistYieldModifier(NULL),
+	m_ppaiSpecialistYieldModifierGlobal(NULL),
 	m_ppaiFeatureYieldModifier(NULL),
 	m_ppaiResourceYieldModifier(NULL),
 	m_ppaiTerrainYieldChange(NULL),
@@ -333,6 +335,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 #endif
 	m_ppiBuildingClassYieldChanges(NULL),
 	m_paiBuildingClassHappiness(NULL),
+	m_paYieldFromYieldGlobal(NULL),
 	m_paThemingBonusInfo(NULL),
 
 #if defined(MOD_BUILDING_IMPROVEMENT_RESOURCES)
@@ -419,6 +422,7 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	SAFE_DELETE_ARRAY(m_pbBuildingClassNeededGlobal);
 #endif
 	SAFE_DELETE_ARRAY(m_paiBuildingClassHappiness);
+	SAFE_DELETE_ARRAY(m_paYieldFromYieldGlobal);
 	SAFE_DELETE_ARRAY(m_paThemingBonusInfo);
 
 #if defined(MOD_GLOBAL_BUILDING_INSTANT_YIELD)
@@ -448,6 +452,8 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiTerrainYieldModifier);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiSpecialistYieldChange);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiImprovementYieldModifier);
+	CvDatabaseUtility::SafeDelete2DArray(m_ppaiSpecialistYieldModifier);
+	CvDatabaseUtility::SafeDelete2DArray(m_ppaiSpecialistYieldModifierGlobal);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiFeatureYieldModifier);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiResourceYieldModifier);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiTerrainYieldChange);
@@ -899,6 +905,40 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	kUtility.SetYields(m_piYieldPerAlly, "Building_YieldPerAlly", "BuildingType", szBuildingType);
 
 #endif
+
+
+	//YieldFromYieldYieldChangesGlobal
+	{
+		m_paYieldFromYieldGlobal = FNEW(CvDoubleYieldInfo[NUM_YIELD_TYPES], c_eCiv5GameplayDLL, 0);
+		int idx = 0;
+
+		std::string strResourceTypesKey = "Building_YieldFromYieldPercentGlobal";
+		Database::Results* pResourceTypes = kUtility.GetResults(strResourceTypesKey);
+		if (pResourceTypes == NULL)
+		{
+			pResourceTypes = kUtility.PrepareResults(strResourceTypesKey, "select YieldIn, YieldOut, Value from Building_YieldFromYieldPercentGlobal where BuildingType = ?");
+		}
+
+		const size_t lenBuildingType = strlen(szBuildingType);
+		pResourceTypes->Bind(1, szBuildingType, lenBuildingType, false);
+
+		while (pResourceTypes->Step())
+		{
+			CvDoubleYieldInfo& pDoubleYieldInfo = m_paYieldFromYieldGlobal[idx];
+
+			const char* szYield = pResourceTypes->GetText("YieldIn");
+			pDoubleYieldInfo.m_iYieldIn = (YieldTypes)GC.getInfoTypeForString(szYield, true);
+
+			szYield = pResourceTypes->GetText("YieldOut");
+			pDoubleYieldInfo.m_iYieldOut = (YieldTypes)GC.getInfoTypeForString(szYield, true);
+
+			pDoubleYieldInfo.m_iValue = pResourceTypes->GetInt("Value");
+
+			idx++;
+		}
+
+		pResourceTypes->Reset();
+	}
 
 	//ResourceYieldChanges
 	{
@@ -1451,6 +1491,56 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 			m_ppaiImprovementYieldModifier[ImprovementID][YieldID] = yield;
 		}
 	}
+
+
+	//SpecialistYieldModifiers
+	{
+		kUtility.Initialize2DArray(m_ppaiSpecialistYieldModifier, "Specialists", "Yields");
+
+		std::string strKey("Building_SpecialistYieldModifiers");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if (pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select Specialists.ID as SpecialistID, Yields.ID as YieldID, Yield from Building_SpecialistYieldModifiers inner join Specialists on Specialists.Type = SpecialistType inner join Yields on Yields.Type = YieldType where BuildingType = ?");
+		}
+
+		pResults->Bind(1, szBuildingType);
+
+		while (pResults->Step())
+		{
+			const int SpecialistID = pResults->GetInt(0);
+			const int YieldID = pResults->GetInt(1);
+			const int yield = pResults->GetInt(2);
+
+			m_ppaiSpecialistYieldModifier[SpecialistID][YieldID] = yield;
+		}
+	}
+
+
+	//Building_SpecialistYieldModifiersGlobal
+	{
+
+		kUtility.Initialize2DArray(m_ppaiSpecialistYieldModifierGlobal, "Specialists", "Yields");
+
+		std::string strKey("Building_SpecialistYieldModifiersGlobal");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if (pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select Specialists.ID as SpecialistID, Yields.ID as YieldID, Yield from Building_SpecialistYieldModifiersGlobal inner join Specialists on Specialists.Type = SpecialistType inner join Yields on Yields.Type = YieldType where BuildingType = ?");
+		}
+
+		pResults->Bind(1, szBuildingType);
+
+		while (pResults->Step())
+		{
+			const int SpecialistID = pResults->GetInt(0);
+			const int YieldID = pResults->GetInt(1);
+			const int yield = pResults->GetInt(2);
+
+			m_ppaiSpecialistYieldModifierGlobal[SpecialistID][YieldID] = yield;
+		}
+	}
+
 
 	//FeatureYieldModifiers
 	{
@@ -3801,6 +3891,38 @@ std::pair<UnitTypes, int>* CvBuildingEntry::GetFreeUnits() const
 	return m_pFreeUnits;
 }
 
+
+/// Does this building generate yields from other yields globally?
+int CvBuildingEntry::GetYieldFromYieldGlobal(int i, int j) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	CvAssertMsg(j < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(j > -1, "Index out of bounds");
+
+	if (m_paYieldFromYieldGlobal == NULL || m_paYieldFromYieldGlobal[0].GetValue() == 0)
+	{
+		return 0;
+	}
+	else
+	{
+		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+		{
+			for (int iK = 0; iK < NUM_YIELD_TYPES; iK++)
+			{
+				if (m_paYieldFromYieldGlobal[iI].GetYieldIn() != i)
+					continue;
+				if (m_paYieldFromYieldGlobal[iI].GetYieldOut() != j)
+					continue;
+
+				return m_paYieldFromYieldGlobal[iI].GetValue();
+			}
+		}
+	}
+
+	return 0;
+}
+
 /// Change to Resource yield by type
 int CvBuildingEntry::GetResourceYieldChange(int i, int j) const
 {
@@ -3893,6 +4015,42 @@ int* CvBuildingEntry::GetImprovementYieldModifierArray(int i) const
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_ppaiImprovementYieldModifier[i];
 }
+
+
+int CvBuildingEntry::GetSpecialistYieldModifier(int i, int j) const
+{
+	CvAssertMsg(i < GC.getNumSpecialistInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	CvAssertMsg(j < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(j > -1, "Index out of bounds");
+	return m_ppaiSpecialistYieldModifier ? m_ppaiSpecialistYieldModifier[i][j] : -1;
+}
+
+/// Array of modifiers to Improvement yield
+int* CvBuildingEntry::GetSpecialistYieldModifierArray(int i) const
+{
+	CvAssertMsg(i < GC.getNumSpecialistInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_ppaiSpecialistYieldModifier[i];
+}
+
+int CvBuildingEntry::GetSpecialistYieldModifierGlobal(int i, int j) const
+{
+	CvAssertMsg(i < GC.getNumSpecialistInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	CvAssertMsg(j < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(j > -1, "Index out of bounds");
+	return m_ppaiSpecialistYieldModifierGlobal ? m_ppaiSpecialistYieldModifierGlobal[i][j] : -1;
+}
+
+/// Array of modifiers to Improvement yield
+int* CvBuildingEntry::GetSpecialistYieldModifierGlobalArray(int i) const
+{
+	CvAssertMsg(i < GC.getNumSpecialistInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_ppaiSpecialistYieldModifierGlobal[i];
+}
+
 
 /// Modifier to Feature yield
 int CvBuildingEntry::GetFeatureYieldModifier(int i, int j) const

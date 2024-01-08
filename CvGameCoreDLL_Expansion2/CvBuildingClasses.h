@@ -85,6 +85,33 @@ protected:
 	int m_iAIPriority;
 };
 
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//  class : CvDoubleYieldInfo
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+class CvDoubleYieldInfo
+{
+	friend class CvBuildingEntry;
+
+public:
+	CvDoubleYieldInfo() :
+		m_iYieldIn(NO_YIELD),
+		m_iYieldOut(NO_YIELD),
+		m_iValue(0)
+	{
+
+	};
+
+	YieldTypes GetYieldIn() { return m_iYieldIn; };
+	YieldTypes GetYieldOut() { return m_iYieldOut; };
+	int GetValue() const { return m_iValue; };
+
+protected:
+	YieldTypes m_iYieldIn;
+	YieldTypes m_iYieldOut;
+	int m_iValue;
+};
+
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS:      CvBuildingEntry
 //!  \brief		A single building available in the game
@@ -467,6 +494,7 @@ public:
 	int GetNumFreeUnitTotal() const;
 	std::pair<UnitTypes, int>* GetFreeUnits() const;
 
+	int GetYieldFromYieldGlobal(int i, int j) const;
 	int GetResourceYieldChange(int i, int j) const;
 	int* GetResourceYieldChangeArray(int i) const;
 	int GetFeatureYieldChange(int i, int j) const;
@@ -480,6 +508,10 @@ public:
 	int* GetSpecialistYieldChangeArray(int i) const;
 	int GetImprovementYieldModifier(int i, int j) const;
 	int* GetImprovementYieldModifierArray(int i) const;
+	int GetSpecialistYieldModifier(int i, int j) const;
+	int* GetSpecialistYieldModifierArray(int i) const;
+	int GetSpecialistYieldModifierGlobal(int i, int j) const;
+	int* GetSpecialistYieldModifierGlobalArray(int i) const;
 	int GetFeatureYieldModifier(int i, int j) const;
 	int* GetFeatureYieldModifierArray(int i) const;
 	int GetResourceYieldModifier(int i, int j) const;
@@ -884,11 +916,15 @@ private:
 	int m_iNumFreeUnitTotal;
 	std::pair<UnitTypes, int>* m_pFreeUnits;
 
+	CvDoubleYieldInfo* m_paYieldFromYieldGlobal;
+
 	int** m_ppaiResourceYieldChange;
 	int** m_ppaiFeatureYieldChange;
 	int** m_ppaiTerrainYieldModifier;  
 	int** m_ppaiSpecialistYieldChange;
 	int** m_ppaiImprovementYieldModifier;
+	int** m_ppaiSpecialistYieldModifier;
+	int** m_ppaiSpecialistYieldModifierGlobal;
 	int** m_ppaiFeatureYieldModifier;
 	int** m_ppaiResourceYieldModifier;
 	int** m_ppaiTerrainYieldChange;

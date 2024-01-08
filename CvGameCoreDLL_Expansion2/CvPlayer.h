@@ -1359,6 +1359,9 @@ public:
 	int GetImprovementExtraYield(ImprovementTypes eImprovement, YieldTypes eYield) const;
 	void ChangeImprovementExtraYield(ImprovementTypes eImprovement, YieldTypes eYield, int iChange);
 
+	int GetYieldModifierFromSpecialistGlobal(SpecialistTypes eSpecialist, YieldTypes eYield) const;
+	void ChangeYieldModifierFromSpecialistGlobal(SpecialistTypes eSpecialist, YieldTypes eYield, int iChange);
+
 
 	int GetYieldFromPillage(YieldTypes eIndex) const;
 	void ChangeYieldFromPillage(YieldTypes eIndex, int iChange);
@@ -1522,6 +1525,9 @@ public:
 
 	int getSpecialistExtraYield(SpecialistTypes eIndex1, YieldTypes eIndex2) const;
 	void changeSpecialistExtraYield(SpecialistTypes eIndex1, YieldTypes eIndex2, int iChange);
+
+	int getYieldFromYieldGlobal(YieldTypes eIndex1, YieldTypes eIndex2) const;
+	void changeYieldFromYieldGlobal(YieldTypes eIndex1, YieldTypes eIndex2, int iChange);
 
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
 	int getPlotYieldChange(PlotTypes eIndex1, YieldTypes eIndex2) const;
@@ -2665,12 +2671,14 @@ protected:
 	FAutoVariable<std::vector<bool>, CvPlayer> m_pabGetsScienceFromPlayer;
 
 	FAutoVariable< std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > >, CvPlayer> m_ppaaiSpecialistExtraYield;
+	FAutoVariable< std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > >, CvPlayer> m_ppiYieldFromYieldGlobal;
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiPlotYieldChange;
 #endif
 
 #if defined(MOD_ROG_CORE)
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiImprovementYieldChange;
+	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiSpecialistYieldModifierGlobal;
 	std::vector<int> m_aiYieldFromPillageGlobal;
 	std::vector<int> m_aiYieldFromPillage;
 #endif

@@ -359,6 +359,9 @@ public:
 	int getYieldModifierFromImprovement(ImprovementTypes eIndex1, YieldTypes eIndex2) const;
 	void changeYieldModifierFromImprovement(ImprovementTypes eIndex1, YieldTypes eIndex2, int iChange);
 
+	int getYieldModifierFromSpecialist(SpecialistTypes eIndex1, YieldTypes eIndex2) const;
+	void changeYieldModifierFromSpecialist(SpecialistTypes eIndex1, YieldTypes eIndex2, int iChange);
+
 	int getYieldModifierFromResource(ResourceTypes eIndex1, YieldTypes eIndex2) const;
 	void changeYieldModifierFromResource(ResourceTypes eIndex1, YieldTypes eIndex2, int iChange);
 
@@ -795,6 +798,7 @@ public:
 
 	// Base Yield
 	int getBaseYieldRate(const YieldTypes eIndex, const bool bIgnoreFromOtherYield) const;
+	void UpdateCityYieldFromYield(YieldTypes eIndex1, YieldTypes eIndex2, int iModifiedYield);
 #if defined(MOD_API_UNIFIED_YIELDS_MORE)
 	int getNumForeignSpy() const;
 	int getCrimeFromSpy() const;
@@ -859,7 +863,8 @@ public:
 	int GetYieldFromProcessModifier(YieldTypes eIndex1) const;
 	void ChangeYieldFromProcessModifier(YieldTypes eIndex, int iChange);
 
-
+	int GetRealYieldFromYield(YieldTypes eIndex1, YieldTypes eIndex2) const;
+	void SetRealYieldFromYield(YieldTypes eIndex1, YieldTypes eIndex2, int iValue);
 
 #if defined(MOD_ROG_CORE)
 	void ChangeSpecialistRateModifier(SpecialistTypes eSpecialist, int iChange);
@@ -894,6 +899,9 @@ public:
 
 	int getImprovementYieldRateModifier(YieldTypes eIndex) const;
 	void changeImprovementYieldRateModifier(YieldTypes eIndex, int iChange);
+
+	int getSpecialistYieldRateModifier(YieldTypes eIndex) const;
+	void changeSpecialistYieldRateModifier(YieldTypes eIndex, int iChange);
 
 	int getResourceYieldRateModifier(YieldTypes eIndex) const;
 	void changeResourceYieldRateModifier(YieldTypes eIndex, int iChange);
@@ -932,7 +940,8 @@ public:
 	void ChangeYieldPerAlly(YieldTypes eYield, int iChange);
 	int GetYieldPerFriend(YieldTypes eIndex) const;
 	void ChangeYieldPerFriend(YieldTypes eYield, int iChange);
-
+	int GetBuildingYieldFromYield(YieldTypes eIndex1, YieldTypes eIndex2) const;
+	void ChangeBuildingYieldFromYield(YieldTypes eIndex, YieldTypes eIndex2, int iValue);
 	int GetYieldPerEspionageSpy(YieldTypes eIndex) const;
 	void ChangeYieldPerEspionageSpy(YieldTypes eYield, int iChange);
 	int GetBaseYieldRateFromEspionageSpy(YieldTypes eIndex) const;
@@ -1553,6 +1562,7 @@ protected:
 	FAutoVariable<std::vector<int>, CvCity> m_aiFeatureYieldRateModifier;
 	FAutoVariable<std::vector<int>, CvCity> m_aiTerrainYieldRateModifier;
 	FAutoVariable<std::vector<int>, CvCity> m_aiImprovementYieldRateModifier;
+	FAutoVariable<std::vector<int>, CvCity> m_aiSpecialistYieldRateModifier;
 	FAutoVariable<std::vector<int>, CvCity> m_aiResourceYieldRateModifier;
 	FAutoVariable<std::vector<int>, CvCity> m_aiExtraSpecialistYield;
 	FAutoVariable<std::vector<int>, CvCity> m_aiProductionToYieldModifier;
@@ -1585,6 +1595,7 @@ protected:
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiYieldModifierFromFeature;
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiYieldModifierFromTerrain;
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiYieldModifierFromImprovement;
+	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiYieldModifierFromSpecialist;
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiYieldModifierFromResource;
 
 	int m_iBaseHappinessFromBuildings;
