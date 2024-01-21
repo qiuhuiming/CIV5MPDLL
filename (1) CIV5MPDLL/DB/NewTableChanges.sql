@@ -267,4 +267,4 @@ CREATE TABLE IF NOT EXISTS BarbarianCityFreeBuildings (
     `BuildingType` text not null references Buildings(Type)
 );
 
-INSERT INTO Defines(Name, Value) VALUES('BARBARIAN_CITY_GENERATION_PROBABLITY', 0);
+INSERT INTO Defines(Name, Value) VALUES('BARBARIAN_CITY_SPAWN_PROBABLITY', 0);
