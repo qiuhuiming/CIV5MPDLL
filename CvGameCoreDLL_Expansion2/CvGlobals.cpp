@@ -4230,6 +4230,16 @@ CvEraInfo* CvGlobals::getEraInfo(EraTypes eEraNum)
 	return m_aEraInfo[eEraNum];
 }
 
+std::vector<CvBarbarianKingInfo*>& CvGlobals::getBarbarianKingInfo()
+{
+	return m_paBarbarianKingInfo;
+}
+
+std::vector<CvBarbarianCityFreeBuildingInfo*>& CvGlobals::getBarbarianCityFreeBuildingInfo()
+{
+	return m_paBarbarianCityFreeBuildingInfo;
+}
+
 int CvGlobals::getNumHurryInfos()
 {
 	return (int)m_paHurryInfo.size();

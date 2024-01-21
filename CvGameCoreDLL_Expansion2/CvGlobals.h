@@ -638,6 +638,9 @@ public:
 	CvAchievementXMLEntries* GetGameAchievements() const;
 #endif
 
+	std::vector<CvBarbarianKingInfo*>& getBarbarianKingInfo();
+	std::vector<CvBarbarianCityFreeBuildingInfo*>& getBarbarianCityFreeBuildingInfo();
+
 #ifdef MOD_SPECIALIST_RESOURCES
 	std::tr1::unordered_set<PolicyTypes>& getSpecialistResourcesPolicies();
 	std::tr1::unordered_set<TechTypes>& getSpecialistResourcesTechnologies();
@@ -7975,6 +7978,8 @@ protected:
 	std::vector<CvSmallAwardInfo*> m_paSmallAwardInfo;
 	std::vector<CvEntityEventInfo*> m_paEntityEventInfo;
 	std::vector<CvDomainInfo*> m_paUnitDomainInfo;
+	std::vector<CvBarbarianKingInfo*> m_paBarbarianKingInfo;
+	std::vector<CvBarbarianCityFreeBuildingInfo*> m_paBarbarianCityFreeBuildingInfo;
 
 	std::vector<CvMultiUnitFormationInfo*> m_paMultiUnitFormationInfo;
 
