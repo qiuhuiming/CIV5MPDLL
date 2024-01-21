@@ -266,3 +266,5 @@ CREATE TABLE IF NOT EXISTS BarbarianCityFreeBuildings (
     `ID` integer primary key autoincrement,
     `BuildingType` text not null references Buildings(Type)
 );
+
+INSERT INTO Defines(Name, Value) VALUES('BARBARIAN_CITY_GENERATION_PROBABLITY', 0);
