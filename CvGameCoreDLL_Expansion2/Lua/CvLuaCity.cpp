@@ -1103,6 +1103,7 @@ int CvLuaCity::lSetYieldModifierFromCrime(lua_State* L)
 	pkCity->SetYieldModifierFromCrime(eYield, iValue);
 	return 1;
 }
+
 #endif
 
 //------------------------------------------------------------------------------

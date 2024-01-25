@@ -1696,6 +1696,7 @@ public:
 	int GetGlobalRangedStrikeModifier() const;
 	void SetGlobalRangedStrikeModifier(int iValue);
 	void ChangeGlobalRangedStrikeModifier(int iChange);
+
 	int GetLiberatedInfluence() const;
 	void SetLiberatedInfluence(int iValue);
 	void ChangeLiberatedInfluence(int iChange);

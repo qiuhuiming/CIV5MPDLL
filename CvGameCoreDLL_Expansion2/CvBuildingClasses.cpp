@@ -535,7 +535,6 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iGlobalCityStrengthMod = kResults.GetInt("GlobalCityStrengthMod");
 	m_iGlobalRangedStrikeModifier = kResults.GetInt("GlobalRangedStrikeModifier");
 
-
 	m_iWaterTileDamage = kResults.GetInt("WaterTileDamage");
 	m_iWaterTileMovementReduce = kResults.GetInt("WaterTileMovementReduce");
 	m_iWaterTileTurnDamage = kResults.GetInt("WaterTileTurnDamage");
@@ -2268,6 +2267,7 @@ int CvBuildingEntry::GetGlobalRangedStrikeModifier() const
 {
 	return m_iGlobalRangedStrikeModifier;
 }
+
 
 /// Does this Building allow us to Range Strike?
 int CvBuildingEntry::CityRangedStrikeModifier() const

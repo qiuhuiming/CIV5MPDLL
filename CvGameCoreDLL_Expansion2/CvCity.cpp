@@ -2170,14 +2170,13 @@ void CvCity::doTurn()
 		setDamage(0);
 	}
 
-	if (MOD_API_UNIFIED_YIELDS_MORE)
+
+	if (GetPlagueTurns() > 0)
 	{
-		if (GetPlagueTurns() > 0)
-		{
-			ChangePlagueTurns(-1);
-		}
+		ChangePlagueTurns(-1);
 	}
 
+	
 	setDrafted(false);
 	setMadeAttack(false);
 	GetCityBuildings()->SetSoldBuildingThisTurn(false);
@@ -7597,7 +7596,6 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 
 #if defined(MOD_ROG_CORE)
 		changeExtraDamageHeal(pBuildingInfo->GetExtraDamageHeal()* iChange);
-
 		changeExtraBombardRange(pBuildingInfo->GetBombardRange()* iChange);
 		changeBombardIndirect(pBuildingInfo->IsBombardIndirect()* iChange);
 
@@ -12434,7 +12432,7 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 
 
 #if defined(MOD_API_UNIFIED_YIELDS_MORE)
-	if (eIndex != YIELD_HEALTH)
+	if (eIndex != YIELD_HEALTH && eIndex != YIELD_FOOD )
 	{
 		iTempMod = GetYieldModifierFromHealth(eIndex);
 		iModifier += iTempMod;
@@ -12475,6 +12473,20 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 		if (iTempMod != 0 && toolTipSink)
 			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD_GOLDEN_AGE", iTempMod);
 	}
+
+	if (MOD_DISEASE_BREAK)
+	{
+		if (eIndex == YIELD_FOOD)
+		{
+			iTempMod = getYieldRate(YIELD_HEALTH, false) - getYieldRate(YIELD_DISEASE, false);
+			if (iTempMod < 0 && toolTipSink)
+			{
+				iModifier += iTempMod;
+				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD_FROM_HEALTH_MOD", iTempMod);
+			}
+		}
+	}
+
 #endif
 
 
@@ -13113,6 +13125,13 @@ int CvCity::getBaseYieldRate(YieldTypes eIndex, const bool bIgnoreFromOtherYield
 		}
 	}
 
+
+	if (eIndex == YIELD_DISEASE)
+	{
+		iValue += getDiseaseFromConnectionAndTradeRoute();
+	}
+
+
 	if (eIndex == YIELD_CRIME)
 	{
 		iValue += getCrimeFromSpy();
@@ -13127,11 +13146,28 @@ int CvCity::getBaseYieldRate(YieldTypes eIndex, const bool bIgnoreFromOtherYield
 	}
 
 
-	iValue += GetYieldFromHealth(eIndex);
+	if (eIndex != YIELD_HEALTH && eIndex != YIELD_FOOD)
+	{
+		iValue += GetYieldFromHealth(eIndex);
+	}
+
 	iValue += GetYieldFromHappiness(eIndex);
+
 	if (eIndex != YIELD_CRIME)
 	{
 		iValue += GetYieldFromCrime(eIndex);
+	}
+
+	if (MOD_DISEASE_BREAK)
+	{
+		if (eIndex == YIELD_FOOD)
+		{
+			int leftHealth = getYieldRate(YIELD_HEALTH, false) - getYieldRate(YIELD_DISEASE, false);
+			if (leftHealth < 0)
+			{
+				iValue += leftHealth;
+			}
+		}
 	}
 #endif
 
@@ -13245,6 +13281,64 @@ int CvCity::getCrimeFromGarrisonedUnit() const
 	}
 	return iCrimeFromGarrisonedUnit;
 }
+
+int CvCity::getDiseaseFromConnectionAndTradeRoute() const
+{
+	int DiseaseFromConnectionAndTradeRoute = 0;
+
+
+	CvCity* theCapital = GET_PLAYER(getOwner()).getCapitalCity();
+
+	if (theCapital != NULL && !isCapital() && theCapital->HasPlague() && IsConnectedToCapital() )
+	{
+		int diseaseConnections = ((theCapital->getYieldRate(YIELD_DISEASE, false) * GC.getHEALTH_DISEASE_CONNECTION_MOD()) / 100);
+		DiseaseFromConnectionAndTradeRoute += std::max(0, (int)ceil(diseaseConnections / 1.0));
+	}
+
+
+	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
+	for (uint ui = 0; ui < pTrade->m_aTradeConnections.size(); ui++)
+	{
+		if (pTrade->IsTradeRouteIndexEmpty(ui))
+		{
+			continue;
+		}
+
+		TradeConnection* pConnection = &(pTrade->m_aTradeConnections[ui]);
+
+		if (pConnection->m_eOriginOwner == GET_PLAYER(getOwner()).GetID())
+		{
+			CvCity* pFromCity = GC.getMap().plot(pConnection->m_iOriginX, pConnection->m_iOriginY)->getPlotCity();
+			CvCity* pToCity = GC.getMap().plot(pConnection->m_iDestX, pConnection->m_iDestY)->getPlotCity();
+
+			CvPlayer* pToPlayer = &GET_PLAYER(pToCity->getOwner());
+
+
+			if (pToCity == this);
+			{
+				DiseaseFromConnectionAndTradeRoute += std::max(0, (pFromCity->getYieldRate(YIELD_DISEASE, false) * GC.getHEALTH_DISEASE_TRADE_MOD() / 100));
+			}
+		}
+
+		if ((pConnection->m_eOriginOwner != pConnection->m_eDestOwner) && (pConnection->m_eDestOwner == GET_PLAYER(getOwner()).GetID()))
+		{
+			CvCity* pFromCity = GC.getMap().plot(pConnection->m_iOriginX, pConnection->m_iOriginY)->getPlotCity();
+			CvCity* pToCity = GC.getMap().plot(pConnection->m_iDestX, pConnection->m_iDestY)->getPlotCity();
+
+			CvPlayer* pFromPlayer = &GET_PLAYER(pFromCity->getOwner());
+			CvPlayer* pToPlayer = &GET_PLAYER(pToCity->getOwner());
+
+			if (pToCity == this);
+			{
+				DiseaseFromConnectionAndTradeRoute += std::max(0, (pFromCity->getYieldRate(YIELD_DISEASE, false) * GC.getHEALTH_DISEASE_TRADE_MOD() / 100));
+			}
+
+		}
+	}
+
+	return DiseaseFromConnectionAndTradeRoute;
+}
+
 #endif
 
 //	--------------------------------------------------------------------------------
@@ -13434,16 +13528,44 @@ CvString CvCity::getYieldRateInfoTool(YieldTypes eIndex, bool bIgnoreTrade) cons
 		}
 	}
 
-	iBaseValue = GetYieldFromHealth(eIndex);
-	if(iBaseValue != 0)
+
+	if (eIndex != YIELD_HEALTH && eIndex != YIELD_FOOD)
 	{
-		szRtnValue += GetLocalizedText("TXT_KEY_CITYVIEW_BASE_YIELD_TT_FROM_HEALTH", iBaseValue, YieldIcon);
+		iBaseValue = GetYieldFromHealth(eIndex);
+		if (iBaseValue != 0)
+		{
+			szRtnValue += GetLocalizedText("TXT_KEY_CITYVIEW_BASE_YIELD_TT_FROM_HEALTH", iBaseValue, YieldIcon);
+		}
 	}
+
+
+	if (eIndex == YIELD_DISEASE)
+	{
+		iBaseValue = getDiseaseFromConnectionAndTradeRoute();
+		if (iBaseValue != 0)
+		{
+			szRtnValue += GetLocalizedText("TXT_KEY_CITYVIEW_BASE_YIELD_TT_FROM_CITY_CONNECTION", iBaseValue, YieldIcon);
+		}
+	}
+
+	if (MOD_DISEASE_BREAK)
+	{
+		if (eIndex == YIELD_FOOD)
+		{
+			iBaseValue = getYieldRate(YIELD_HEALTH, false) - getYieldRate(YIELD_DISEASE, false);
+			if (iBaseValue < 0)
+			{
+				szRtnValue += GetLocalizedText("TXT_KEY_CITYVIEW_BASE_YIELD_TT_FROM_HEALTH", iBaseValue, YieldIcon);
+			}
+		}
+	}
+
 	iBaseValue = GetYieldFromHappiness(eIndex);
 	if(iBaseValue != 0)
 	{
 		szRtnValue += GetLocalizedText("TXT_KEY_CITYVIEW_BASE_YIELD_TT_FROM_HAPPINESS", iBaseValue, YieldIcon);
 	}
+
 	if (eIndex != YIELD_CRIME)
 	{
 		iBaseValue = GetYieldFromCrime(eIndex);
@@ -23812,7 +23934,6 @@ void CvCity::ChangeResourceFromImprovement(ResourceTypes eResource, ImprovementT
 	}
 }
 #endif
-
 
 
 
