@@ -166,6 +166,8 @@ CvPromotionEntry::CvPromotionEntry():
 	m_bNoResourcePunishment(false),
 	m_iCurrentHitPointAttackMod(0),
 	m_iCurrentHitPointDefenseMod(0),
+	m_iDoFallBackAttackMod(0),
+	m_iBeFallBackDefenseMod(0),
 #endif
 
 	m_iUpgradeDiscount(0),
@@ -571,6 +573,10 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_bNoResourcePunishment = kResults.GetBool("NoResourcePunishment");
 	m_iCurrentHitPointAttackMod = kResults.GetInt("CurrentHitPointAttackMod");
 	m_iCurrentHitPointDefenseMod = kResults.GetInt("CurrentHitPointDefenseMod");
+
+	m_iDoFallBackAttackMod = kResults.GetInt("DoFallBackAttackMod");
+	m_iBeFallBackDefenseMod = kResults.GetInt("BeFallBackDefenseMod");
+
 	m_iNearNumEnemyAttackMod = kResults.GetInt("NearNumEnemyAttackMod");
 	m_iNearNumEnemyDefenseMod = kResults.GetInt("NearNumEnemyDefenseMod");
 #endif
@@ -2192,7 +2198,15 @@ int CvPromotionEntry::GetCurrentHitPointDefenseMod() const
 	return m_iCurrentHitPointDefenseMod;
 }
 
+int CvPromotionEntry::GetDoFallBackAttackMod() const
+{
+	return m_iDoFallBackAttackMod;
+}
 
+int CvPromotionEntry::GetBeFallBackDefenseMod() const
+{
+	return m_iBeFallBackDefenseMod;
+}
 
 int CvPromotionEntry::GetNearNumEnemyAttackMod() const
 {

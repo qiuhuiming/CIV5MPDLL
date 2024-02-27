@@ -496,8 +496,11 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(GetAdjacentModifier);
 	Method(GetAttackModifier);
 	Method(GetDefenseModifier);
-
 #if defined(MOD_ROG_CORE)
+	Method(GetDoFallBackAttackMod);
+	Method(GetBeFallBackDefenseMod);
+	Method(GetNumTimesDoFallBackThisTurn);
+	Method(GetNumTimesBeFallBackThisTurn);
 	Method(GetMultiAttackBonus);
 	Method(GetMultiAttackBonusCity);
 	Method(GetNumAttacksMadeThisTurnAttackMod);
@@ -3701,6 +3704,40 @@ int CvLuaUnit::lGetDefenseModifier(lua_State* L)
 }
 
 #if defined(MOD_ROG_CORE)
+int CvLuaUnit::lGetDoFallBackAttackMod(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	const int iResult = pkUnit->GetDoFallBackAttackMod();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+
+
+int CvLuaUnit::lGetBeFallBackDefenseMod(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+
+	const int iResult = pkUnit->GetBeFallBackDefenseMod();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+
+int CvLuaUnit::lGetNumTimesDoFallBackThisTurn(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	const int iResult = pkUnit->GetNumTimesDoFallBackThisTurn();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+
+int CvLuaUnit::lGetNumTimesBeFallBackThisTurn(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+
+	const int iResult = pkUnit->GetNumTimesBeFallBackThisTurn();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
 //------------------------------------------------------------------------------
 int CvLuaUnit::lGetMultiAttackBonus(lua_State* L)
 {
