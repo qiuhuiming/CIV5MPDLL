@@ -313,31 +313,20 @@ CvUnit::CvUnit() :
 
 #if defined(MOD_ROG_CORE)
 		, m_iMeleeDefenseModifier("CvUnit::m_iMeleeDefenseModifier", m_syncArchive)
-
 		, m_iAoEDamageOnMove("CvUnit::m_iAoEDamageOnMove", m_syncArchive)
 		, m_iForcedDamage("CvUnit::m_iForcedDamage", m_syncArchive)
 		, m_iChangeDamage("CvUnit::m_iChangeDamage", m_syncArchive)
 		, m_iExtraAttackAboveHealthMod("CvUnit::m_iExtraAttackAboveHealthMod", m_syncArchive)
 		, m_iExtraAttackBelowHealthMod("CvUnit::m_iExtraAttackBelowHealthMod", m_syncArchive)
 		, m_iExtraFullyHealedMod("CvUnit::m_iExtraFullyHealedMod", m_syncArchive)
-#endif
-
-#if defined(MOD_ROG_CORE)
 		, m_iHPHealedIfDefeatEnemyGlobal("CvUnit::m_iHPHealedIfDefeatEnemyGlobal", m_syncArchive)
 		, m_iNumOriginalCapitalAttackMod("CvUnit::m_iNumOriginalCapitalAttackMod", m_syncArchive)
 		, m_iNumOriginalCapitalDefenseMod("CvUnit::m_iNumOriginalCapitalDefenseMod", m_syncArchive)
-#endif
-
-
-#if defined(MOD_ROG_CORE)
 		, m_iOnCapitalLandAttackMod("CvUnit::m_iOnCapitalLandAttackMod", m_syncArchive)
 		, m_iOutsideCapitalLandAttackMod("CvUnit::m_iOutsideCapitalLandAttackMod", m_syncArchive)
 		, m_iOnCapitalLandDefenseMod("CvUnit::m_iOnCapitalLandDefenseMod", m_syncArchive)
 		, m_iOutsideCapitalLandDefenseMod("CvUnit::m_iOutsideCapitalLandDefenseMod", m_syncArchive)
-#endif
 
-
-#if defined(MOD_ROG_CORE)
 		, m_iMultiAttackBonus("CvUnit::m_iMultiAttackBonus", m_syncArchive)
 		, m_iNumAttacksMadeThisTurnAttackMod("CvUnit::m_iNumAttacksMadeThisTurnAttackMod", m_syncArchive)
 		, m_iNumSpyDefenseMod("CvUnit::m_iNumSpyDefenseMod", m_syncArchive)
@@ -352,10 +341,12 @@ CvUnit::CvUnit() :
 
 		, m_iNoResourcePunishment("CvUnit::m_iNoResourcePunishment", m_syncArchive)
 
-
 		, m_iCurrentHitPointAttackMod("CvUnit::m_iCurrentHitPointAttackMod", m_syncArchive)
 		, m_iCurrentHitPointDefenseMod("CvUnit::m_iCurrentHitPointDefenseMod", m_syncArchive)
-
+		, m_iDoFallBackAttackMod("CvUnit::m_iDoFallBackAttackMod", m_syncArchive)
+		, m_iBeFallBackDefenseMod("CvUnit::m_iBeFallBackDefenseMod", m_syncArchive)
+		, m_aiNumTimesDoFallBackThisTurn("CvUnit::m_aiNumTimesDoFallBackThisTurn", m_syncArchive)
+		, m_aiNumTimesBeFallBackThisTurn("CvUnit::m_aiNumTimesBeFallBackThisTurn", m_syncArchive)
 		, m_iNearNumEnemyAttackMod("CvUnit::m_iNearNumEnemyAttackMod", m_syncArchive)
 		, m_iNearNumEnemyDefenseMod("CvUnit::m_iNearNumEnemyDefenseMod", m_syncArchive)
 #endif
@@ -906,6 +897,16 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 			setHasPromotion(ePromotionOceanImpassableUntilAstronomy, false);
 		}
 	}
+	if(IsCivilianUnit() && kPlayer.IsRemoveOceanImpassableCivilian())
+	{
+		PromotionTypes ePromotionOceanImpassable = (PromotionTypes)GC.getPROMOTION_OCEAN_IMPASSABLE();
+		setHasPromotion(ePromotionOceanImpassable, false);
+	}
+	if(IsCombatUnit() && kPlayer.IsRemoveOceanImpassableCombatUnit())
+	{
+		PromotionTypes ePromotionOceanImpassable = (PromotionTypes)GC.getPROMOTION_OCEAN_IMPASSABLE();
+		setHasPromotion(ePromotionOceanImpassable, false);
+	}
 
 	// Any exotic goods that can be sold? (Portuguese unique unit mission)
 	if (getUnitInfo().GetNumExoticGoods() > 0)
@@ -1286,13 +1287,8 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 #if defined(MOD_ROG_CORE)
 	m_iNearbyUnitPromotionBonus = 0;
 	m_iNearbyUnitPromotionBonusRange = 0;
-
 	m_iCombatBonusFromNearbyUnitPromotion = NO_PROMOTION;
-#endif
-
-#if defined(MOD_ROG_CORE)
 	m_iMeleeDefenseModifier = 0;
-
 	m_iAoEDamageOnMove = 0;
 	m_iForcedDamage = 0;
 	m_iChangeDamage = 0;
@@ -1336,10 +1332,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iNumOriginalCapitalAttackMod = 0;
 	m_iNumOriginalCapitalDefenseMod = 0;
 	m_iHPHealedIfDefeatEnemyGlobal = 0;
-#endif
 
-
-#if defined(MOD_ROG_CORE)
 	m_iMultiAttackBonus = 0;
 	m_iNumAttacksMadeThisTurnAttackMod = 0;
 	m_iNumSpyDefenseMod = 0;
@@ -1354,16 +1347,17 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iNumSpyStayAttackMod = 0;
 	m_iNoResourcePunishment = 0;
 
-
 	m_iCurrentHitPointAttackMod = 0;
 	m_iCurrentHitPointDefenseMod = 0;
 
+	m_iDoFallBackAttackMod = 0;
+	m_iBeFallBackDefenseMod = 0;
+	m_aiNumTimesDoFallBackThisTurn = 0;
+	m_aiNumTimesBeFallBackThisTurn = 0;
+
 	m_iNearNumEnemyAttackMod = 0;
 	m_iNearNumEnemyDefenseMod = 0;
-#endif
 
-
-#if defined(MOD_ROG_CORE)
 	m_iOnCapitalLandAttackMod = 0;
 	m_iOutsideCapitalLandAttackMod = 0;
 	m_iOnCapitalLandDefenseMod = 0;
@@ -2813,6 +2807,8 @@ void CvUnit::doTurn()
 	testPromotionReady();
 
 #if defined(MOD_ROG_CORE)
+	ChangeNumTimesDoFallBackThisTurn(-1 * GetNumTimesDoFallBackThisTurn());
+	ChangeNumTimesBeFallBackThisTurn(-1 * GetNumTimesBeFallBackThisTurn());
 
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
@@ -6523,6 +6519,50 @@ int CvUnit::GetCurrentHitPointDefenseMod() const
 }
 
 
+
+void CvUnit::ChangeDoFallBackAttackMod(int iValue)
+{
+	m_iDoFallBackAttackMod += iValue;
+}
+
+//	--------------------------------------------------------------------------------
+int CvUnit::GetDoFallBackAttackMod() const
+{
+	return m_iDoFallBackAttackMod;
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::ChangeBeFallBackDefenseMod(int iValue)
+{
+	m_iBeFallBackDefenseMod += iValue;
+}
+
+//	--------------------------------------------------------------------------------
+int CvUnit::GetBeFallBackDefenseMod() const
+{
+	return m_iBeFallBackDefenseMod;
+}
+
+
+void CvUnit::ChangeNumTimesDoFallBackThisTurn(int iChange)
+{
+	m_aiNumTimesDoFallBackThisTurn += iChange;
+}
+
+int CvUnit::GetNumTimesDoFallBackThisTurn() const
+{
+	return m_aiNumTimesDoFallBackThisTurn;
+}
+
+void CvUnit::ChangeNumTimesBeFallBackThisTurn(int iChange)
+{
+	m_aiNumTimesBeFallBackThisTurn += iChange;
+}
+
+int CvUnit::GetNumTimesBeFallBackThisTurn() const
+{
+	return m_aiNumTimesBeFallBackThisTurn;
+}
 
 void CvUnit::ChangeNearNumEnemyAttackMod(int iValue)
 {
@@ -14873,6 +14913,9 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 
 #if defined(MOD_ROG_CORE)
 	// Generic Attack bonus
+	iTempModifier = GetNumTimesDoFallBackThisTurn() * GetDoFallBackAttackMod();
+	iModifier += iTempModifier;
+
 	iTempModifier = GetNumAttacksMadeThisTurnAttackMod()* getNumAttacksMadeThisTurn();
 	iModifier += iTempModifier;
 
@@ -15204,11 +15247,11 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 			iModifier += attackFullyHealedModifier();
 
 #if defined(MOD_ROG_CORE)
-			//More than half?
-			if (pDefender->getDamage() < (pDefender->GetMaxHitPoints() / 2))
-				iModifier += attackAbove50HealthModifier();
-			else
-				iModifier += attackBelow50HealthModifier();
+		//More than half?
+		if (pDefender->getDamage() < (pDefender->GetMaxHitPoints() / 2))
+			iModifier += attackAbove50HealthModifier();
+		else
+			iModifier += attackBelow50HealthModifier();
 
 
 		int iSpyStayAttackModValue;
@@ -15267,6 +15310,9 @@ int CvUnit::GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker
 	int iModifier = GetGenericMaxStrengthModifier(pAttacker, pInPlot, /*bIgnoreUnitAdjacency*/ bFromRangedAttack);
 
 	// Generic Defense Bonus
+	iTempModifier = GetNumTimesBeFallBackThisTurn() * GetBeFallBackDefenseMod();
+	iModifier += iTempModifier;
+
 	iTempModifier = getDefenseModifier();
 	iModifier += iTempModifier;
 
@@ -16092,8 +16138,8 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 #if defined(MOD_ROG_CORE)
 
 		// Generic Attack bonus
-		iTempModifier = GetNumAttacksMadeThisTurnAttackMod() * getNumAttacksMadeThisTurn();
-		iModifier += iTempModifier;
+		iModifier += GetNumTimesDoFallBackThisTurn() * GetDoFallBackAttackMod();
+		iModifier += GetNumAttacksMadeThisTurnAttackMod() * getNumAttacksMadeThisTurn();
 
 
 		int iNumOriginalCapitalAttackMod = getNumOriginalCapitalAttackMod();
@@ -16427,6 +16473,7 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 		}
 #endif
 
+		iModifier += GetNumTimesBeFallBackThisTurn() * GetBeFallBackDefenseMod();
 		iModifier += getDefenseModifier();
 
 #if defined(MOD_DEFENSE_MOVES_BONUS)
@@ -19937,7 +19984,8 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 										{
 											bDoEvade = true;
 											pLoopUnit->DoFallBack(*this);
-
+											ChangeNumTimesDoFallBackThisTurn(1);
+											pLoopUnit->ChangeNumTimesBeFallBackThisTurn(1);
 											CvNotifications* pNotification = GET_PLAYER(pLoopUnit->getOwner()).GetNotifications();
 											if (pNotification)
 											{
@@ -22002,7 +22050,7 @@ void CvUnit::DoAdjacentPlotDamage(CvPlot* pWhere, int iValue)
 	int iY = pWhere->getY();
 
 
-	int iRadius = 2;
+	int iRadius = 1;
 	for (int i = -iRadius; i <= iRadius; ++i) {
 		for (int j = -iRadius; j <= iRadius; ++j) {
 			CvPlot* pLoopPlot = plotXYWithRangeCheck(iX, iY, i, j, 1);
@@ -26000,22 +26048,15 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		ChangePillageReplenishMoves((thisPromotion.GetPillageReplenishMoves()) * iChange);
 		ChangePillageReplenishAttckount(thisPromotion.PillageReplenishAttck() ? iChange : 0);
 		ChangePillageReplenishHealth((thisPromotion.GetPillageReplenishHealth())* iChange);
-
 		ChangeMoveLfetAttackMod(thisPromotion.GetMoveLfetAttackMod() * iChange);
 		ChangeMoveUsedAttackMod(thisPromotion.GetMoveUsedAttackMod() * iChange);
 		ChangeGoldenAgeMod(thisPromotion.GetGoldenAgeMod() * iChange);
 		ChangeAntiHigherPopMod(thisPromotion.GetAntiHigherPopMod()* iChange);
 		ChangeRangedSupportFireMod(thisPromotion.GetRangedSupportFireMod() * iChange);
-
 		changeMeleeDefenseModifier(thisPromotion.GetMeleeDefenseMod() * iChange);
-#endif
-
-
-#if defined(MOD_ROG_CORE)
 		changeHPHealedIfDefeatEnemyGlobal(thisPromotion.GetHPHealedIfDefeatEnemyGlobal() * iChange);
 		changeNumOriginalCapitalAttackMod(thisPromotion.GetNumOriginalCapitalAttackMod() * iChange);
 		changeNumOriginalCapitalDefenseMod(thisPromotion.GetNumOriginalCapitalDefenseMod() * iChange);
-
 		ChangeDamageAoEFortified((thisPromotion.GetDamageAoEFortified())* iChange);
 		ChangeMoraleBreakChance((thisPromotion.GetMoraleBreakChance()) * iChange);
 		ChangeIgnoreDamageChance((thisPromotion.GetIgnoreDamageChance()) * iChange);
@@ -26029,17 +26070,11 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		ChangeBarbarianCombatBonus((thisPromotion.GetBarbarianCombatBonus())* iChange);
 		changeAOEDamageOnKill(thisPromotion.GetAOEDamageOnKill()* iChange);
 		changeAOEDamageOnPillage(thisPromotion.GetAOEDamageOnPillage() * iChange);
-#endif
-
-
-#if defined(MOD_ROG_CORE)
 		changeOnCapitalLandAttackMod(thisPromotion.GetOnCapitalLandAttackMod()* iChange);
 		changeOutsideCapitalLandAttackMod(thisPromotion.GetOutsideCapitalLandAttackMod()* iChange);
 		changeOnCapitalLandDefenseMod(thisPromotion.GetOnCapitalLandDefenseMod()* iChange);
 		changeOutsideCapitalLandDefenseMod(thisPromotion.GetOutsideCapitalLandDefenseMod() * iChange);
-#endif
 
-#if defined(MOD_ROG_CORE)
 		changeMultiAttackBonus(thisPromotion.GetMultiAttackBonus()* iChange);
 		ChangeNumAttacksMadeThisTurnAttackMod(thisPromotion.GetNumAttacksMadeThisTurnAttackMod()* iChange);
 		ChangeNumSpyAttackMod(thisPromotion.GetNumSpyAttackMod() * iChange);
@@ -26054,10 +26089,11 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		ChangeNumSpyStayDefenseMod(thisPromotion.GetNumSpyStayDefenseMod()* iChange);
 		ChangeIsNoResourcePunishment(thisPromotion.IsNoResourcePunishment() ? iChange : 0);
 
-
 		ChangeCurrentHitPointAttackMod(thisPromotion.GetCurrentHitPointAttackMod() * iChange);
 		ChangeCurrentHitPointDefenseMod(thisPromotion.GetCurrentHitPointDefenseMod() * iChange);
 
+		ChangeDoFallBackAttackMod(thisPromotion.GetDoFallBackAttackMod()* iChange);
+		ChangeBeFallBackDefenseMod(thisPromotion.GetBeFallBackDefenseMod()* iChange);
 
 		ChangeNearNumEnemyAttackMod(thisPromotion.GetNearNumEnemyAttackMod() * iChange);
 		ChangeNearNumEnemyDefenseMod(thisPromotion.GetNearNumEnemyDefenseMod() * iChange);
@@ -31919,6 +31955,10 @@ void CvUnit::ChangeHeavyChargeCollateralPercent(int iChange)
 {
 	m_iHeavyChargeCollateralPercent += iChange;
 }
+
+
+
+
 
 
 #ifdef MOD_GLOBAL_CORRUPTION

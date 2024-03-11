@@ -49,6 +49,8 @@ ALTER TABLE UnitPromotions ADD 'NumOriginalCapitalDefenseMod' INTEGER DEFAULT 0;
 ALTER TABLE UnitPromotions ADD  'CanParadropAnyWhere' BOOLEAN DEFAULT 0;
 ALTER TABLE UnitPromotions_Domains ADD COLUMN 'Attack' INTEGER DEFAULT 0;
 ALTER TABLE UnitPromotions_Domains ADD COLUMN 'Defense' INTEGER DEFAULT 0;
+ALTER TABLE UnitPromotions ADD 'DoFallBackAttackMod' INTEGER DEFAULT 0;
+ALTER TABLE UnitPromotions ADD 'BeFallBackDefenseMod' INTEGER DEFAULT 0;
 ALTER TABLE Buildings ADD COLUMN 'LiberatedInfluence' INTEGER DEFAULT 0;  
 ALTER TABLE Buildings ADD COLUMN 'PopulationChange' INTEGER DEFAULT 0;
 ALTER TABLE Buildings ADD COLUMN 'RangedStrikeModifier' INTEGER DEFAULT 0;
@@ -244,3 +246,5 @@ ALTER TABLE HandicapInfos ADD StrategicResourceModPerEra INTEGER DEFAULT 0;
 
 ALTER TABLE Improvements ADD COLUMN 'RequiredAdjacentImprovement' TEXT DEFAULT NULL REFERENCES Improvements(Type);
 ALTER TABLE Improvements ADD COLUMN 'RequiredAdjacentCity' BOOLEAN DEFAULT 0;
+ALTER TABLE Units ADD COLUMN 'BarbarianCanTrait' BOOLEAN DEFAULT false;
+ALTER TABLE Units ADD COLUMN 'BarbarianTraitTechObsolete' BOOLEAN DEFAULT false;

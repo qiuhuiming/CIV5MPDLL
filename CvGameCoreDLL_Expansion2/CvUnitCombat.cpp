@@ -135,6 +135,15 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 		ctx.piDefenseInflictDamage = &iDefenderDamageInflicted;
 		ctx.bMelee = true;
 		InterveneInflictDamage(&ctx);
+
+		if (kAttacker.GetIgnoreDamageChance() > 0)
+		{
+			int iRand = GC.getGame().getJonRandNum(100, "Ignore Damage Chance");
+			if (iRand <= kAttacker.GetIgnoreDamageChance())
+			{
+				iDefenderDamageInflicted = 0;
+			}
+		}
 #endif
 
 		int iAttackerTotalDamageInflicted = iAttackerDamageInflicted + pkCity->getDamage();
@@ -238,6 +247,15 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 		ctx.piDefenseInflictDamage = &iDefenderDamageInflicted;
 		ctx.bMelee = true;
 		InterveneInflictDamage(&ctx);
+
+		if (kAttacker.GetIgnoreDamageChance() > 0)
+		{
+			int iRand = GC.getGame().getJonRandNum(100, "Ignore Damage Chance");
+			if (iRand <= kAttacker.GetIgnoreDamageChance())
+			{
+				iDefenderDamageInflicted = 0;
+			}
+		}
 
 		if (pkDefender->GetIgnoreDamageChance() > 0)
 		{
@@ -660,6 +678,8 @@ void CvUnitCombat::ResolveMeleeCombat(const CvCombatInfo& kCombatInfo, uint uiPa
 				if (pkAttacker->IsCanHeavyCharge() && !pkDefender->isDelayedDeath() && bAttackerDidMoreDamage)
 				{
 					pkDefender->DoFallBack(*pkAttacker);
+					pkAttacker->ChangeNumTimesDoFallBackThisTurn(1);
+					pkDefender->ChangeNumTimesBeFallBackThisTurn(1);
 					DoHeavyChargeEffects(pkAttacker, pkDefender, pkTargetPlot);
 				}
 
@@ -1264,7 +1284,8 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 							if (iRand <= pkAttacker->GetMoraleBreakChance())
 							{
 								pkDefender->DoFallBack(*pkAttacker);
-
+								pkAttacker->ChangeNumTimesDoFallBackThisTurn(1);
+								pkDefender->ChangeNumTimesBeFallBackThisTurn(1);
 								CvNotifications* pNotifications = GET_PLAYER(pkDefender->getOwner()).GetNotifications();
 								if (pNotifications)
 								{
@@ -1827,6 +1848,15 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 		ctx.bAirCombat = true;
 		InterveneInflictDamage(&ctx);
 
+		if (kAttacker.GetIgnoreDamageChance() > 0)
+		{
+			int iRand = GC.getGame().getJonRandNum(100, "Ignore Damage Chance");
+			if (iRand <= kAttacker.GetIgnoreDamageChance())
+			{
+				iDefenderDamageInflicted = 0;
+			}
+		}
+
 		if (pkDefender->GetIgnoreDamageChance() > 0)
 		{
 			int iRand = GC.getGame().getJonRandNum(100, "Ignore Damage Chance");
@@ -1913,6 +1943,15 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 		ctx.piDefenseInflictDamage = &iDefenderDamageInflicted;
 		ctx.bAirCombat = true;
 		InterveneInflictDamage(&ctx);
+
+		if (kAttacker.GetIgnoreDamageChance() > 0)
+		{
+			int iRand = GC.getGame().getJonRandNum(100, "Ignore Damage Chance");
+			if (iRand <= kAttacker.GetIgnoreDamageChance())
+			{
+				iDefenderDamageInflicted = 0;
+			}
+		}
 #endif
 
 
@@ -2415,6 +2454,15 @@ void CvUnitCombat::GenerateAirSweepCombatInfo(CvUnit& kAttacker, CvUnit* pkDefen
 		int iDefenderDamageInflicted = pkDefender->getCombatDamage(iDefenderStrength, iAttackerStrength, pkDefender->getDamage(), /*bIncludeRand*/ true, /*bAttackerIsCity*/ false, /*bDefenderIsCity*/ false);
 
 #if defined(MOD_ROG_CORE)
+		if (kAttacker.GetIgnoreDamageChance() > 0)
+		{
+			int iRand = GC.getGame().getJonRandNum(100, "Ignore Damage Chance");
+			if (iRand <= kAttacker.GetIgnoreDamageChance())
+			{
+				iDefenderDamageInflicted = 0;
+			}
+		}
+
 		if (pkDefender->GetIgnoreDamageChance() > 0)
 		{
 			int iRand = GC.getGame().getJonRandNum(100, "Ignore Damage Chance");
@@ -3684,7 +3732,8 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::Attack(CvUnit& kAttacker, CvPlot& targ
 	if(pDefender->getExtraWithdrawal() > 0 && pDefender->CanFallBack(kAttacker, true))
 	{
 		pDefender->DoFallBack(kAttacker);
-
+		kAttacker.ChangeNumTimesDoFallBackThisTurn(1);
+		pDefender->ChangeNumTimesBeFallBackThisTurn(1);
 		if(kAttacker.getOwner() == GC.getGame().getActivePlayer())
 		{
 			strBuffer = GetLocalizedText("TXT_KEY_MISC_ENEMY_UNIT_WITHDREW", pDefender->getNameKey());
