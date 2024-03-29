@@ -285,6 +285,52 @@ void CvBarbarians::Write(FDataStream& kStream)
 	kStream << ArrayWrapper<short>(iWorldNumPlots, m_aiPlotBarbCampNumUnitsSpawned);
 }
 
+template <typename T>
+static void shuffleVector(std::vector<T>& vec) {
+    for (int i = vec.size() - 1; i > 0; --i) {
+        int j = kGame.getJonRandNum((i + 1))
+
+        std::swap(vec[i], vec[j]);
+    }
+}
+
+void CvBarbarians::DoCities()
+{
+	CvGame &kGame = GC.getGame();
+	if (kGame.isOption(GAMEOPTION_NO_BARBARIANS))
+	{
+		return;
+	}
+	// if (!kGame.isOption(GAMEOPTION_BARBARIAN_KING))
+	// {
+	// 	return;
+	// }
+
+	ImprovementTypes eCamp = (ImprovementTypes)GC.getBARBARIAN_CAMP_IMPROVEMENT();
+	if (eCamp == NO_IMPROVEMENT) // barbarian camp is not avaiable. skip.
+	{
+		return;
+	}
+
+	CvMap &kMap = GC.getMap();
+	std::vector<CvPlot *> candidatePlotsToSpawnCity;
+	// Figure out how many Nonvisible tiles we have to base # of cities to spawn on
+	for (int iI = 0; iI < kMap.numPlots(); iI++)
+	{
+		CvPlot *pLoopPlot = kMap.plotByIndexUnchecked(iI);
+		if (pLoopPlot && pLoopPlot->getImprovementType() == eCamp && !pLoopPlot->isVisibleToCivTeam())
+		{
+			candidatePlotsToSpawnCity.push_back(pLoopPlot);
+		}
+	}
+
+	CvPlayerAI& kBarbarianPlayer = GET_PLAYER(BARBARIAN_PLAYER);
+	for (CvPlot* plot : candidatePlotsToSpawnCity)
+	{
+		kBarbarianPlayer.initCity(plot->getX(), plot->getY());
+	}
+}
+
 //	--------------------------------------------------------------------------------
 void CvBarbarians::DoCamps()
 {
