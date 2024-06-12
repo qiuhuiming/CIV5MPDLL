@@ -1,0 +1,3 @@
+[submodule "ThirdPartyLibs/asio"]
+	path = ThirdPartyLibs/asio
+	url = git@github.com:boostorg/asio.git
